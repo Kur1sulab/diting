@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/cli"
-	"github.com/Kur1sulab/atlas/engine-go/mockweb"
+	"github.com/Kur1sulab/shinra/engine-go/cli"
+	"github.com/Kur1sulab/shinra/engine-go/mockweb"
 
 	"recon-native/internal/store"
 )

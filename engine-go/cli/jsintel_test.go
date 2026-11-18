@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Kur1sulab/atlas/engine-go/mockweb"
+	"github.com/Kur1sulab/shinra/engine-go/mockweb"
 )
 
 func TestJSIntelCLIWiring(t *testing.T) {

@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
 )
 
 // secTransport 可注入传输层（单测打桩）；nil = netutil.ProbeTransport()。

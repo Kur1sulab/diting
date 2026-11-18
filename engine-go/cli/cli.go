@@ -1,7 +1,7 @@
-// Package cli：atlas 的全部 CLI 逻辑（子命令分发表与公共小工具）。
+// Package cli：shinra 的全部 CLI 逻辑（子命令分发表与公共小工具）。
 // 从根 main.go 拆出，供两个薄入口共用：
-//   - cmd/atlas/main.go（标准布局入口，go build ./cmd/atlas）
-//   - 根 main.go（兼容旧验收命令 go build -o atlas.exe .）
+//   - cmd/shinra/main.go（标准布局入口，go build ./cmd/shinra）
+//   - 根 main.go（兼容旧验收命令 go build -o shinra.exe .）
 package cli
 
 import (
@@ -14,70 +14,70 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/apiunauth"
-	"github.com/Kur1sulab/atlas/engine-go/asset"
-	"github.com/Kur1sulab/atlas/engine-go/baseline"
-	"github.com/Kur1sulab/atlas/engine-go/fingerprint"
-	"github.com/Kur1sulab/atlas/engine-go/icp"
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
-	"github.com/Kur1sulab/atlas/engine-go/patchdiff"
-	"github.com/Kur1sulab/atlas/engine-go/paths"
-	"github.com/Kur1sulab/atlas/engine-go/poc"
-	"github.com/Kur1sulab/atlas/engine-go/report"
-	"github.com/Kur1sulab/atlas/engine-go/reverseip"
-	"github.com/Kur1sulab/atlas/engine-go/subdomain"
+	"github.com/Kur1sulab/shinra/engine-go/apiunauth"
+	"github.com/Kur1sulab/shinra/engine-go/asset"
+	"github.com/Kur1sulab/shinra/engine-go/baseline"
+	"github.com/Kur1sulab/shinra/engine-go/fingerprint"
+	"github.com/Kur1sulab/shinra/engine-go/icp"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/patchdiff"
+	"github.com/Kur1sulab/shinra/engine-go/paths"
+	"github.com/Kur1sulab/shinra/engine-go/poc"
+	"github.com/Kur1sulab/shinra/engine-go/report"
+	"github.com/Kur1sulab/shinra/engine-go/reverseip"
+	"github.com/Kur1sulab/shinra/engine-go/subdomain"
 )
 
-const helpText = `atlas — 资产测绘引擎（Go 单文件内核，仅限授权测试）
+const helpText = `shinra — 资产测绘引擎（Go 单文件内核，仅限授权测试）
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
-  atlas all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
-  atlas subdomain -d example.com [--verify]
-  atlas verify -d example.com [-w 8]
-  atlas asset -d example.com           # ✅ c2（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
-  atlas reverse -i 203.0.113.7         # ✅ c2
-  atlas icp -d example.com             # ✅ c2（APIHZ_ID/APIHZ_KEY 可覆盖）
-  atlas api -u https://example.com     # ✅ c2（含取证模式）
-  atlas jsintel -u https://example.com # ✅ 第三轮（外链 JS ≤6 并发/≤2MB，只 GET）
-  atlas portscan -t 203.0.113.7        # ✅ 第三轮（常用端口表，并发 ≤32）
-  atlas fingerprint -u https://example.com
-  atlas paths -u https://example.com   # ✅ c2
-  atlas baseline -d example.com [--checks secheaders,webfiles]  # ✅ c2（域名暴露面基线 8 检查）
-  atlas poc -t https://example.com -p pocs/example.yaml  # ✅ c2（YAML 引擎）
-  atlas patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
+  shinra all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
+  shinra subdomain -d example.com [--verify]
+  shinra verify -d example.com [-w 8]
+  shinra asset -d example.com           # ✅ c2（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
+  shinra reverse -i 203.0.113.7         # ✅ c2
+  shinra icp -d example.com             # ✅ c2（APIHZ_ID/APIHZ_KEY 可覆盖）
+  shinra api -u https://example.com     # ✅ c2（含取证模式）
+  shinra jsintel -u https://example.com # ✅ 第三轮（外链 JS ≤6 并发/≤2MB，只 GET）
+  shinra portscan -t 203.0.113.7        # ✅ 第三轮（常用端口表，并发 ≤32）
+  shinra fingerprint -u https://example.com
+  shinra paths -u https://example.com   # ✅ c2
+  shinra baseline -d example.com [--checks secheaders,webfiles]  # ✅ c2（域名暴露面基线 8 检查）
+  shinra poc -t https://example.com -p pocs/example.yaml  # ✅ c2（YAML 引擎）
+  shinra patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
                                          # ✅ 补丁差分→变种狩猎（本地 git 仓库，零外联）
-  atlas report -t example.com          # ✅ c2（资产档案+证据包）
-  atlas version                        # 版本与构建平台自省（不发请求/不写产物）
+  shinra report -t example.com          # ✅ c2（资产档案+证据包）
+  shinra version                        # 版本与构建平台自省（不发请求/不写产物）
 `
 
 // Version 版本号，由构建时 ldflags 注入：
 //
-//	go build -ldflags "-X github.com/Kur1sulab/atlas/engine-go/cli.Version=v1.0.0"
+//	go build -ldflags "-X github.com/Kur1sulab/shinra/engine-go/cli.Version=v1.0.0"
 //
 // 未注入时保持 "dev"——本地 `go run` 与 `go build` 都不该伪装成正式版。
 // 存在的理由很实在：装了二进制却无法自证版本，报障时只能靠猜。
 var Version = "dev"
 
 // knownCmds 合法子命令集合（argparse 在解析阶段即拒绝未知子命令，进度事件
-// 不发——故 Run 只对集合内子命令包事件流）。与 atlas.py:164-187 的子解析器
+// 不发——故 Run 只对集合内子命令包事件流）。与 shinra.py:164-187 的子解析器
 // 一一对应；llm 槽位已随终修轮公开面清理删除（产品铁律：纯本地无 AI——
 // 原占位「llm 已弃用」提示一并退役，输 unknown 走 argparse 同款 exit 2）。
 var knownCmds = map[string]bool{
 	"all": true, "subdomain": true, "verify": true, "asset": true, "reverse": true,
 	"icp": true, "api": true, "fingerprint": true, "paths": true, "jsintel": true,
 	"portscan": true, "poc": true, "patchdiff": true, "report": true,
-	"baseline": true, // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python atlas.py 对齐项）
-	"version":  true, // 版本自省（Go 侧独有，Python atlas.py 无对应子命令）
+	"baseline": true, // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python shinra.py 对齐项）
+	"version":  true, // 版本自省（Go 侧独有，Python shinra.py 无对应子命令）
 }
 
 // Run 处理全局参数与子命令（args 不含程序名），返回进程退出码。
-// 14 个子命令与 Python atlas.py:137-212 一一对齐；本轮（c1）真实现
+// 14 个子命令与 Python shinra.py:137-212 一一对齐；本轮（c1）真实现
 // subdomain / verify / fingerprint，其余注册占位并 exit 2（防静默走错分支）；
 // llm 按铁律不移植（终修轮起连弃用占位槽位一并删除，见 knownCmds）。
 //
 // fix1（审计 medium#4）：补齐 --progress-file 全局参数层——桌面壳
 // desktop-go/internal/engine/runner.go 以「--progress-file 在子命令之前」为契约
-// 驱动进度状态机，事件键序与 atlas.py:31-62 逐项对齐（见 progress.go）。
+// 驱动进度状态机，事件键序与 shinra.py:31-62 逐项对齐（见 progress.go）。
 func Run(args []string) int {
 	if len(args) < 1 {
 		fmt.Print(helpText)
@@ -92,11 +92,11 @@ func Run(args []string) int {
 		return code
 	}
 	if progressFile == "" {
-		// 对齐 atlas.py:191：CLI 参数缺省时回退环境变量 RECON_PROGRESS_FILE
+		// 对齐 shinra.py:191：CLI 参数缺省时回退环境变量 RECON_PROGRESS_FILE
 		progressFile = os.Getenv("RECON_PROGRESS_FILE")
 	}
 	cmd := rest[0]
-	// fix3（audit low#6）：argparse 无 help 子命令——`atlas.py help` 是未知
+	// fix3（audit low#6）：argparse 无 help 子命令——`shinra.py help` 是未知
 	// 选择，解析阶段 exit 2（不发事件）；-h/--help 全局帮助仍 exit 0
 	if !knownCmds[cmd] {
 		// 对齐 argparse：未知子命令在解析阶段 exit 2，事件流不启动
@@ -110,7 +110,7 @@ func Run(args []string) int {
 	}
 	code = dispatch(cmd, rest[1:])
 	switch {
-	case cmd == "all": // atlas.py:250-256：all 无模块级收尾事件
+	case cmd == "all": // shinra.py:250-256：all 无模块级收尾事件
 		if code == 0 {
 			emit("pipeline_end", "pipeline", "done")
 		} else {
@@ -193,7 +193,7 @@ func dispatch(cmd string, rest []string) int {
 		fingerprint.RunFingerprint(url, out)
 		return 0
 
-	case "asset": // atlas.py:177-178：asset -d/--domain
+	case "asset": // shinra.py:177-178：asset -d/--domain
 		fs := newFlagSet()
 		domain := fs.String("d", "", "")
 		domainAlias := fs.String("domain", "", "")
@@ -212,7 +212,7 @@ func dispatch(cmd string, rest []string) int {
 		asset.RunAsset(d, out)
 		return 0
 
-	case "reverse": // atlas.py:179-180：reverse -i/--ip
+	case "reverse": // shinra.py:179-180：reverse -i/--ip
 		fs := newFlagSet()
 		ip := fs.String("i", "", "")
 		ipAlias := fs.String("ip", "", "")
@@ -238,7 +238,7 @@ func dispatch(cmd string, rest []string) int {
 		reverseip.RunReverse(target, out)
 		return 0
 
-	case "icp": // atlas.py:182-183：icp -d/--domain
+	case "icp": // shinra.py:182-183：icp -d/--domain
 		fs := newFlagSet()
 		domain := fs.String("d", "", "")
 		domainAlias := fs.String("domain", "", "")
@@ -263,7 +263,7 @@ func dispatch(cmd string, rest []string) int {
 		icp.RunICP(d, out)
 		return 0
 
-	case "api": // atlas.py:185-186：api -u/--url（含取证模式）
+	case "api": // shinra.py:185-186：api -u/--url（含取证模式）
 		fs := newFlagSet()
 		u := fs.String("u", "", "")
 		uAlias := fs.String("url", "", "")
@@ -284,7 +284,7 @@ func dispatch(cmd string, rest []string) int {
 		}
 		return 0
 
-	case "paths": // atlas.py:191-192：paths -u/--url（Go 侧补 --extra 补充字典，report §5.2）
+	case "paths": // shinra.py:191-192：paths -u/--url（Go 侧补 --extra 补充字典，report §5.2）
 		fs := newFlagSet()
 		u := fs.String("u", "", "")
 		uAlias := fs.String("url", "", "")
@@ -317,7 +317,7 @@ func dispatch(cmd string, rest []string) int {
 		}
 		return 0
 
-	case "poc": // atlas.py:198-199：poc -t/--target -p/--poc
+	case "poc": // shinra.py:198-199：poc -t/--target -p/--poc
 		fs := newFlagSet()
 		target := fs.String("t", "", "")
 		pocFile := fs.String("p", "", "")
@@ -327,10 +327,10 @@ func dispatch(cmd string, rest []string) int {
 		if *target == "" || *pocFile == "" {
 			return missingArgs(cmd, "poc -t <target> -p <poc>")
 		}
-		poc.RunPOC(*target, *pocFile) // atlas.py 不以命中与否改变退出码
+		poc.RunPOC(*target, *pocFile) // shinra.py 不以命中与否改变退出码
 		return 0
 
-	case "patchdiff": // atlas.py:208-213 / 266-270：-r/--repo 必填，--commit/--range/--limit/--emit-rule
+	case "patchdiff": // shinra.py:208-213 / 266-270：-r/--repo 必填，--commit/--range/--limit/--emit-rule
 		fs := newFlagSet()
 		repo := fs.String("r", "", "")
 		repoAlias := fs.String("repo", "", "")
@@ -346,7 +346,7 @@ func dispatch(cmd string, rest []string) int {
 		if r == "" {
 			return missingArgs(cmd, usage)
 		}
-		// 产物目录与 Python 一致：out/patchdiff（atlas.py:268 make_outdir("patchdiff")）
+		// 产物目录与 Python 一致：out/patchdiff（shinra.py:268 make_outdir("patchdiff")）
 		out, err := MakeOutdir("patchdiff")
 		if err != nil {
 			fmt.Printf("[!] 输出目录创建失败: %v\n", err)
@@ -365,7 +365,7 @@ func dispatch(cmd string, rest []string) int {
 		}
 		return 0
 
-	case "report": // atlas.py:204-206：report -t/--target -d/--domain（dest=target）
+	case "report": // shinra.py:204-206：report -t/--target -d/--domain（dest=target）
 		fs := newFlagSet()
 		target := fs.String("t", "", "")
 		targetAlias := fs.String("target", "", "")
@@ -438,7 +438,7 @@ func dispatch(cmd string, rest []string) int {
 		}
 		return 0
 
-	case "all": // atlas.py:120-178：一键全流程（目标自动识别 IP/域名，两条分支）
+	case "all": // shinra.py:120-178：一键全流程（目标自动识别 IP/域名，两条分支）
 		fs := newFlagSet()
 		target := fs.String("t", "", "")
 		targetAlias := fs.String("target", "", "")
@@ -466,7 +466,7 @@ func dispatch(cmd string, rest []string) int {
 
 	case "version":
 		// 只读自省：不创建输出目录、不发网络请求、不写任何产物。
-		fmt.Printf("atlas %s (%s %s/%s)\n", Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("shinra %s (%s %s/%s)\n", Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		return 0
 
 	default:
@@ -476,14 +476,14 @@ func dispatch(cmd string, rest []string) int {
 	}
 }
 
-// ── 与 atlas.py:30-63 对齐的公共小工具 ──
+// ── 与 shinra.py:30-63 对齐的公共小工具 ──
 
-// IsIP 等价 atlas.py:65-70 is_ip（ipaddress.ip_address 可解析即真）。
+// IsIP 等价 shinra.py:65-70 is_ip（ipaddress.ip_address 可解析即真）。
 // fix1（审计 low#9）：不做 TrimSpace——Python ip_address(" 1.2.3.4 ") 判假，
 // 此前 Go 侧 trim 后判真，属潜伏契约差异（c2 轮 all 实现时会生效）。
 func IsIP(s string) bool { return net.ParseIP(s) != nil }
 
-// outdirNameReplacer 目标 → 目录名清洗（fix1 P1，与 Python atlas.py make_outdir
+// outdirNameReplacer 目标 → 目录名清洗（fix1 P1，与 Python shinra.py make_outdir
 // 同步改，两引擎必须产出同名目录）：在原 :// 、/ 、: 基础上补齐
 // 反斜杠（Windows 路径分隔符，防 ..\.. 逃逸出 out/）与 Windows 非法字符
 // ? & = " < > | *（此前 query 原样进目录名：Windows 直接 mkdir 语法错误，
@@ -495,7 +495,7 @@ var outdirNameReplacer = strings.NewReplacer(
 )
 
 // OutdirName 目标 → 产物目录名的纯清洗函数（第一步 C 项拆出，不含 mkdir）：
-// 供桌面直调拼绝对产物目录，维持 Python atlas.py make_outdir / engine-go
+// 供桌面直调拼绝对产物目录，维持 Python shinra.py make_outdir / engine-go
 // MakeOutdir / desktop evidence.go outDirFor 三方同名契约。清洗规则与
 // MakeOutdir 逐字一致（同一实现，不得漂移）。
 func OutdirName(target string) string {
@@ -510,7 +510,7 @@ func OutdirName(target string) string {
 	return netutil.DefuseWindowsReservedStem(name)
 }
 
-// MakeOutdir 等价 atlas.py:73-76：out/<target 清洗>。
+// MakeOutdir 等价 shinra.py:73-76：out/<target 清洗>。
 // fix1（审计 medium#2 / low#6）：
 //   - 清洗后剔首尾点号与空格；结果为空或 ".."（纯穿越锚）回 "unknown"——
 //     此前 "..\..\x" 换 \ 后仍可能残留 ".." 组件，os.MkdirAll 在 out/ 之外
@@ -527,7 +527,7 @@ func MakeOutdir(target string) (string, error) {
 	return out, nil
 }
 
-// PickBase 等价 atlas.py:44-63：优先 https，status<500 即用，失败退 http。
+// PickBase 等价 shinra.py:44-63：优先 https，status<500 即用，失败退 http。
 // 授权测试允许内网目标，故显式 allowPrivate=true 放行私网（c2 轮 all 命令使用）。
 // fix1 P1：Follow 模式逐跳复验重定向落点（与入口同策略），与 RunFingerprint 一致。
 func PickBase(host string) string {
@@ -566,16 +566,16 @@ func parseOrUsage(fs *flag.FlagSet, args []string, cmd, usage string) int {
 	if errors.Is(err, flag.ErrHelp) {
 		// fix3（audit low#6）：子命令内 -h/--help 对齐 argparse——打印本命令
 		// 用法后 exit 0（此前 flag 包报参数错误 exit 2）
-		fmt.Printf("用法: atlas %s\n", usage)
+		fmt.Printf("用法: shinra %s\n", usage)
 		fs.PrintDefaults()
 		return 0
 	}
-	fmt.Printf("[!] 参数错误: %v\n  用法: atlas %s\n", err, usage)
+	fmt.Printf("[!] 参数错误: %v\n  用法: shinra %s\n", err, usage)
 	return 2
 }
 
 func missingArgs(cmd, usage string) int {
-	fmt.Printf("[!] 缺少必填参数（subcommand=%s）\n  用法: atlas %s\n", cmd, usage)
+	fmt.Printf("[!] 缺少必填参数（subcommand=%s）\n  用法: shinra %s\n", cmd, usage)
 	return 2
 }
 

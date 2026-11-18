@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/portscan"
+	"github.com/Kur1sulab/shinra/engine-go/portscan"
 )
 
 // portscanPy 复用 PythonBin 的统一解析（实跑探针 + ATLAS_PYTHON/PYTHON 优先）。

@@ -217,8 +217,8 @@ var DemoExtra = map[string]RealEntry{
 	"/config.php.bak":   {"text/plain", "<?php $db_pass='demo-not-real'; ?>"},
 	"/.git/config":      {"text/plain", "[core]\n	repositoryformatversion = 0\n"},
 	"/admin":            {"text/html", `<html><head><title>Admin Login</title></head><body><form>login</form></body></html>`},
-	"/": {"text/html; charset=utf-8", `<!doctype html><html><head><title>Atlas 演示靶站</title></head><body>
-<h1>Atlas 演示靶站</h1><p>本机演示用，暴露面全是假数据。</p></body></html>`},
+	"/": {"text/html; charset=utf-8", `<!doctype html><html><head><title>Shinra 演示靶站</title></head><body>
+<h1>Shinra 演示靶站</h1><p>本机演示用，暴露面全是假数据。</p></body></html>`},
 }
 
 // DemoHandler 是「根路径即靶站」的演示站点：Real + DemoExtra 摊在 / 下，

@@ -24,13 +24,13 @@ type AIConfig struct {
 
 // LoadAIConfig 从环境变量读配置；没配 key 也能给本地端点用。
 func LoadAIConfig() AIConfig {
-	base := firstEnv("ATLAS_AI_BASE", "OPENAI_BASE_URL")
+	base := firstEnv("SHINRA_AI_BASE", "ATLAS_AI_BASE", "OPENAI_BASE_URL")
 	if base == "" {
 		base = "https://api.openai.com/v1"
 	}
 	base = strings.TrimRight(base, "/")
-	key := firstEnv("ATLAS_AI_KEY", "OPENAI_API_KEY", "ATLAS_AI_TOKEN")
-	model := firstEnv("ATLAS_AI_MODEL", "OPENAI_MODEL")
+	key := firstEnv("SHINRA_AI_KEY", "ATLAS_AI_KEY", "OPENAI_API_KEY", "SHINRA_AI_TOKEN", "ATLAS_AI_TOKEN")
+	model := firstEnv("SHINRA_AI_MODEL", "ATLAS_AI_MODEL", "OPENAI_MODEL")
 	if model == "" {
 		model = "gpt-4o-mini"
 	}
@@ -43,7 +43,7 @@ func LoadAIConfig() AIConfig {
 		c.Ready = true
 		c.Note = "本地端点，未用 key"
 	default:
-		c.Note = "未配置 ATLAS_AI_KEY，AI 功能不可用；设置环境变量后重启 atlas serve"
+		c.Note = "未配置 SHINRA_AI_KEY，AI 功能不可用；设置环境变量后重启 shinra serve"
 	}
 	return c
 }

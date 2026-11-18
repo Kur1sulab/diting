@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/cli"
-	"github.com/Kur1sulab/atlas/engine-go/report"
-	"github.com/Kur1sulab/atlas/engine-go/subdomain"
+	"github.com/Kur1sulab/shinra/engine-go/cli"
+	"github.com/Kur1sulab/shinra/engine-go/report"
+	"github.com/Kur1sulab/shinra/engine-go/subdomain"
 )
 
 //go:embed web
@@ -35,9 +35,9 @@ type Server struct {
 	verifyFn func(ctx context.Context, out string, workers int, doHTTP bool) []subdomain.VerifyRow
 }
 
-// Run 是 `atlas serve` 的入口。
+// Run 是 `shinra serve` 的入口。
 //
-//	atlas serve [--addr 127.0.0.1:8788] [--open]
+//	shinra serve [--addr 127.0.0.1:8788] [--open]
 func Run(args []string) int {
 	addr := "127.0.0.1:8788"
 	open := false
@@ -51,14 +51,14 @@ func Run(args []string) int {
 		case "--open", "-open":
 			open = true
 		case "--help", "-h", "help":
-			fmt.Print(`atlas serve —— Web 控制台
+			fmt.Print(`shinra serve —— Web 控制台
 
-  atlas serve [--addr 127.0.0.1:8788] [--open]
+  shinra serve [--addr 127.0.0.1:8788] [--open]
 
-环境变量（AI 研判 / 问答）:
-  ATLAS_AI_BASE    OpenAI 兼容端点，默认 https://api.openai.com/v1
-  ATLAS_AI_KEY     API key；本地端点可留空
-  ATLAS_AI_MODEL   模型名，默认 gpt-4o-mini
+环境变量（AI 研判 / 问答；旧名 ATLAS_AI_* 仍兼容读取）:
+  SHINRA_AI_BASE    OpenAI 兼容端点，默认 https://api.openai.com/v1
+  SHINRA_AI_KEY     API key；本地端点可留空
+  SHINRA_AI_MODEL   模型名，默认 gpt-4o-mini
 `)
 			return 0
 		default:
@@ -82,7 +82,7 @@ func Run(args []string) int {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	url := "http://" + addr
-	fmt.Printf("atlas %s · Web 控制台\n", cli.Version)
+	fmt.Printf("shinra %s · Web 控制台\n", cli.Version)
 
 	// 端口被占（本地常驻代理很容易撞 8788）就顺延找空位，最多试 10 个。
 	ln, realAddr, lerr := listenWithFallback(addr, 10)
@@ -195,7 +195,7 @@ func (s *Server) verifyCall(ctx context.Context, out string, workers int) []subd
 
 func (s *Server) hEnv(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{
-		"name":     "atlas",
+		"name":     "shinra",
 		"version":  cli.Version,
 		"go":       runtime.Version(),
 		"platform": runtime.GOOS + "/" + runtime.GOARCH,
@@ -365,7 +365,7 @@ func (s *Server) hReport(w http.ResponseWriter, r *http.Request) {
 	}
 	b := report.Collect(j.Out, j.Target)
 	md := report.RenderMD(b)
-	name := "atlas-" + cli.OutdirName(j.Target) + ".md"
+	name := "shinra-" + cli.OutdirName(j.Target) + ".md"
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
 	w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
 	_, _ = w.Write([]byte(md))

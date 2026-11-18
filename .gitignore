@@ -15,5 +15,5 @@ __pycache__/
 .qa/
 
 # 本地构建产物（不入库）
-engine-go/atlas
-engine-go/atlas.exe
+engine-go/shinra
+engine-go/shinra.exe

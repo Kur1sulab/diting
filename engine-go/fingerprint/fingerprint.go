@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/jsonx"
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/jsonx"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
 )
 
 // Rule 单条指纹规则（Name/Where/Pattern/Type 与 Python dict 键一致）。
@@ -48,7 +48,7 @@ var Rules = []Rule{
 	{"Kibana", "body", `kbn-injected-metadata`, "devops"},
 	{"Elasticsearch", "body", `"you know, for search"|"cluster_name"\s*:`, "middleware"},
 	{"GitLab", "body", `"gitlab_url"|gon\.gitlab|gitlab-ee|gitlab-ce`, "devops"},
-	{"Jira", "body", `ajs-version-number|com-atlassian-jira`, "devops"},
+	{"Jira", "body", `ajs-version-number|com-shinrasian-jira`, "devops"},
 	{"phpMyAdmin", "body", `id="pma_username"|pma_password|name="pma_username"`, "tool"},
 	{"RabbitMQ", "body", `rabbitmq management`, "middleware"},
 	{"Harbor", "body", `harbor-logo|"harbor_version"`, "devops"},

@@ -1,1 +1,1 @@
-"""atlas modules"""
+"""shinra modules"""

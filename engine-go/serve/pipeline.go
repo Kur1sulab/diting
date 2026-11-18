@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/apiunauth"
-	"github.com/Kur1sulab/atlas/engine-go/cli"
-	"github.com/Kur1sulab/atlas/engine-go/fingerprint"
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
-	"github.com/Kur1sulab/atlas/engine-go/paths"
-	"github.com/Kur1sulab/atlas/engine-go/portscan"
-	"github.com/Kur1sulab/atlas/engine-go/subdomain"
+	"github.com/Kur1sulab/shinra/engine-go/apiunauth"
+	"github.com/Kur1sulab/shinra/engine-go/cli"
+	"github.com/Kur1sulab/shinra/engine-go/fingerprint"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/paths"
+	"github.com/Kur1sulab/shinra/engine-go/portscan"
+	"github.com/Kur1sulab/shinra/engine-go/subdomain"
 )
 
 // Result 是一次测绘的实测结果集（全部来自真实执行，无推演字段）。

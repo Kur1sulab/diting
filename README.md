@@ -1,16 +1,16 @@
-# 阿卡夏 Atlas · アカシャ
+# 森罗 · シンラ
 
-> 借自《Fate》《魔法禁书目录》的 **「阿卡夏记录」**——记录世间一切信息的档案。
+> 借自「森羅万象」——包罗一切，一眼尽收。
 > 把看不见的暴露面，一页一页记进册子。
 
 
-![tests](https://github.com/Kur1sulab/atlas/actions/workflows/tests.yml/badge.svg)
-![release](https://img.shields.io/github/v/release/Kur1sulab/atlas)
-![license](https://img.shields.io/github/license/Kur1sulab/atlas)
+![tests](https://github.com/Kur1sulab/shinra/actions/workflows/tests.yml/badge.svg)
+![release](https://img.shields.io/github/v/release/Kur1sulab/shinra)
+![license](https://img.shields.io/github/license/Kur1sulab/shinra)
 
 资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、资产测绘、指纹识别、敏感路径探测、
 API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
-Python 编排层 + Go 单文件内核（`atlas`，零第三方依赖）。
+Python 编排层 + Go 单文件内核（`shinra`，零第三方依赖）。
 
 > ⚠️ 仅限授权范围内的安全测试使用。禁止用于未授权目标。
 
@@ -31,12 +31,12 @@ Python 编排层 + Go 单文件内核（`atlas`，零第三方依赖）。
 | **patchdiff** | **补丁差分 → 变种狩猎**（本地 git 仓库：自动挑安全相关提交 → 按「被删的行=漏洞指纹 / 新增的行=补的检查」分类 hunk → 可导出 semgrep 变种规则；`--commit` 看单提交，`--range` 看区间，`--emit-rule` 出规则） |
 | **report** | **资产档案 + 证据包**（把所有模块产出聚合成 `report.md`：归属线索/子域存活/指纹/敏感路径/API 暴露 + 待人工跟进；并把 `evidence/` 打成 zip 随提交稿交付；`all` 自动生成） |
 | ~~llm~~ | **已弃用**：需向第三方服务发送扫描数据，为守住数据不出本机的红线整体移除（Python 与 Go 引擎同步）。**现由 Web 控制台的 `AI 研判` 承接**：默认关闭、显式配置才启用、只发压缩后的实测摘要，且可指向本地端点（详见「Web 控制台」一节） |
-| **version** | **版本自省**（Go 侧独有）：`atlas version` 打印版本号与构建平台（`go1.24.x darwin/arm64`）。版本号由构建时 ldflags 注入，未注入显示 `dev`；纯只读，不发请求不写产物 |
+| **version** | **版本自省**（Go 侧独有）：`shinra version` 打印版本号与构建平台（`go1.24.x darwin/arm64`）。版本号由构建时 ldflags 注入，未注入显示 `dev`；纯只读，不发请求不写产物 |
 
 ## 架构
 
 ```
-target → atlas.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
+target → shinra.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
                                               ↓
                                        poc_engine（YAML 模板）
                                               ↓
@@ -50,20 +50,20 @@ target → atlas.py → subdomain / asset / fingerprint / paths / jsintel / port
 
 | 平台 | 文件 |
 |---|---|
-| macOS Apple Silicon | `atlas-darwin-arm64` |
-| macOS Intel | `atlas-darwin-amd64` |
-| Linux x86_64 | `atlas-linux-amd64` |
-| Linux arm64 | `atlas-linux-arm64` |
+| macOS Apple Silicon | `shinra-darwin-arm64` |
+| macOS Intel | `shinra-darwin-amd64` |
+| Linux x86_64 | `shinra-linux-amd64` |
+| Linux arm64 | `shinra-linux-arm64` |
 
 ```bash
 # macOS Apple Silicon 为例
-curl -L -o atlas https://github.com/Kur1sulab/atlas/releases/latest/download/atlas-darwin-arm64
-chmod +x atlas && sudo mv atlas /usr/local/bin/
-atlas version
+curl -L -o shinra https://github.com/Kur1sulab/shinra/releases/latest/download/shinra-darwin-arm64
+chmod +x shinra && sudo mv shinra /usr/local/bin/
+shinra version
 ```
 
-macOS 首次运行若提示「无法验证开发者」：`xattr -d com.apple.quarantine /usr/local/bin/atlas`。
-校验用同页 `SHA256SUMS.txt`（`shasum -a 256 -c SHA256SUMS.txt`），全部产物见 [Releases](https://github.com/Kur1sulab/atlas/releases)。
+macOS 首次运行若提示「无法验证开发者」：`xattr -d com.apple.quarantine /usr/local/bin/shinra`。
+校验用同页 `SHA256SUMS.txt`（`shasum -a 256 -c SHA256SUMS.txt`），全部产物见 [Releases](https://github.com/Kur1sulab/shinra/releases)。
 
 ### 从源码（Python 编排层）
 
@@ -74,38 +74,38 @@ pip install -r requirements.txt
 
 ## Go 引擎（engine-go/）
 
-同一套引擎的纯 Go 重写（`atlas` 单文件、零外网测试、Python↔Go parity 全量对齐），
-子命令与 `python src/atlas.py` 一一对齐。详见 `engine-go/README.md`、
+同一套引擎的纯 Go 重写（`shinra` 单文件、零外网测试、Python↔Go parity 全量对齐），
+子命令与 `python src/shinra.py` 一一对齐。详见 `engine-go/README.md`、
 `docs/PARITY.md`（双引擎对照）与 `docs/TEST-PORT.md`（测试平移清点）。
 
 ```bash
 # 构建（Go 1.24+；仅在拉取 yaml.v3 时需代理）
 cd engine-go
-GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o atlas.exe ./cmd/atlas
+GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o shinra.exe ./cmd/shinra
 C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（python 缺失时 parity 自动 skip）
 
 # 用法（子命令与 Python 版同名同参）
-./atlas.exe subdomain -d example.com --verify
-./atlas.exe api -u https://example.com          # 含取证模式
-./atlas.exe report -t example.com               # 资产档案 + 证据包
-# ...其余子命令见 ./atlas.exe（无参数打印对照 help）
+./shinra.exe subdomain -d example.com --verify
+./shinra.exe api -u https://example.com          # 含取证模式
+./shinra.exe report -t example.com               # 资产档案 + 证据包
+# ...其余子命令见 ./shinra.exe（无参数打印对照 help）
 ```
 
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
 api / paths / jsintel / portscan / poc / patchdiff / report / **serve**（jsintel 见
 `engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
-侧 llm_assist.py 已整体移除、atlas.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
+侧 llm_assist.py 已整体移除、shinra.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
 **AI 只以 Web 控制台的可选研判形式存在**（见下节），默认关闭，不发任何请求。
 
-## Web 控制台（`atlas serve`）
+## Web 控制台（`shinra serve`）
 
 浏览器里跑整条流水线：任务列表、实时进度条、日志流、资产明细、AI 研判、报告导出。
 
 ![Web 控制台](docs/images/web-console.png)
 
 ```bash
-atlas serve                                  # 默认 http://127.0.0.1:8788
-atlas serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
+shinra serve                                  # 默认 http://127.0.0.1:8788
+shinra serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
 ```
 
 - 只绑回环地址、不对外暴露；页面禁缓存，前端改完刷新即见
@@ -117,7 +117,7 @@ atlas serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
 
 ### 配色主题
 
-默认**纸白**，左下角三个色块可切，选择记在 `localStorage['atlas-theme']`，刷新不闪色：
+默认**纸白**，左下角三个色块可切，选择记在 `localStorage['shinra-theme']`，刷新不闪色：
 
 | 主题 | 底色 | 强调色 | 场景 |
 |------|------|--------|------|
@@ -141,7 +141,7 @@ atlas serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
 
 ```bash
 go run ./cmd/mocksite -addr 127.0.0.1:18080   # 起本地演示靶站（暴露面全是假数据）
-atlas serve                                    # 然后在界面里扫 127.0.0.1:18080
+shinra serve                                    # 然后在界面里扫 127.0.0.1:18080
 ```
 
 ### AI 研判（可选，默认关闭）
@@ -153,7 +153,7 @@ atlas serve                                    # 然后在界面里扫 127.0.0.1
 export ATLAS_AI_BASE=https://api.openai.com/v1   # 任意 OpenAI 兼容端点
 export ATLAS_AI_KEY=sk-...
 export ATLAS_AI_MODEL=gpt-4o-mini                # 默认值
-atlas serve
+shinra serve
 ```
 
 要数据不出本机，把 `ATLAS_AI_BASE` 指向本地推理端点（本地地址不要求 key）：
@@ -174,22 +174,22 @@ HTTP 接口（给脚本用）：`GET /api/env`、`POST /api/jobs`、`GET /api/jo
 
 ```bash
 export FOFA_EMAIL=... FOFA_KEY=... HUNTER_KEY=...   # Windows: setx
-python src/atlas.py all -d example.com        # 域名全流程
-python src/atlas.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
-python src/atlas.py subdomain -d example.com  # 仅子域
-python src/atlas.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
-python src/atlas.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
-python src/atlas.py asset -d example.com      # 仅资产测绘
-python src/atlas.py reverse -i 47.100.49.228  # 仅 IP 反查域名
-python src/atlas.py icp -d example.com        # 仅 ICP 备案查询
-python src/atlas.py api -u https://example.com        # 仅 API 文档/未授权探测
-python src/atlas.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
-python src/atlas.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
-python src/atlas.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
-python src/atlas.py fingerprint -u https://example.com
-python src/atlas.py paths -u https://example.com
-python src/atlas.py poc -t https://example.com -p pocs/example-http-detect.yaml
-python src/atlas.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
+python src/shinra.py all -d example.com        # 域名全流程
+python src/shinra.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
+python src/shinra.py subdomain -d example.com  # 仅子域
+python src/shinra.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
+python src/shinra.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
+python src/shinra.py asset -d example.com      # 仅资产测绘
+python src/shinra.py reverse -i 47.100.49.228  # 仅 IP 反查域名
+python src/shinra.py icp -d example.com        # 仅 ICP 备案查询
+python src/shinra.py api -u https://example.com        # 仅 API 文档/未授权探测
+python src/shinra.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
+python src/shinra.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
+python src/shinra.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
+python src/shinra.py fingerprint -u https://example.com
+python src/shinra.py paths -u https://example.com
+python src/shinra.py poc -t https://example.com -p pocs/example-http-detect.yaml
+python src/shinra.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
 ```
 
 `all` 跑完会自动生成 `out/<目标>/report.md`（资产档案）与 `out/<目标>/evidence-<目标>-<时间>.zip`（证据包，仅在有过存活取证时）。
@@ -224,8 +224,8 @@ requests:
 
 `llm` 模块（LLM 辅助解读）已**整体移除**：它会把子域/资产/指纹/敏感路径打包
 POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与「扫描数据不出
-本机」的形态红线冲突。Python 版 `atlas.py all` 不再调用该步骤，`atlas.py llm`
-打印弃用提示并以退出码 2 结束（与 Go 版 `atlas llm` 行为一致）；
+本机」的形态红线冲突。Python 版 `shinra.py all` 不再调用该步骤，`shinra.py llm`
+打印弃用提示并以退出码 2 结束（与 Go 版 `shinra llm` 行为一致）；
 `modules/llm_assist.py` 已删除。
 
 ## 效果
@@ -246,7 +246,7 @@ POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与�
 ## 目录
 
 ```
-src/atlas.py            CLI 入口
+src/shinra.py            CLI 入口
 src/modules/            各功能模块
 pocs/                   YAML POC 模板
 tests/                  单元测试

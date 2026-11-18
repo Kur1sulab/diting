@@ -1,4 +1,4 @@
-// Package serve：atlas 的 Web 控制台后端。
+// Package serve：shinra 的 Web 控制台后端。
 //
 // 定位：把 engine-go 里现成的侦察能力（subdomain / portscan / paths /
 // apiunauth / fingerprint）编排成可观测的任务流水线，用一杯 HTTP + SSE

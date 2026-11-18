@@ -1,8 +1,8 @@
-// recon-desktop —— atlas 桌面壳（go-webview2）。
+// recon-desktop —— shinra 桌面壳（go-webview2）。
 //
 // 形态：纯工具。Go 起 127.0.0.1 本地服务（六接口 + 内嵌前端），
 // WebView2 窗口加载该地址；扫描引擎是既有 Python 流水线，
-// 由 internal/engine 以子进程方式管理（python src/atlas.py <子命令>）。
+// 由 internal/engine 以子进程方式管理（python src/shinra.py <子命令>）。
 //
 // 用法：
 //
@@ -114,7 +114,7 @@ func main() {
 		AutoFocus: true,
 		DataPath:  filepath.Join(dataDir, "webview"),
 		WindowOptions: webview2.WindowOptions{
-			Title:  "信息收集工具 · atlas",
+			Title:  "信息收集工具 · shinra",
 			Width:  wcfg.W,
 			Height: wcfg.H,
 			Center: true,
@@ -164,7 +164,7 @@ func main() {
 	shutdown()
 }
 
-// findRepoRoot 从 exe 目录与 cwd 向上找 src/atlas.py（≤4 层），找不到回 "."。
+// findRepoRoot 从 exe 目录与 cwd 向上找 src/shinra.py（≤4 层），找不到回 "."。
 func findRepoRoot() string {
 	var candidates []string
 	if exe, err := os.Executable(); err == nil {
@@ -181,7 +181,7 @@ func findRepoRoot() string {
 		}
 	}
 	for _, c := range candidates {
-		if _, err := os.Stat(filepath.Join(c, "src", "atlas.py")); err == nil {
+		if _, err := os.Stat(filepath.Join(c, "src", "shinra.py")); err == nil {
 			return c
 		}
 	}

@@ -33,7 +33,7 @@ import (
 	"unicode/utf8"
 )
 
-// DefaultLimit 自动挑提交时的默认上限（patchdiff.py:57 / atlas.py:212：-n 20）。
+// DefaultLimit 自动挑提交时的默认上限（patchdiff.py:57 / shinra.py:212：-n 20）。
 const DefaultLimit = 20
 
 // gitTimeout 单条 git 命令上限，对齐 patchdiff.py:45 的 timeout=120。

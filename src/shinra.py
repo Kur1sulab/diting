@@ -3,17 +3,17 @@
 """SRC 信息收集自动化工具 CLI 入口。
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
-  python src/atlas.py all -t example.com          # 域名全流程
-  python src/atlas.py all -t 47.100.49.228        # IP 全流程（反查域名→ICP→指纹→API）
-  python src/atlas.py subdomain -d example.com
-  python src/atlas.py reverse -i 47.100.49.228    # IP 反查域名
-  python src/atlas.py icp -d example.com          # ICP 备案查询
-  python src/atlas.py api -u https://example.com  # API 文档/未授权探测
-  python src/atlas.py jsintel -u https://example.com  # JS 情报提取（端点/敏感线索/域名）
-  python src/atlas.py portscan -t 47.100.49.228   # 常用端口扫描（仅限授权目标）
-  python src/atlas.py fingerprint -u https://example.com
-  python src/atlas.py paths -u https://example.com
-  python src/atlas.py poc -t https://example.com -p pocs/example.yaml
+  python src/shinra.py all -t example.com          # 域名全流程
+  python src/shinra.py all -t 47.100.49.228        # IP 全流程（反查域名→ICP→指纹→API）
+  python src/shinra.py subdomain -d example.com
+  python src/shinra.py reverse -i 47.100.49.228    # IP 反查域名
+  python src/shinra.py icp -d example.com          # ICP 备案查询
+  python src/shinra.py api -u https://example.com  # API 文档/未授权探测
+  python src/shinra.py jsintel -u https://example.com  # JS 情报提取（端点/敏感线索/域名）
+  python src/shinra.py portscan -t 47.100.49.228   # 常用端口扫描（仅限授权目标）
+  python src/shinra.py fingerprint -u https://example.com
+  python src/shinra.py paths -u https://example.com
+  python src/shinra.py poc -t https://example.com -p pocs/example.yaml
 
 仅限授权范围内的安全测试使用。
 """
@@ -179,7 +179,7 @@ def cmd_all(args):
 
 
 def main():
-    p = argparse.ArgumentParser(prog="atlas", description="SRC 信息收集自动化工具（仅限授权测试）")
+    p = argparse.ArgumentParser(prog="shinra", description="SRC 信息收集自动化工具（仅限授权测试）")
     p.add_argument("--progress-file", dest="progress_file", default="",
                    help="进度事件 JSONL 落盘路径（桌面壳用；空或环境变量 RECON_PROGRESS_FILE 均可）")
     sub = p.add_subparsers(dest="cmd")

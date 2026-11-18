@@ -3,7 +3,7 @@ package engine
 // reconmods.go —— 第三轮升级接入的两个新模块（jsintel / portscan）的进程内直调实现。
 //
 // 参数口径与 engine-go cli 的对应子命令一致（默认值来自各自包的 Default* 常量，
-// 即 atlas.py argparse 的默认值）：jsintel --max-files 60 / --workers 6；
+// 即 shinra.py argparse 的默认值）：jsintel --max-files 60 / --workers 6；
 // portscan --ports "" / --timeout 1.5 / --workers 32。
 // 目标归一：jsintel 吃 URL（session 层 isURLCmd 已保证带协议），portscan 吃裸域名/IP。
 
@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Kur1sulab/atlas/engine-go/jsintel"
-	"github.com/Kur1sulab/atlas/engine-go/portscan"
+	"github.com/Kur1sulab/shinra/engine-go/jsintel"
+	"github.com/Kur1sulab/shinra/engine-go/portscan"
 )
 
 // extraInt 读整数旗标（缺省/非法回落 def；与 argparse 的 int 解析同口径：

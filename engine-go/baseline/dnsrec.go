@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
 )
 
 // DoHBase DoH JSON API（免 key；可注入换靶）。

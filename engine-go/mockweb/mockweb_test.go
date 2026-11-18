@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/atlas/engine-go/internal/parity"
+	"github.com/Kur1sulab/shinra/engine-go/internal/parity"
 )
 
 // TestScenarios 纯 Go 结构测试：各场景路由/状态码/内容片段（不依赖 python）。

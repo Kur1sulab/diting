@@ -1,8 +1,8 @@
 package cli
 
 // patchdiff_cli_test.go —— patchdiff 子命令门面验收：
-//   - 参数与 atlas.py:208-213 对齐（-r/--repo 必填、--commit/--range/--limit/--emit-rule）；
-//   - 产物落 out/patchdiff（对齐 atlas.py:268 make_outdir("patchdiff")）；
+//   - 参数与 shinra.py:208-213 对齐（-r/--repo 必填、--commit/--range/--limit/--emit-rule）；
+//   - 产物落 out/patchdiff（对齐 shinra.py:268 make_outdir("patchdiff")）；
 //   - 退出码契约：缺参/参数类型错 → 2（argparse 口径）、非 git 仓库 → 1（Go 侧 fail 口径）；
 //   - -h → 0（与其它子命令同款）。
 //
@@ -114,7 +114,7 @@ func TestPatchdiffCLINotGitRepo(t *testing.T) {
 	if code := Run([]string{"patchdiff", "-r", dir}); code != 1 {
 		t.Fatalf("非 git 仓库应 exit 1（Go 侧 fail 口径），得 %d", code)
 	}
-	// 目录仍按 Python 语义先建出来（atlas.py:268 在 run_patchdiff 之前 make_outdir）
+	// 目录仍按 Python 语义先建出来（shinra.py:268 在 run_patchdiff 之前 make_outdir）
 	if _, err := os.Stat(filepath.Join("out", "patchdiff")); err != nil {
 		t.Errorf("输出目录应先创建: %v", err)
 	}

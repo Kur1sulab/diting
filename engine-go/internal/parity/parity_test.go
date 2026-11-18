@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/atlas/engine-go/fingerprint"
-	"github.com/Kur1sulab/atlas/engine-go/mockweb"
-	"github.com/Kur1sulab/atlas/engine-go/netutil"
-	"github.com/Kur1sulab/atlas/engine-go/subdomain"
-	"github.com/Kur1sulab/atlas/engine-go/toolrun"
+	"github.com/Kur1sulab/shinra/engine-go/fingerprint"
+	"github.com/Kur1sulab/shinra/engine-go/mockweb"
+	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/shinra/engine-go/subdomain"
+	"github.com/Kur1sulab/shinra/engine-go/toolrun"
 )
 
 // 本文件是 Python↔Go parity 断言矩阵。两引擎打同一个 mockweb 靶站；
