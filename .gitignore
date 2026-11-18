@@ -15,5 +15,5 @@ __pycache__/
 .qa/
 
 # 本地构建产物（不入库）
-engine-go/shinra
-engine-go/shinra.exe
+engine-go/yata
+engine-go/yata.exe

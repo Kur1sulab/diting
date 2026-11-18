@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // 可注入的数据源 URL 模板（%s = url.Values.Encode() 后的 query）。

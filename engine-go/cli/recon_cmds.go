@@ -1,19 +1,19 @@
 package cli
 
 // recon_cmds.go —— 第二轮升级三个子命令（jsintel / portscan / patchdiff）的门面。
-// 参数与 shinra.py:196-213 的 argparse 定义逐项对齐（含默认值），
+// 参数与 yata.py:196-213 的 argparse 定义逐项对齐（含默认值），
 // 具体实现在 engine-go/jsintel、engine-go/portscan、engine-go/patchdiff。
 //
 // 与 Python 侧的对齐点（逐项可对照）：
-//   jsintel   shinra.py:198-200 → run_jsintel(url, out, workers=6, max_files=60)
-//   portscan  shinra.py:201-204 → run_portscan(target, out, ports="", timeout=1.5, workers=32)
-//   patchdiff shinra.py:211-213 → run_patchdiff(repo, commit, range, limit=20, emit_rule, outdir=out/patchdiff)
+//   jsintel   yata.py:198-200 → run_jsintel(url, out, workers=6, max_files=60)
+//   portscan  yata.py:201-204 → run_portscan(target, out, ports="", timeout=1.5, workers=32)
+//   patchdiff yata.py:211-213 → run_patchdiff(repo, commit, range, limit=20, emit_rule, outdir=out/patchdiff)
 
 import (
 	"fmt"
 
-	"github.com/Kur1sulab/shinra/engine-go/jsintel"
-	"github.com/Kur1sulab/shinra/engine-go/portscan"
+	"github.com/Kur1sulab/yata/engine-go/jsintel"
+	"github.com/Kur1sulab/yata/engine-go/portscan"
 )
 
 // dispatchRecon 分发 jsintel / portscan 两个子命令（patchdiff 的 case 在 cli.go）。
@@ -54,7 +54,7 @@ func cmdJSIntel(rest []string) int {
 }
 
 // dispatchPortscan：portscan -t/--target [--ports ""] [--timeout 1.5] [--workers 32]
-// 逐项对齐 shinra.py:201-204 的 argparse；`all` 流水线里的同名步骤在 port_step.go。
+// 逐项对齐 yata.py:201-204 的 argparse；`all` 流水线里的同名步骤在 port_step.go。
 func dispatchPortscan(rest []string) int {
 	fs := newFlagSet()
 	t := fs.String("t", "", "")

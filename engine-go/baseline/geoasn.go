@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // geoSource 免 key 归属源（name 供字段映射分派；urlBase 拼接 ip）。

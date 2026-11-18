@@ -1,6 +1,6 @@
 # REVIEW-merged.md —— 集成轮（engine-go 公开化 + desktop-native 直调重写）独立冷复核
 
-> 复核员未参与本轮施工（冷复核）。复核对象 = 仓库 `shinra` HEAD `88a9d1c`
+> 复核员未参与本轮施工（冷复核）。复核对象 = 仓库 `yata` HEAD `88a9d1c`
 > **+ 暂存区（staged）201 项改动**——本轮施工成果（engine-go internal→顶层公开包、
 > desktop 子进程壳退役改进程内直调）尚未提交，`git status --short` 实证 staged 201 项、
 > 未 staged 仅 `docs/GOAL-20261002-go-desktop.md`（基线轮总结，文档）。两线 build+test
@@ -21,18 +21,18 @@ os/exec 外部工具子进程通道在合并二进制内存活，见 §一）；
 复核员亲跑 `go build` 重建两 exe 后 `go version -m`（验后两 exe 已删）：
 
 ```
-$ go version -m engine-go/shinra-review-merged.exe
-	engine-go/shinra-review-merged.exe: go1.24.1
-	path	github.com/Kur1sulab/shinra/engine-go
+$ go version -m engine-go/yata-review-merged.exe
+	engine-go/yata-review-merged.exe: go1.24.1
+	path	github.com/Kur1sulab/yata/engine-go
 	dep	gopkg.in/yaml.v3	v3.0.1	h1:fxVm/…7CA=
 	build	CGO_ENABLED=0
 	build	GOOS=windows  GOARCH=amd64
 
-$ go version -m desktop-native/recon-native-review-merged.exe
-	desktop-native/recon-native-review-merged.exe: go1.24.1
-	path	recon-native
+$ go version -m desktop-native/yata-native-review-merged.exe
+	desktop-native/yata-native-review-merged.exe: go1.24.1
+	path	yata-native
 	dep	gioui.org	v0.10.3
-	dep	github.com/Kur1sulab/shinra/engine-go	v0.0.0-…  => ../engine-go (devel)
+	dep	github.com/Kur1sulab/yata/engine-go	v0.0.0-…  => ../engine-go (devel)
 	dep	golang.org/x/{sys v0.39.0, net v0.48.0, image, text, exp/shiny}
 	dep	gopkg.in/yaml.v3	v3.0.1  // indirect（经 engine）
 	build	CGO_ENABLED=0
@@ -81,7 +81,7 @@ engine-go/toolrun/scanutil.go:9
 ### 1.3 仓库目录依赖 / 临时目录自足 ◐
 
 - **任务库/设置/证据包自足 ✅**：`session.go:286-294` dataDir =
-  `%LOCALAPPDATA%\recon-native`（退 UserConfigDir / `.recon-native`）；tasks.json、
+  `%LOCALAPPDATA%\yata-native`（退 UserConfigDir / `.yata-native`）；tasks.json、
   settings.json、evidence/*.zip 全在 dataDir 下（store.go:35、settings.go:23、
   evidence.go:114）。
 - **扫描产物 out/ 有仓库/cwd 倾向 ◐**：`session.go:262-283 findRepoRoot()` 从 exe
@@ -166,42 +166,42 @@ engine 线（`cd engine-go`）：
 ```
 $ go version
 go version go1.24.1 windows/amd64
-$ go build ./... && go build -o shinra-review-merged.exe .
+$ go build ./... && go build -o yata-review-merged.exe .
 （无输出，退出码 0；exe 10,924,544 B，验后已删）
 $ go test -count=1 ./...
-?   	github.com/Kur1sulab/shinra/engine-go	[no test files]
-ok  	github.com/Kur1sulab/shinra/engine-go/apiunauth	1.060s
-ok  	github.com/Kur1sulab/shinra/engine-go/asset	0.666s
-ok  	github.com/Kur1sulab/shinra/engine-go/baseline	11.614s
-ok  	github.com/Kur1sulab/shinra/engine-go/cli	5.551s
-?   	github.com/Kur1sulab/shinra/engine-go/cmd/shinra	[no test files]
-ok  	github.com/Kur1sulab/shinra/engine-go/fingerprint	1.008s
-ok  	github.com/Kur1sulab/shinra/engine-go/icp	1.092s
-ok  	github.com/Kur1sulab/shinra/engine-go/internal/parity	46.759s
-ok  	github.com/Kur1sulab/shinra/engine-go/internal/redteam_adv2	6.874s
-?   	github.com/Kur1sulab/shinra/engine-go/jsonx	[no test files]
-ok  	github.com/Kur1sulab/shinra/engine-go/mockweb	2.223s
-ok  	github.com/Kur1sulab/shinra/engine-go/netutil	1.945s
-ok  	github.com/Kur1sulab/shinra/engine-go/paths	1.213s
-ok  	github.com/Kur1sulab/shinra/engine-go/poc	1.026s
-ok  	github.com/Kur1sulab/shinra/engine-go/report	1.113s
-ok  	github.com/Kur1sulab/shinra/engine-go/reverseip	1.038s
-ok  	github.com/Kur1sulab/shinra/engine-go/subdomain	1.482s
-ok  	github.com/Kur1sulab/shinra/engine-go/toolrun	2.166s
+?   	github.com/Kur1sulab/yata/engine-go	[no test files]
+ok  	github.com/Kur1sulab/yata/engine-go/apiunauth	1.060s
+ok  	github.com/Kur1sulab/yata/engine-go/asset	0.666s
+ok  	github.com/Kur1sulab/yata/engine-go/baseline	11.614s
+ok  	github.com/Kur1sulab/yata/engine-go/cli	5.551s
+?   	github.com/Kur1sulab/yata/engine-go/cmd/yata	[no test files]
+ok  	github.com/Kur1sulab/yata/engine-go/fingerprint	1.008s
+ok  	github.com/Kur1sulab/yata/engine-go/icp	1.092s
+ok  	github.com/Kur1sulab/yata/engine-go/internal/parity	46.759s
+ok  	github.com/Kur1sulab/yata/engine-go/internal/redteam_adv2	6.874s
+?   	github.com/Kur1sulab/yata/engine-go/jsonx	[no test files]
+ok  	github.com/Kur1sulab/yata/engine-go/mockweb	2.223s
+ok  	github.com/Kur1sulab/yata/engine-go/netutil	1.945s
+ok  	github.com/Kur1sulab/yata/engine-go/paths	1.213s
+ok  	github.com/Kur1sulab/yata/engine-go/poc	1.026s
+ok  	github.com/Kur1sulab/yata/engine-go/report	1.113s
+ok  	github.com/Kur1sulab/yata/engine-go/reverseip	1.038s
+ok  	github.com/Kur1sulab/yata/engine-go/subdomain	1.482s
+ok  	github.com/Kur1sulab/yata/engine-go/toolrun	2.166s
 （16 包 ok，退出码 0）
 ```
 
 desktop 线（`cd desktop-native`）：
 
 ```
-$ go build ./... && go build -o recon-native-review-merged.exe .
+$ go build ./... && go build -o yata-native-review-merged.exe .
 （无输出，退出码 0；exe 19,039,232 B，验后已删）
 $ go test -count=1 ./...
-?   	recon-native	[no test files]
-ok  	recon-native/internal/engine	8.700s
-ok  	recon-native/internal/store	0.391s
-ok  	recon-native/internal/ui	1.310s
-ok  	recon-native/internal/whitelist	0.232s
+?   	yata-native	[no test files]
+ok  	yata-native/internal/engine	8.700s
+ok  	yata-native/internal/store	0.391s
+ok  	yata-native/internal/ui	1.310s
+ok  	yata-native/internal/whitelist	0.232s
 （4 包 ok，退出码 0）
 ```
 

@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 // ModuleInfo 一个扫描模块的展示元数据（十模块，与 engine.cmdSet 一一对应）。

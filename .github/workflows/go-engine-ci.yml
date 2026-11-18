@@ -31,7 +31,7 @@ jobs:
         run: go test -count=1 -v ./...
       - name: Build desktop shell
         working-directory: desktop-go
-        run: go build -o recon-desktop.exe .
+        run: go build -o yata-desktop.exe .
       - name: Test desktop shell
         working-directory: desktop-go
         run: go test -count=1 ./...

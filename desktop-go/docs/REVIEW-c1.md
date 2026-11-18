@@ -2,9 +2,9 @@
 
 - 复核员：独立复核员-1（未参与施工，冷读）
 - 复核时点：2026-10-02 06:13–06:40（文件 mtime 口径：所读源码均早于复核开始）
-- 复核对象：`C:/Users/18270/shinra/desktop-go/`（HEAD=afcbf98 + 5 个 staged 未提交文件，见 §6）
+- 复核对象：`C:/Users/18270/yata/desktop-go/`（HEAD=afcbf98 + 5 个 staged 未提交文件，见 §6）
 - 计划正本：`C:/Users/18270/.zcode/workflow-drafts/侦察工具Go桌面版goal.dwf.ts`（cycleHints[0] 与铁律全文）。
-  ⚠️ 交付指令所给计划路径 `shinra/docs/GOAL-20261002-go-desktop.md` **复核时点不存在**（见 §6-P1）；
+  ⚠️ 交付指令所给计划路径 `yata/docs/GOAL-20261002-go-desktop.md` **复核时点不存在**（见 §6-P1）；
   同名文件 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md` 属另一项目（zcode-app-go/Wails），与本轮无关，未作为依据。
 - 零污染声明：复核全程未改任何生产代码。写入仅限：本文档、`%TEMP%` 下的复核用 exe/zip/日志、隔离数据目录 `%TEMP%/recon-review-data`（未用真实 %LOCALAPPDATA%）；端到端扫描产物落在仓库 `out/`（gitignored 运行时目录）。测试服务已全部停止（netstat 复核 8791/8799 零 LISTEN）。
 
@@ -18,18 +18,18 @@
 
 ## 1. 计划兑现 — 逐条验证
 
-计划原文（cycleHints[0]）：「git fetch 对齐→建 desktop-go/（go.mod+internal/server 六接口+internal/engine shinra.py 子进程管理+desktop 壳+frontend 五页面板接真 API）。引擎进度机制按设计定案落地。验收=go build 单 exe+go test 全绿；--dev 或 exe 起来后新建一条 mock 靶站侦察任务看到模块进度与结果表格、证据包导出按钮在位、零对话组件。」
+计划原文（cycleHints[0]）：「git fetch 对齐→建 desktop-go/（go.mod+internal/server 六接口+internal/engine yata.py 子进程管理+desktop 壳+frontend 五页面板接真 API）。引擎进度机制按设计定案落地。验收=go build 单 exe+go test 全绿；--dev 或 exe 起来后新建一条 mock 靶站侦察任务看到模块进度与结果表格、证据包导出按钮在位、零对话组件。」
 
-### 1.1 对齐远端（Kur1sulab/shinra@b83d5b3）✅
-- `git remote -v` → `origin git@github.com:Kur1sulab/shinra.git (fetch/push)`——指向正确远端。
+### 1.1 对齐远端（Kur1sulab/yata@b83d5b3）✅
+- `git remote -v` → `origin git@github.com:Kur1sulab/yata.git (fetch/push)`——指向正确远端。
 - `git cat-file -t b83d5b3` → commit；`git log --oneline -1 b83d5b3` → 「feat: 资产档案 + 证据包（report 模块…）测试扩到 41 项」；reflog `HEAD@{14}: pull --ff-only: Fast-forward`——远端对齐确实发生且 b83d5b3 在本仓历史内。
 - 「本地 origin 误指旧账号需 set-url」的**事前状态无法事后验证**（remote-url 变更不进 reflog），仅证实终态正确。
 
 ### 1.2 go.mod ✅
-`desktop-go/go.mod:1-10`：`module recon-desktop`，go 1.24，唯一直接依赖 `github.com/jchv/go-webview2`，indirect 仅 go-winloader、x/sys。
+`desktop-go/go.mod:1-10`：`module yata-desktop`，go 1.24，唯一直接依赖 `github.com/jchv/go-webview2`，indirect 仅 go-winloader、x/sys。
 
 ### 1.3 go-webview2 壳 ✅
-- 窗口创建 `main.go:112-127`（`webview2.NewWithOptions`，标题「侦察工作台 · shinra」，尺寸来自记忆）。
+- 窗口创建 `main.go:112-127`（`webview2.NewWithOptions`，标题「侦察工作台 · yata」，尺寸来自记忆）。
 - 原生配套 `desktop.go`：窗口尺寸记忆 window.json（:37-65，clamp 960x640~7680x4320、坏文件回默认）、单实例命名互斥（:111-123）、原生 MessageBox（:126-133）、user32 GetWindowRect 采样（:94-108）。
 - 退出顺序 `main.go:94-99,156-161`：停服务 → `runner.StopAll()` 杀扫描进程树 → 存窗口尺寸。
 
@@ -38,8 +38,8 @@
 - 六条路由 `server.go:52-59`：`GET /api/env`、`POST /api/scans`、`GET /api/scans`、`GET /api/scans/{id}`、`POST /api/scans/{id}/stop`、`GET /api/scans/{id}/evidence`（另有 `/` 静态兜底）。api.js:4-9 头注即此契约。
 - 全响应 no-store（server.go:94-101）；body 8KB 封顶（server.go:193 MaxBytesReader）。
 
-### 1.5 shinra.py 子进程管理（--progress-file JSONL 定案）✅
-- 定案证据链：`src/shinra.py:175` argparse `--progress-file` + `:34-60` `_emit` 事件落盘 + `tests/test_progress_file.py`（emit 契约单测+子进程端到端冒烟），独立提交 c5a131c「engine(progress): shinra.py --progress-file JSONL 落盘+单测」。
+### 1.5 yata.py 子进程管理（--progress-file JSONL 定案）✅
+- 定案证据链：`src/yata.py:175` argparse `--progress-file` + `:34-60` `_emit` 事件落盘 + `tests/test_progress_file.py`（emit 契约单测+子进程端到端冒烟），独立提交 c5a131c「engine(progress): yata.py --progress-file JSONL 落盘+单测」。
 - 注入点：`runner.go:188` `append([]string{python, script, "--progress-file", progressPath}, argv...)`——主解析器参数置于子命令前（:187 注释），progressPath 在数据目录 `progress/<id>.jsonl`（:178）。
 - 子进程纪律：列表 argv 无 shell（runner.go:189）、`PYTHONUTF8=1`+`PYTHONIOENCODING=utf-8`（:191）、stdout/stderr 原样落 logs/<id>.log 不解析（:192-197）、监视 goroutine 400ms Tailer 游标增量（runner.go:225-249 + progress.go:27-59，半行 pending 缓存不丢事件）、`pipeline_end` 缺失兜底补 fail（:256-261）、状态机 stopped/done/fail（:277-284）。
 - 树杀：`killTree` runner.go:334-353——Windows `taskkill /T /F /PID`，失败回退 Kill，已退出进程（ErrProcessDone/EINVAL）幂等成功。
@@ -95,7 +95,7 @@ zipfile 校验：16 条目、testzip=None、无 `..`/前导`/`/盘符条目
 | 白名单闸在位 | `whitelist.go:14-18` 三条目（xycovo.com / 47.100.49.228 / 127.0.0.1:8799）；`Check` :24-101 深校验（控制字符/非 ASCII 拒、`%2e/%2f/%25` 拒、协议仅 http(s)、userinfo 拒、环回仅 8799 端口、域名格式校验）；服务端 `server.go:214-217` 名单外 403。**活体**：evil.com→403、127.0.0.1:8080→403。纵深：args 目标旗标黑名单（server.go:178-181）+ `--progress-file` 前缀拦截（:310-313）+ `ValidateExtraArgs` 按模块精确白名单（fix1_extra.go:42-72，堵 argparse 前缀缩写）。**活体**：`-u`→400、`--ur`→400、`--progress-file`→400、`--progress_file=x`→400。模糊表固化 fix1_whitelist_test.go（staged，90+ 用例子集） | ✅ |
 | 应用层零 Python 依赖 | `go version -m`（复核员自建 exe）：依赖仅 go-webview2/go-winloader/x/sys，CGO_ENABLED=0，无任何 Python 运行时；grep Go 源码 python 引用仅在 runner.go（子进程 argv）与 server.go:141（自检上报）；ProbePython 只以固定 argv 跑 `python --version` 与 `import requests, yaml`（runner.go:119-128）。引擎保持 Python 属设计内（铁律 2 原文：弃的是应用语言不是引擎语言） | ✅ |
 
-附带 grep：`src/shinra.py` 的 `llm` 子命令已弃用（活体：POST cmd=llm → 400「不支持的子命令」）。
+附带 grep：`src/yata.py` 的 `llm` 子命令已弃用（活体：POST cmd=llm → 400「不支持的子命令」）。
 
 ---
 
@@ -136,11 +136,11 @@ $ C:/Go/go/bin/go.exe build -o "$TEMP/recon-review-check.exe" .
 BUILD_EXIT=0        # 单文件 11,188,736 字节（go:embed 前端内置，无外部资源）
 
 $ C:/Go/go/bin/go.exe test -count=1 ./...
-?   	recon-desktop	[no test files]
-ok  	recon-desktop/internal/engine	2.870s
-ok  	recon-desktop/internal/server	3.533s
-ok  	recon-desktop/internal/store	9.341s
-ok  	recon-desktop/internal/whitelist	0.265s
+?   	yata-desktop	[no test files]
+ok  	yata-desktop/internal/engine	2.870s
+ok  	yata-desktop/internal/server	3.533s
+ok  	yata-desktop/internal/store	9.341s
+ok  	yata-desktop/internal/whitelist	0.265s
 （4 包全绿；测试函数计数 grep '^func Test' = 48：engine 15 / server 22 / store 8 / whitelist 3）
 
 $ C:/Go/go/bin/go.exe vet ./...        → 无输出，exit 0
@@ -182,7 +182,7 @@ $ node --check frontend/js/**/*.js（7 文件）→ 全 OK
 
 ## 6. 发现与登记（非阻断）
 
-- **P1（流程，须收口）**：迭代日志 `shinra/docs/GOAL-20261002-go-desktop.md` 复核时点不存在。按草案流程该文件由架构师在复核后追加（draft :166「无则首轮」），但同名的 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md`（另一项目）已造成路径混淆——本轮指令即指错路径。**架构师补写日志时务必写到 shinra/docs/。**
+- **P1（流程，须收口）**：迭代日志 `yata/docs/GOAL-20261002-go-desktop.md` 复核时点不存在。按草案流程该文件由架构师在复核后追加（draft :166「无则首轮」），但同名的 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md`（另一项目）已造成路径混淆——本轮指令即指错路径。**架构师补写日志时务必写到 yata/docs/。**
 - **P2（流程）**：工作树含 5 个 staged 未提交文件：`frontend/DESIGN.md`（新增 267 行）、`frontend/css/tokens.css`（新增 87 行）、`frontend/css/app.css`（重绘 ±520 行）、`README.md`（±11）、`internal/whitelist/fix1_whitelist_test.go`（新增 70 行）。即美术轮产出与白名单模糊表回归**尚未 commit**（铁律 5 每轮收尾 commit）。本复核的 build/test/对抗结论基于工作树（= afcbf98 + 这 5 件），代码本身已验证；提交动作待架构师收口。
 - **P3（低）**：desktop.go:4 注释称「非 Windows 平台回退为无壳运行（--dev）」，但无对应非 Windows 构建文件/标签（syscall.NewLazyDLL 为 Windows 专属）——注释与实现不符，跨平台编译不可行。Windows-only 为实际范围，建议改注释。
 - **P4（低）**：§5 A2 实时最小尺寸未约束；A4 DPI 未验。
@@ -190,4 +190,4 @@ $ node --check frontend/js/**/*.js（7 文件）→ 全 OK
 
 ## 7. 结论
 
-第 1 轮（骨架轮）验收目标**达成**：desktop-go 从零建齐（go-webview2 壳 + 127.0.0.1 六接口 + shinra.py 子进程管理含 --progress-file JSONL 定案 + 原生五页面板接真 API），单 exe 构建与全量测试复核员亲跑全绿，mock 靶站端到端（进度事件→产物→证据包 zip）活体贯通，14 项对抗活体复现全过，四条铁律全数证实。遗留：真窗视觉验收与美术轮收口提交（第 2 轮既定范围）。
+第 1 轮（骨架轮）验收目标**达成**：desktop-go 从零建齐（go-webview2 壳 + 127.0.0.1 六接口 + yata.py 子进程管理含 --progress-file JSONL 定案 + 原生五页面板接真 API），单 exe 构建与全量测试复核员亲跑全绿，mock 靶站端到端（进度事件→产物→证据包 zip）活体贯通，14 项对抗活体复现全过，四条铁律全数证实。遗留：真窗视觉验收与美术轮收口提交（第 2 轮既定范围）。

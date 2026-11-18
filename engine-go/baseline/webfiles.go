@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // robotsMaxSitemaps robots.txt Sitemap 行收集封顶；sitemapFetchBudget 源抓取

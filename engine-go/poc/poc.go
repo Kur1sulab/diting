@@ -12,11 +12,11 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // pocUA 对齐 poc_engine.py:27。
-const pocUA = "shinra/1.0 (+authorized-testing-only)"
+const pocUA = "yata/1.0 (+authorized-testing-only)"
 
 // Matcher 单条匹配器：status（状态码列表）| contains（响应体关键字列表）。
 type Matcher struct {

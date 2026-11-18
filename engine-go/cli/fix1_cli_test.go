@@ -1,7 +1,7 @@
 package cli
 
 // fix1_cli_test.go — 第 1 轮审计修复回归（engine-go/cli）：
-//   1. --progress-file 全局参数契约（审计 medium#4）：事件键序与 shinra.py:31-62 对齐，
+//   1. --progress-file 全局参数契约（审计 medium#4）：事件键序与 yata.py:31-62 对齐，
 //      桌面壳 Runner 以此驱动状态机
 //   2. MakeOutdir 清洗 + 错误上抛（审计 medium#2 / low#6）
 //   3. IsIP 去 TrimSpace（审计 low#9）

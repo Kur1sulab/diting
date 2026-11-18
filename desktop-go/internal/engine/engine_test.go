@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"recon-desktop/internal/store"
+	"yata-desktop/internal/store"
 )
 
 func isWindows() bool { return runtime.GOOS == "windows" }
@@ -174,10 +174,10 @@ func (f *fakeSink) snapshot() ([]store.ProgressEvent, string) {
 	return f.events["t1"], f.status["t1"]
 }
 
-// writeEngineStub 在临时 repoRoot 里放一个假 src/shinra.py（引擎存在性检查用）。
+// writeEngineStub 在临时 repoRoot 里放一个假 src/yata.py（引擎存在性检查用）。
 func writeEngineStub(t *testing.T, repoRoot string) {
 	t.Helper()
-	p := filepath.Join(repoRoot, "src", "shinra.py")
+	p := filepath.Join(repoRoot, "src", "yata.py")
 	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
 		t.Fatal(err)
 	}

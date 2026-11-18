@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/shinra/engine-go/mockweb"
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // TestEndpointsTableSane 表健全性：27 条、路径 / 开头、risk 枚举

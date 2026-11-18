@@ -1,4 +1,4 @@
-module recon-desktop
+module yata-desktop
 
 go 1.24
 

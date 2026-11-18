@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"gioui.org/widget"
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 func TestSixPageRouting(t *testing.T) {

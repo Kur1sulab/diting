@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"recon-desktop/internal/store"
+	"yata-desktop/internal/store"
 )
 
 func TestStopCreatedTask(t *testing.T) {

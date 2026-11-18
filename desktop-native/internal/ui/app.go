@@ -18,8 +18,8 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 
-	"recon-native/internal/store"
-	"recon-native/internal/whitelist"
+	"yata-native/internal/store"
+	"yata-native/internal/whitelist"
 )
 
 // 六页信息架构（原「新建侦察」页定名「新建任务」；第六页=暴露面仪表盘）。

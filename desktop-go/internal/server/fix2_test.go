@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"recon-desktop/internal/store"
+	"yata-desktop/internal/store"
 )
 
 // fix2：DELETE /api/scans/{id} 删除语义——running/created 拒删 409；

@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 // baselineCheckMeta 一个检查的展示元数据（顺序 = 引擎 checksOrder，§5.1-5.8）。

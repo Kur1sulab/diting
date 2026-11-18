@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 func TestEnvInfoMockLifecycle(t *testing.T) {

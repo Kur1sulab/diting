@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/shinra/engine-go/icp"
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/icp"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 const (

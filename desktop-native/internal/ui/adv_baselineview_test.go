@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 // ── 1. 坏 JSON：必须落「产物解析失败」失败态，绝不用猜测值补齐 ──

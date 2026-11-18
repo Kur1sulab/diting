@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // sslRoots 建链验证根池（nil = 系统池；本地测试注入含测试 CA 的池）。

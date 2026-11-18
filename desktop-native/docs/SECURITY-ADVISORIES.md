@@ -8,7 +8,7 @@
 
 - **扫描器定位**：`internal/ui/app.go:131` 「疑似跨文件污点」（2026-10-04 扫描时点）。
 - **数据流（原始）**：环境变量 `RECON_PYTHON` → `NewSession()`（internal/ui/session.go）→
-  `Runner.pythonPath` → `ResolvePython()` → `exec.Command(python, src/shinra.py, …)`
+  `Runner.pythonPath` → `ResolvePython()` → `exec.Command(python, src/yata.py, …)`
   子进程执行。
 - **为什么当时是设计而非漏洞**：解释器路径是本机用户显式配置（环境变量或设置页
   「保存并生效」，session.go 落配置文件），与 desktop-go 壳 `main.go:64` 的
@@ -25,7 +25,7 @@
 
 ## ADV-20261004-02 壳被硬杀 → 扫描进程孤儿（已修复入账；修复件已随子进程壳退役）
 
-- **发现**：对抗轮 P2 实锤——壳（recon-native.exe）被任务管理器结束/崩溃时，
+- **发现**：对抗轮 P2 实锤——壳（yata-native.exe）被任务管理器结束/崩溃时，
   扫描子进程变孤儿继续对目标发包。复刻实验：按 runner.go 执行模式起
   cmd→ping 树，taskkill /F 硬杀父进程后 PING.EXE 存活，谱系指向已死父链；
   代码佐证：runner.go killTree 仅按需逐树杀、StopAll 只挂优雅 DestroyEvent

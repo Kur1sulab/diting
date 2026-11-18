@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 // ── 1. 恶意目标 × UI 输入路径（CreateTask）──

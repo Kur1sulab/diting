@@ -1,8 +1,8 @@
-# 信息收集工具（recon-desktop）—— shinra 桌面壳（Go）
+# 信息收集工具（yata-desktop）—— yata 桌面壳（Go）
 
-把现有 Python 信息收集流水线包成一个桌面应用：`go build` 一把出单个 `recon-desktop.exe`，
+把现有 Python 信息收集流水线包成一个桌面应用：`go build` 一把出单个 `yata-desktop.exe`，
 应用本体（HTTP 服务 / 进程管理 / WebView2 壳）全是 Go，运行时零 node 依赖；
-扫描引擎仍是既有 `python src/shinra.py <子命令>`，由 Go 以子进程方式管理。
+扫描引擎仍是既有 `python src/yata.py <子命令>`，由 Go 以子进程方式管理。
 
 ## 构建
 
@@ -10,19 +10,19 @@
 
 ```bash
 cd desktop-go
-C:/Go/go/bin/go.exe build -o recon-desktop.exe .      # 单文件 exe，免安装
+C:/Go/go/bin/go.exe build -o yata-desktop.exe .      # 单文件 exe，免安装
 ```
 
 ## 运行
 
 ```bash
-recon-desktop.exe            # 桌面壳：起 127.0.0.1 本地服务 + WebView2 窗口
-recon-desktop.exe --dev      # 开发模式：不起壳，只起本地服务并打印 DEV_URL
-recon-desktop.exe --port 8123
+yata-desktop.exe            # 桌面壳：起 127.0.0.1 本地服务 + WebView2 窗口
+yata-desktop.exe --dev      # 开发模式：不起壳，只起本地服务并打印 DEV_URL
+yata-desktop.exe --port 8123
 ```
 
 - 本地服务**只绑 127.0.0.1**，数据面不对外网开放；所有响应 no-store。
-- 任务数据落 `%LOCALAPPDATA%\recon-desktop\`（`tasks.json` / `logs\` / `progress\` / `window.json`）。
+- 任务数据落 `%LOCALAPPDATA%\yata-desktop\`（`tasks.json` / `logs\` / `progress\` / `window.json`）。
 - 扫描产物仍在仓库根 `out\<目标>\`，与命令行用法完全一致。
 - 解释器解析顺序：设置（`RECON_PYTHON` 环境变量）> PATH 上的 `python`。
   子进程自动注入 `PYTHONUTF8=1`、`PYTHONIOENCODING=utf-8`。
@@ -58,7 +58,7 @@ recon-desktop.exe --port 8123
 
 ```bash
 python tests/mock_server.py 8799          # 仓库根起 mock 靶站
-cd desktop-go && recon-desktop.exe --dev --port 8791
+cd desktop-go && yata-desktop.exe --dev --port 8791
 # 另开终端：
 curl -s http://127.0.0.1:8791/api/env
 curl -s -X POST http://127.0.0.1:8791/api/scans -d '{"target":"http://127.0.0.1:8799/real","cmd":"api"}'
@@ -85,13 +85,13 @@ desktop-go/
   frontend/          前端三件套（无构建链，go:embed 直接打进 exe）
   internal/whitelist/  正点名单硬校验
   internal/store/      任务持久化（tasks.json，原子写）
-  internal/engine/     shinra.py 子进程管理 + 进度 JSONL 游标解析 + 进程树终止
+  internal/engine/     yata.py 子进程管理 + 进度 JSONL 游标解析 + 进程树终止
   internal/server/     六接口 + 前端静态服务（仅 127.0.0.1）
 ```
 
 ## 进度事件契约（与 Python 引擎）
 
-`src/shinra.py --progress-file <jsonl>` 逐行落：
+`src/yata.py --progress-file <jsonl>` 逐行落：
 `{"ts":float,"event":"pipeline_start|start|done|fail|pipeline_end","module":str,"detail":str}`
 Go 侧游标增量读取；进程退出但没等到 `pipeline_end` 时兜底补一条 fail，界面不挂空。
 

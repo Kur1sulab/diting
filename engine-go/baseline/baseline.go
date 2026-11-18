@@ -1,7 +1,7 @@
 // Package baseline：域名暴露面基线体检（8 项零凭据检查），落地
 // RESEARCH-webcheck-20261005.md §5.0-5.9 的设计。聚合子命令：
 //
-//	shinra baseline -d <domain> [-u <url>] [--checks secheaders,webfiles,...]
+//	yata baseline -d <domain> [-u <url>] [--checks secheaders,webfiles,...]
 //
 // 8 个检查：secheaders(§5.1) webfiles(§5.2) mailsec(§5.3) archives(§5.4)
 // sslchain(§5.5) dnsrec(§5.6) whois(§5.7) geoasn(§5.8)。
@@ -29,8 +29,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/jsonx"
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/jsonx"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // 8 个检查名（= 产物文件名主干，桌面 outDirFor 三方同名目录契约）。

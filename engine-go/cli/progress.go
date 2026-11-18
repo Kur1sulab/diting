@@ -1,15 +1,15 @@
 package cli
 
-// 进度事件 JSONL 落盘——契约对齐 shinra.py:31-62（桌面壳 desktop-go 的
+// 进度事件 JSONL 落盘——契约对齐 yata.py:31-62（桌面壳 desktop-go 的
 // Runner/monitor 靠这套事件驱动任务状态机，fix1 审计 medium#4 补齐 Go 侧缺口）：
 //   - 全局参数 --progress-file <path> / --progress-file=<path>，必须出现在子命令之前
-//     （argparse 主解析器参数，shinra.py:161-163）；CLI 参数优先于环境变量
-//     RECON_PROGRESS_FILE（shinra.py:190-191）；
+//     （argparse 主解析器参数，yata.py:161-163）；CLI 参数优先于环境变量
+//     RECON_PROGRESS_FILE（yata.py:190-191）；
 //   - 事件一行一条 JSON，键恰为 {ts,event,module,detail}，ts 秒级浮点 3 位小数
 //     （与 desktop-go/internal/store.ProgressEvent 的解析契约一致）；
-//   - 事件序对齐 shinra.py:195-257：
+//   - 事件序对齐 yata.py:195-257：
 //       pipeline_start(pipeline,cmd) → [start(cmd)] → [done|fail(cmd,detail)] → pipeline_end(pipeline,done|fail)
-//     cmd=="all" 时不发模块级 start/done|fail（shinra.py:196-197、250-256 的豁免分支）；
+//     cmd=="all" 时不发模块级 start/done|fail（yata.py:196-197、250-256 的豁免分支）；
 //     无子命令 / help 不发任何事件（argparse 阶段即退出）。
 //   - 任何落盘失败静默吞掉，绝不影响扫描主流程（_emit 语义）。
 
@@ -66,7 +66,7 @@ func applyProgressFile(args []string) ([]string, int) {
 		switch {
 		case tok == "--progress-file": // fix3：argparse 不认下划线别名，仅精确长名
 			if len(args) < 2 {
-				fmt.Println("[!] --progress-file 需要一个路径参数\n\n用法: shinra [--progress-file <path>] [-h] [-v] <子命令> ...")
+				fmt.Println("[!] --progress-file 需要一个路径参数\n\n用法: yata [--progress-file <path>] [-h] [-v] <子命令> ...")
 				return nil, 2
 			}
 			setProgressFile(args[1])
@@ -79,7 +79,7 @@ func applyProgressFile(args []string) ([]string, int) {
 		case tok == "-v" || tok == "--version":
 			// 全局版本：与 -h 同属「解析阶段即退出」，不发事件、不建数据目录、不写产物。
 			// 用独立返回码 -2 与 -1 区分（两者输出不同，Run 需分别处理），
-			// 保证 shinra -v 与 shinra version 逐字节一致（共用 printVersion）。
+			// 保证 yata -v 与 yata version 逐字节一致（共用 printVersion）。
 			return nil, -2
 		default:
 			fmt.Printf("[!] 未知全局参数: %s\n（全局仅支持 --progress-file / -h / -v；其余参数请放在子命令之后）\n", tok)
@@ -90,7 +90,7 @@ func applyProgressFile(args []string) ([]string, int) {
 	return nil, 1 // 只有全局参数没有子命令：等价 Python 无 cmd 分支（exit 1，不发事件）
 }
 
-// setProgressFile CLI 参数优先，其次环境变量 RECON_PROGRESS_FILE（shinra.py:191）。
+// setProgressFile CLI 参数优先，其次环境变量 RECON_PROGRESS_FILE（yata.py:191）。
 func setProgressFile(p string) {
 	if p == "" {
 		p = os.Getenv("RECON_PROGRESS_FILE")

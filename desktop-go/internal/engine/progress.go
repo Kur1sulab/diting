@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"recon-desktop/internal/store"
+	"yata-desktop/internal/store"
 )
 
 // Tailer 增量读取进度 JSONL：记录已消费偏移，每次 Poll 只吐新事件；

@@ -13,7 +13,7 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-import shinra  # noqa: E402
+import yata  # noqa: E402
 from modules import netutil, subdomain  # noqa: E402
 
 
@@ -41,7 +41,7 @@ class MakeOutdirTest(unittest.TestCase):
             "x.com.": "x.com",
         }
         for target, want in cases.items():
-            out = shinra.make_outdir(target)
+            out = yata.make_outdir(target)
             base = os.path.basename(out)
             self.assertEqual(base, want, "target=%r" % target)
             self.assertTrue(os.path.isdir(out))

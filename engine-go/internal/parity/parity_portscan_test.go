@@ -22,10 +22,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/portscan"
+	"github.com/Kur1sulab/yata/engine-go/portscan"
 )
 
-// portscanPy 复用 PythonBin 的统一解析（实跑探针 + SHINRA_PYTHON/PYTHON 优先）。
+// portscanPy 复用 PythonBin 的统一解析（实跑探针 + YATA_PYTHON/PYTHON 优先）。
 // 早期本文件各自 LookPath("python")，在 ServBay / pyenv shim 占住 python
 // 名字的机器上会「探测成功、执行失败」，把本应 Skip 的用例变成 FAIL——已收口。
 func portscanPy(t *testing.T) string {

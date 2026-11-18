@@ -9,10 +9,10 @@
 从 n-day（别人修过的洞）推出变种 0day。
 
 用法：
-  python src/shinra.py patchdiff -r /path/to/repo                 # 自动找安全相关提交
-  python src/shinra.py patchdiff -r /path/to/repo --commit <sha>  # 只看某个提交
-  python src/shinra.py patchdiff -r /path/to/repo --range v1.2..v1.3
-  python src/shinra.py patchdiff -r /path/to/repo --emit-rule out.yaml
+  python src/yata.py patchdiff -r /path/to/repo                 # 自动找安全相关提交
+  python src/yata.py patchdiff -r /path/to/repo --commit <sha>  # 只看某个提交
+  python src/yata.py patchdiff -r /path/to/repo --range v1.2..v1.3
+  python src/yata.py patchdiff -r /path/to/repo --emit-rule out.yaml
 """
 import json
 import os

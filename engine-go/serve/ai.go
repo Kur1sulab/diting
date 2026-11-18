@@ -24,13 +24,13 @@ type AIConfig struct {
 
 // LoadAIConfig 从环境变量读配置；没配 key 也能给本地端点用。
 func LoadAIConfig() AIConfig {
-	base := firstEnv("SHINRA_AI_BASE", "SHINRA_AI_BASE", "OPENAI_BASE_URL")
+	base := firstEnv("YATA_AI_BASE", "SHINRA_AI_BASE", "OPENAI_BASE_URL")
 	if base == "" {
 		base = "https://api.openai.com/v1"
 	}
 	base = strings.TrimRight(base, "/")
-	key := firstEnv("SHINRA_AI_KEY", "SHINRA_AI_KEY", "OPENAI_API_KEY", "SHINRA_AI_TOKEN", "SHINRA_AI_TOKEN")
-	model := firstEnv("SHINRA_AI_MODEL", "SHINRA_AI_MODEL", "OPENAI_MODEL")
+	key := firstEnv("YATA_AI_KEY", "SHINRA_AI_KEY", "OPENAI_API_KEY", "YATA_AI_TOKEN", "SHINRA_AI_TOKEN")
+	model := firstEnv("YATA_AI_MODEL", "SHINRA_AI_MODEL", "OPENAI_MODEL")
 	if model == "" {
 		model = "gpt-4o-mini"
 	}
@@ -43,7 +43,7 @@ func LoadAIConfig() AIConfig {
 		c.Ready = true
 		c.Note = "本地端点，未用 key"
 	default:
-		c.Note = "未配置 SHINRA_AI_KEY，AI 功能不可用；设置环境变量后重启 shinra serve"
+		c.Note = "未配置 YATA_AI_KEY，AI 功能不可用；设置环境变量后重启 yata serve"
 	}
 	return c
 }

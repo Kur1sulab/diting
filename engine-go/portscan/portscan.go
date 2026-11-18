@@ -26,7 +26,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 const (

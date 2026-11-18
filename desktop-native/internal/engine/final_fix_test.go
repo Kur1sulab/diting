@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 func TestModulePanicContained(t *testing.T) {

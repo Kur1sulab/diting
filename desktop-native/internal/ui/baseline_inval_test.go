@@ -9,7 +9,7 @@ package ui
 import (
 	"testing"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 func TestTaskStoreSignature(t *testing.T) {

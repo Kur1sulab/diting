@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"recon-native/internal/store"
+	"yata-native/internal/store"
 )
 
 // ── settings.json 持久化 ──

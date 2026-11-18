@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/netutil"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 )
 
 // HackertargetBase 可注入（测试打 httptest stub）。

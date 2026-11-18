@@ -1,4 +1,4 @@
-module recon-native
+module yata-native
 
 go 1.24.0
 
@@ -6,11 +6,11 @@ toolchain go1.24.1
 
 require (
 	gioui.org v0.10.3
-	github.com/Kur1sulab/shinra/engine-go v0.0.0-00010101000000-000000000000
+	github.com/Kur1sulab/yata/engine-go v0.0.0-00010101000000-000000000000
 	golang.org/x/sys v0.39.0
 )
 
-replace github.com/Kur1sulab/shinra/engine-go => ../engine-go
+replace github.com/Kur1sulab/yata/engine-go => ../engine-go
 
 require (
 	gioui.org/shader v1.0.9 // indirect

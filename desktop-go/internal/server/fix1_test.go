@@ -23,7 +23,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"recon-desktop/internal/store"
+	"yata-desktop/internal/store"
 )
 
 // doAs 构造带指定 Host/Origin 的请求（模拟伪造 Host / 跨站 Origin）。

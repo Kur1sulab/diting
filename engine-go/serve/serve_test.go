@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/shinra/engine-go/mockweb"
-	"github.com/Kur1sulab/shinra/engine-go/subdomain"
+	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/yata/engine-go/subdomain"
 )
 
 // newTestServer 起一个内存 Server（不监听端口）。
@@ -158,7 +158,7 @@ func TestHandlers(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &env); err != nil {
 		t.Fatalf("env 不是 JSON: %v", err)
 	}
-	if env["name"] != "shinra" {
+	if env["name"] != "yata" {
 		t.Errorf("env.name = %v", env["name"])
 	}
 
@@ -176,7 +176,7 @@ func TestHandlers(t *testing.T) {
 
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
-	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "森罗") {
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "八咫") {
 		t.Errorf("首页异常: %d", rec.Code)
 	}
 	if ct := rec.Header().Get("Content-Type"); !strings.Contains(ct, "text/html") {
@@ -219,7 +219,7 @@ func TestEventsSendsSnapshot(t *testing.T) {
 // AI 未配置时必须给出可读原因，而不是崩掉。
 func TestAIChatWithoutConfig(t *testing.T) {
 	c := AIConfig{Base: "https://api.openai.com/v1", Model: "m"}
-	c.Note = "未配置 SHINRA_AI_KEY"
+	c.Note = "未配置 YATA_AI_KEY"
 	if c.Ready {
 		t.Fatal("没有 key 的远端端点不该就绪")
 	}
