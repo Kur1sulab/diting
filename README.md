@@ -1,4 +1,7 @@
-# 星图 Atlas
+# 阿特菈 Atlas · アトラス
+
+> **星图少女 阿特菈** —— 把看不见的暴露面，一颗一颗点上星图。
+
 
 ![tests](https://github.com/Kur1sulab/atlas/actions/workflows/tests.yml/badge.svg)
 ![release](https://img.shields.io/github/v/release/Kur1sulab/atlas)
