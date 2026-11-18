@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsonx"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/jsonx"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
 )
 
 // synthBundle 合成"侦察产出"，字段名对齐 test_report.py:38-83。

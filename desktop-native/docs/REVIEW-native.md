@@ -2,7 +2,7 @@
 
 - 复核人：独立复核员-原生轮（未参与施工，冷复核）
 - 日期：2026-10-05
-- 对象：`C:/Users/18270/src-recon-tool/desktop-native/`
+- 对象：`C:/Users/18270/mappa/desktop-native/`
 - 参照：验收指令 5 项 + `desktop-visual-acceptance` 清单 + 对照库 `desktop-go/internal/whitelist`
 - 结论：**5 项核对全部通过**（其中视觉验收 4 个子项未跑/部分跑，见问题表）；发现 7 个 low/cosmetic 打磨项，无 high/medium。
 
@@ -57,7 +57,7 @@ SHOT shot-01-dashboard.png rect=(266,266)-(2058,1462) size=1792x1196   （150% �
 - 全树 grep（实跑）：
 
 ```
-$ grep -rn "侦察工具" C:/Users/18270/src-recon-tool/desktop-native
+$ grep -rn "侦察工具" C:/Users/18270/mappa/desktop-native
 （零命中，exit=1）
 ```
 

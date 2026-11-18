@@ -24,7 +24,7 @@ try:
 except ImportError:
     import netutil
 
-_UA = {"User-Agent": "src-recon-tool/1.0 (+authorized-testing-only)"}
+_UA = {"User-Agent": "mappa/1.0 (+authorized-testing-only)"}
 
 
 def _match_one(matcher: dict, status: int, body: str) -> bool:

@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsonx"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/toolrun"
+	"github.com/Kur1sulab/mappa/engine-go/jsonx"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/toolrun"
 )
 
 // 可注入的数据源 URL 模板（%s = domain）。测试改指向 httptest stub，绝不真连外网。

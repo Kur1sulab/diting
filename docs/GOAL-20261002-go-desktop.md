@@ -1,6 +1,6 @@
-# GOAL 日志 — src-recon-tool Go 桌面版
+# GOAL 日志 — mappa Go 桌面版
 
-> 项目：src-recon-tool 桌面化（desktop-go/）｜远端真相源：`git@github.com:Kur1sulab/src-recon-tool.git`
+> 项目：mappa 桌面化（desktop-go/）｜远端真相源：`git@github.com:Kur1sulab/mappa.git`
 > 本文档为迭代日志，每轮收尾由架构师追加。另：`pentest/vulnscan-platform/docs/` 下有同名文件属**另一项目**（Wails 壳），勿混淆（REVIEW-c1 §6-P1）。
 
 ---
@@ -21,7 +21,7 @@
 
 **git（本轮实跑 `git log --oneline -8` / `git remote -v`）**：
 
-- origin 已 set-url 至 SSH 真相源：`git@github.com:Kur1sulab/src-recon-tool.git` ✅（C1 计划第①步兑现；计划前状态为误指 xiaoyang-xyc 旧地址）
+- origin 已 set-url 至 SSH 真相源：`git@github.com:Kur1sulab/mappa.git` ✅（C1 计划第①步兑现；计划前状态为误指 xiaoyang-xyc 旧地址）
 - 新 commit 链（自旧到新）：
   - `c5a131c` engine(progress): recon.py --progress-file JSONL 落盘+单测（`src/recon.py:175` argparse 参数 + `:34-60` `_emit` + `tests/test_progress_file.py`，独立提交）
   - `2726c7a` / `88373cc` / `3c76fa0` / `c76962d` **engine-go(c1) 系列**：Go 引擎底座（netutil/jsonx 含 SSRF 边界与安全落盘）、mockweb httptest 靶站（与 mock_server.py 逐字节对齐+漂移守卫）+ toolrun 子进程适配、subdomain/fingerprint 28 规则 + 14 子命令 CLI + Python↔Go parity 矩阵、CLI 布局重构。——超出 C1 架构师草案的额外 track：desktop 壳本身仍按铁律以子进程调 Python 引擎（REVIEW-c1 §1.5 证实 runner.go:188 argv 注入 `--progress-file`），engine-go 为并行 Go 引擎工程（关系待第 2 轮明确，见遗留 7）

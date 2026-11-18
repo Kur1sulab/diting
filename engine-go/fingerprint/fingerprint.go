@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsonx"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/jsonx"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
 )
 
 // Rule 单条指纹规则（Name/Where/Pattern/Type 与 Python dict 键一致）。

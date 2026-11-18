@@ -111,7 +111,7 @@ func (a *appUI) pollBaseline() {
 		a.baseStates = LoadBaselineProducts(a.sess.RepoRoot, key)
 		return
 	}
-	// 任务终态呈现：引擎秒退（recon-go.exe 损坏等）或被 Esc 停止时，8 张卡
+	// 任务终态呈现：引擎秒退（mappa.exe 损坏等）或被 Esc 停止时，8 张卡
 	// 全停在「未运行」，页面此前无任何反馈、「已开始」横条常驻误导——
 	// 终态横条写一次（按任务 id 去重，400ms 节拍不重刷），并清掉「已开始」。
 	if a.baseOK != "" {

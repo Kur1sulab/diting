@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsonx"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/jsonx"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
 )
 
 // PathsList 19 条逐字对照 paths.py:20-26。

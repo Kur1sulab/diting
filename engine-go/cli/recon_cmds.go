@@ -12,8 +12,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsintel"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/portscan"
+	"github.com/Kur1sulab/mappa/engine-go/jsintel"
+	"github.com/Kur1sulab/mappa/engine-go/portscan"
 )
 
 // dispatchRecon 分发 jsintel / portscan 两个子命令（patchdiff 的 case 在 cli.go）。

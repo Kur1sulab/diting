@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/paths"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/paths"
 )
 
 // CDXBase Wayback CDX 接口（可注入换靶）。

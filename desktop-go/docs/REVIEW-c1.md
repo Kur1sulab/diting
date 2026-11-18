@@ -2,9 +2,9 @@
 
 - 复核员：独立复核员-1（未参与施工，冷读）
 - 复核时点：2026-10-02 06:13–06:40（文件 mtime 口径：所读源码均早于复核开始）
-- 复核对象：`C:/Users/18270/src-recon-tool/desktop-go/`（HEAD=afcbf98 + 5 个 staged 未提交文件，见 §6）
+- 复核对象：`C:/Users/18270/mappa/desktop-go/`（HEAD=afcbf98 + 5 个 staged 未提交文件，见 §6）
 - 计划正本：`C:/Users/18270/.zcode/workflow-drafts/侦察工具Go桌面版goal.dwf.ts`（cycleHints[0] 与铁律全文）。
-  ⚠️ 交付指令所给计划路径 `src-recon-tool/docs/GOAL-20261002-go-desktop.md` **复核时点不存在**（见 §6-P1）；
+  ⚠️ 交付指令所给计划路径 `mappa/docs/GOAL-20261002-go-desktop.md` **复核时点不存在**（见 §6-P1）；
   同名文件 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md` 属另一项目（zcode-app-go/Wails），与本轮无关，未作为依据。
 - 零污染声明：复核全程未改任何生产代码。写入仅限：本文档、`%TEMP%` 下的复核用 exe/zip/日志、隔离数据目录 `%TEMP%/recon-review-data`（未用真实 %LOCALAPPDATA%）；端到端扫描产物落在仓库 `out/`（gitignored 运行时目录）。测试服务已全部停止（netstat 复核 8791/8799 零 LISTEN）。
 
@@ -20,8 +20,8 @@
 
 计划原文（cycleHints[0]）：「git fetch 对齐→建 desktop-go/（go.mod+internal/server 六接口+internal/engine recon.py 子进程管理+desktop 壳+frontend 五页面板接真 API）。引擎进度机制按设计定案落地。验收=go build 单 exe+go test 全绿；--dev 或 exe 起来后新建一条 mock 靶站侦察任务看到模块进度与结果表格、证据包导出按钮在位、零对话组件。」
 
-### 1.1 对齐远端（Kur1sulab/src-recon-tool@b83d5b3）✅
-- `git remote -v` → `origin git@github.com:Kur1sulab/src-recon-tool.git (fetch/push)`——指向正确远端。
+### 1.1 对齐远端（Kur1sulab/mappa@b83d5b3）✅
+- `git remote -v` → `origin git@github.com:Kur1sulab/mappa.git (fetch/push)`——指向正确远端。
 - `git cat-file -t b83d5b3` → commit；`git log --oneline -1 b83d5b3` → 「feat: 资产档案 + 证据包（report 模块…）测试扩到 41 项」；reflog `HEAD@{14}: pull --ff-only: Fast-forward`——远端对齐确实发生且 b83d5b3 在本仓历史内。
 - 「本地 origin 误指旧账号需 set-url」的**事前状态无法事后验证**（remote-url 变更不进 reflog），仅证实终态正确。
 
@@ -29,7 +29,7 @@
 `desktop-go/go.mod:1-10`：`module recon-desktop`，go 1.24，唯一直接依赖 `github.com/jchv/go-webview2`，indirect 仅 go-winloader、x/sys。
 
 ### 1.3 go-webview2 壳 ✅
-- 窗口创建 `main.go:112-127`（`webview2.NewWithOptions`，标题「侦察工作台 · src-recon-tool」，尺寸来自记忆）。
+- 窗口创建 `main.go:112-127`（`webview2.NewWithOptions`，标题「侦察工作台 · mappa」，尺寸来自记忆）。
 - 原生配套 `desktop.go`：窗口尺寸记忆 window.json（:37-65，clamp 960x640~7680x4320、坏文件回默认）、单实例命名互斥（:111-123）、原生 MessageBox（:126-133）、user32 GetWindowRect 采样（:94-108）。
 - 退出顺序 `main.go:94-99,156-161`：停服务 → `runner.StopAll()` 杀扫描进程树 → 存窗口尺寸。
 
@@ -182,7 +182,7 @@ $ node --check frontend/js/**/*.js（7 文件）→ 全 OK
 
 ## 6. 发现与登记（非阻断）
 
-- **P1（流程，须收口）**：迭代日志 `src-recon-tool/docs/GOAL-20261002-go-desktop.md` 复核时点不存在。按草案流程该文件由架构师在复核后追加（draft :166「无则首轮」），但同名的 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md`（另一项目）已造成路径混淆——本轮指令即指错路径。**架构师补写日志时务必写到 src-recon-tool/docs/。**
+- **P1（流程，须收口）**：迭代日志 `mappa/docs/GOAL-20261002-go-desktop.md` 复核时点不存在。按草案流程该文件由架构师在复核后追加（draft :166「无则首轮」），但同名的 `pentest/vulnscan-platform/docs/GOAL-20261002-go-desktop.md`（另一项目）已造成路径混淆——本轮指令即指错路径。**架构师补写日志时务必写到 mappa/docs/。**
 - **P2（流程）**：工作树含 5 个 staged 未提交文件：`frontend/DESIGN.md`（新增 267 行）、`frontend/css/tokens.css`（新增 87 行）、`frontend/css/app.css`（重绘 ±520 行）、`README.md`（±11）、`internal/whitelist/fix1_whitelist_test.go`（新增 70 行）。即美术轮产出与白名单模糊表回归**尚未 commit**（铁律 5 每轮收尾 commit）。本复核的 build/test/对抗结论基于工作树（= afcbf98 + 这 5 件），代码本身已验证；提交动作待架构师收口。
 - **P3（低）**：desktop.go:4 注释称「非 Windows 平台回退为无壳运行（--dev）」，但无对应非 Windows 构建文件/标签（syscall.NewLazyDLL 为 Windows 专属）——注释与实现不符，跨平台编译不可行。Windows-only 为实际范围，建议改注释。
 - **P4（低）**：§5 A2 实时最小尺寸未约束；A4 DPI 未验。

@@ -10,7 +10,7 @@ try:
 except ImportError:
     import netutil
 
-_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) src-recon-tool/1.0"}
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) mappa/1.0"}
 
 RULES = [
     # 注意：body 匹配只认「技术特征」（版本号/报错页/框架专属路径），

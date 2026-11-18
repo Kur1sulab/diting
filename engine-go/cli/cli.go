@@ -1,7 +1,7 @@
-// Package cli：recon-go 的全部 CLI 逻辑（子命令分发表与公共小工具）。
+// Package cli：mappa 的全部 CLI 逻辑（子命令分发表与公共小工具）。
 // 从根 main.go 拆出，供两个薄入口共用：
-//   - cmd/recon-go/main.go（标准布局入口，go build ./cmd/recon-go）
-//   - 根 main.go（兼容旧验收命令 go build -o recon-go.exe .）
+//   - cmd/mappa/main.go（标准布局入口，go build ./cmd/mappa）
+//   - 根 main.go（兼容旧验收命令 go build -o mappa.exe .）
 package cli
 
 import (
@@ -13,39 +13,39 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/apiunauth"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/asset"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/baseline"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/fingerprint"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/icp"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/patchdiff"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/paths"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/poc"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/report"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/reverseip"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/subdomain"
+	"github.com/Kur1sulab/mappa/engine-go/apiunauth"
+	"github.com/Kur1sulab/mappa/engine-go/asset"
+	"github.com/Kur1sulab/mappa/engine-go/baseline"
+	"github.com/Kur1sulab/mappa/engine-go/fingerprint"
+	"github.com/Kur1sulab/mappa/engine-go/icp"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/patchdiff"
+	"github.com/Kur1sulab/mappa/engine-go/paths"
+	"github.com/Kur1sulab/mappa/engine-go/poc"
+	"github.com/Kur1sulab/mappa/engine-go/report"
+	"github.com/Kur1sulab/mappa/engine-go/reverseip"
+	"github.com/Kur1sulab/mappa/engine-go/subdomain"
 )
 
-const helpText = `recon-go — SRC 信息收集自动化工具（Go 引擎，仅限授权测试）
+const helpText = `mappa — SRC 信息收集自动化工具（Go 引擎，仅限授权测试）
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
-  recon-go all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
-  recon-go subdomain -d example.com [--verify]
-  recon-go verify -d example.com [-w 8]
-  recon-go asset -d example.com           # ✅ c2（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
-  recon-go reverse -i 203.0.113.7         # ✅ c2
-  recon-go icp -d example.com             # ✅ c2（APIHZ_ID/APIHZ_KEY 可覆盖）
-  recon-go api -u https://example.com     # ✅ c2（含取证模式）
-  recon-go jsintel -u https://example.com # ✅ 第三轮（外链 JS ≤6 并发/≤2MB，只 GET）
-  recon-go portscan -t 203.0.113.7        # ✅ 第三轮（常用端口表，并发 ≤32）
-  recon-go fingerprint -u https://example.com
-  recon-go paths -u https://example.com   # ✅ c2
-  recon-go baseline -d example.com [--checks secheaders,webfiles]  # ✅ c2（域名暴露面基线 8 检查）
-  recon-go poc -t https://example.com -p pocs/example.yaml  # ✅ c2（YAML 引擎）
-  recon-go patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
+  mappa all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
+  mappa subdomain -d example.com [--verify]
+  mappa verify -d example.com [-w 8]
+  mappa asset -d example.com           # ✅ c2（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
+  mappa reverse -i 203.0.113.7         # ✅ c2
+  mappa icp -d example.com             # ✅ c2（APIHZ_ID/APIHZ_KEY 可覆盖）
+  mappa api -u https://example.com     # ✅ c2（含取证模式）
+  mappa jsintel -u https://example.com # ✅ 第三轮（外链 JS ≤6 并发/≤2MB，只 GET）
+  mappa portscan -t 203.0.113.7        # ✅ 第三轮（常用端口表，并发 ≤32）
+  mappa fingerprint -u https://example.com
+  mappa paths -u https://example.com   # ✅ c2
+  mappa baseline -d example.com [--checks secheaders,webfiles]  # ✅ c2（域名暴露面基线 8 检查）
+  mappa poc -t https://example.com -p pocs/example.yaml  # ✅ c2（YAML 引擎）
+  mappa patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
                                          # ✅ 补丁差分→变种狩猎（本地 git 仓库，零外联）
-  recon-go report -t example.com          # ✅ c2（资产档案+证据包）
+  mappa report -t example.com          # ✅ c2（资产档案+证据包）
 `
 
 // knownCmds 合法子命令集合（argparse 在解析阶段即拒绝未知子命令，进度事件
@@ -550,16 +550,16 @@ func parseOrUsage(fs *flag.FlagSet, args []string, cmd, usage string) int {
 	if errors.Is(err, flag.ErrHelp) {
 		// fix3（audit low#6）：子命令内 -h/--help 对齐 argparse——打印本命令
 		// 用法后 exit 0（此前 flag 包报参数错误 exit 2）
-		fmt.Printf("用法: recon-go %s\n", usage)
+		fmt.Printf("用法: mappa %s\n", usage)
 		fs.PrintDefaults()
 		return 0
 	}
-	fmt.Printf("[!] 参数错误: %v\n  用法: recon-go %s\n", err, usage)
+	fmt.Printf("[!] 参数错误: %v\n  用法: mappa %s\n", err, usage)
 	return 2
 }
 
 func missingArgs(cmd, usage string) int {
-	fmt.Printf("[!] 缺少必填参数（subcommand=%s）\n  用法: recon-go %s\n", cmd, usage)
+	fmt.Printf("[!] 缺少必填参数（subcommand=%s）\n  用法: mappa %s\n", cmd, usage)
 	return 2
 }
 

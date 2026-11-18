@@ -58,7 +58,7 @@ func TestFindRepoRootProbeEngineGoMarker(t *testing.T) {
 // 永驻文件。
 func TestSettingsLegacyGhostKeysExcreted(t *testing.T) {
 	dir := t.TempDir()
-	legacy := `{"python_path":"C:\\py\\python.exe","go_engine_path":"C:\\tools\\recon-go.exe"}`
+	legacy := `{"python_path":"C:\\py\\python.exe","go_engine_path":"C:\\tools\\mappa.exe"}`
 	if err := writeSettingsFile(dir, legacy); err != nil {
 		t.Fatal(err)
 	}

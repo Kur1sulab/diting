@@ -1,9 +1,10 @@
-# src-recon-tool
+# 舆图 · Mappa
 
-![tests](https://github.com/Kur1sulab/src-recon-tool/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/Kur1sulab/mappa/actions/workflows/tests.yml/badge.svg)
 
-SRC 漏洞挖掘信息收集自动化工具（Python）。将子域枚举、资产测绘、指纹识别、
-敏感路径探测与 YAML 化 POC 验证编排为一条流水线，单次全流程约 30 分钟内完成。
+资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、资产测绘、指纹识别、敏感路径探测、
+API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
+Python 编排层 + Go 单文件内核（`mappa`，零第三方依赖）。
 
 > ⚠️ 仅限授权范围内的安全测试使用。禁止用于未授权目标。
 
@@ -43,21 +44,21 @@ pip install -r requirements.txt
 
 ## Go 引擎（engine-go/）
 
-同一套引擎的纯 Go 重写（`recon-go` 单文件、零外网测试、Python↔Go parity 全量对齐），
+同一套引擎的纯 Go 重写（`mappa` 单文件、零外网测试、Python↔Go parity 全量对齐），
 子命令与 `python src/recon.py` 一一对齐。详见 `engine-go/README.md`、
 `docs/PARITY.md`（双引擎对照）与 `docs/TEST-PORT.md`（测试平移清点）。
 
 ```bash
 # 构建（Go 1.24+；仅在拉取 yaml.v3 时需代理）
 cd engine-go
-GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o recon-go.exe ./cmd/recon-go
+GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o mappa.exe ./cmd/mappa
 C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（python 缺失时 parity 自动 skip）
 
 # 用法（子命令与 Python 版同名同参）
-./recon-go.exe subdomain -d example.com --verify
-./recon-go.exe api -u https://example.com          # 含取证模式
-./recon-go.exe report -t example.com               # 资产档案 + 证据包
-# ...其余子命令见 ./recon-go.exe（无参数打印对照 help）
+./mappa.exe subdomain -d example.com --verify
+./mappa.exe api -u https://example.com          # 含取证模式
+./mappa.exe report -t example.com               # 资产档案 + 证据包
+# ...其余子命令见 ./mappa.exe（无参数打印对照 help）
 ```
 
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
@@ -120,7 +121,7 @@ requests:
 `llm` 模块（LLM 辅助解读）已**整体移除**：它会把子域/资产/指纹/敏感路径打包
 POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与「扫描数据不出
 本机」的形态红线冲突。Python 版 `recon.py all` 不再调用该步骤，`recon.py llm`
-打印弃用提示并以退出码 2 结束（与 Go 版 `recon-go llm` 行为一致）；
+打印弃用提示并以退出码 2 结束（与 Go 版 `mappa llm` 行为一致）；
 `modules/llm_assist.py` 已删除。
 
 ## 效果

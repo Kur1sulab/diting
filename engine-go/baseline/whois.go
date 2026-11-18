@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
 )
 
 // RDAPBase / TrancoBase 免 key 公开源（可注入换靶）。

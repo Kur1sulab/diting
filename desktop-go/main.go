@@ -1,4 +1,4 @@
-// recon-desktop —— src-recon-tool 桌面壳（go-webview2）。
+// recon-desktop —— mappa 桌面壳（go-webview2）。
 //
 // 形态：纯工具。Go 起 127.0.0.1 本地服务（六接口 + 内嵌前端），
 // WebView2 窗口加载该地址；扫描引擎是既有 Python 流水线，
@@ -114,7 +114,7 @@ func main() {
 		AutoFocus: true,
 		DataPath:  filepath.Join(dataDir, "webview"),
 		WindowOptions: webview2.WindowOptions{
-			Title:  "信息收集工具 · src-recon-tool",
+			Title:  "信息收集工具 · mappa",
 			Width:  wcfg.W,
 			Height: wcfg.H,
 			Center: true,

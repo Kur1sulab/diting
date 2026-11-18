@@ -4,7 +4,7 @@ package cli
 // 默认参数对齐 recon.py:153/173 的 run_portscan(target, out)；子命令入口在
 // cli/recon_cmds.go:cmdPortscan（--ports/--timeout/--workers 逐项对齐 argparse）。
 
-import "github.com/Kur1sulab/src-recon-tool/engine-go/portscan"
+import "github.com/Kur1sulab/mappa/engine-go/portscan"
 
 // runPortStep 是 `all` 流水线里的非致命端口扫描步骤；默认参数对齐
 // recon.py:153/173 的 run_portscan(target, out)。

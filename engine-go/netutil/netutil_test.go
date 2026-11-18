@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/internal/parity"
+	"github.com/Kur1sulab/mappa/engine-go/internal/parity"
 )
 
 // ── fetch ──

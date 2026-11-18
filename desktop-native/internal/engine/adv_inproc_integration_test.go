@@ -33,8 +33,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/cli"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/mockweb"
+	"github.com/Kur1sulab/mappa/engine-go/cli"
+	"github.com/Kur1sulab/mappa/engine-go/mockweb"
 
 	"recon-native/internal/store"
 )

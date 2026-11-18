@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/mockweb"
+	"github.com/Kur1sulab/mappa/engine-go/mockweb"
 )
 
 // ── mask_value ──

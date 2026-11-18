@@ -139,7 +139,7 @@ parity 项沿用 `RequiresPython` 的 `python` 口径；CI=true 时全部 Skip�
 | jsintel | `jsintel.txt` | ✅ `diff` 空（含「线索≠漏洞」声明行与打码值） |
 | portscan | `ports.json` / `ports.txt` | ✅ 逐字节一致（`timeout` 字面经 `PyFloat` 修正后 `1.0` 与 Python 同形） |
 | patchdiff | `patchdiff.json` | ✅ 逐字节一致（同一 fixture 仓库 `--limit 3`：3 提交 / 3 hunk / 修复信号同序） |
-| all | `recon-go all -t 127.0.0.1` | ✅ exit 0，10 步全跑通（reverse→icp→fingerprint→api→portscan→jsintel→report），`report.md` 落盘 |
+| all | `mappa all -t 127.0.0.1` | ✅ exit 0，10 步全跑通（reverse→icp→fingerprint→api→portscan→jsintel→report），`report.md` 落盘 |
 
 jsintel 实跑摘要（两版同）：端点 4 条（`/api/v1/users`、`/api/v2/login`、`/v3/pay`、
 `/weather/beijing`）／敏感 3 条（全部打码到前 4 位）／第三方域 1／内网 IP 1。

@@ -179,7 +179,7 @@ def cmd_all(args):
 
 
 def main():
-    p = argparse.ArgumentParser(prog="src-recon-tool", description="SRC 信息收集自动化工具（仅限授权测试）")
+    p = argparse.ArgumentParser(prog="mappa", description="SRC 信息收集自动化工具（仅限授权测试）")
     p.add_argument("--progress-file", dest="progress_file", default="",
                    help="进度事件 JSONL 落盘路径（桌面壳用；空或环境变量 RECON_PROGRESS_FILE 均可）")
     sub = p.add_subparsers(dest="cmd")

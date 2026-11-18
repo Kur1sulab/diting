@@ -7,7 +7,7 @@ package cli
 // 端口扫描步骤的接线在 cli/port_cmd.go（runPortStep）。
 
 import (
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsintel"
+	"github.com/Kur1sulab/mappa/engine-go/jsintel"
 )
 
 // runJSStep：JS 情报（非致命步骤，失败只记警告不中断流水线）。

@@ -1,7 +1,7 @@
-# recon-go —— src-recon-tool 的 Go 引擎
+# mappa —— mappa 的 Go 引擎
 
 把 Python 引擎（`src/recon.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
-产出**单文件** `recon-go.exe`，CLI 子命令与 `python src/recon.py` 一一对齐。
+产出**单文件** `mappa.exe`，CLI 子命令与 `python src/recon.py` 一一对齐。
 
 **移植边界（铁律）**：只有引擎自身的编排逻辑被重写（HTTP 数据源 / 软 404 基线 /
 存活验证 / 指纹匹配 / 输出解析 / 去重合并 / 安全落盘）；外部工具一律保持子进程
@@ -12,13 +12,13 @@
 
 ```bash
 cd engine-go
-C:/Go/go/bin/go.exe build -o recon-go.exe ./cmd/recon-go   # 标准布局入口（推荐）
-C:/Go/go/bin/go.exe build -o recon-go.exe .                # 根目录兼容入口，二进制等价
+C:/Go/go/bin/go.exe build -o mappa.exe ./cmd/mappa   # 标准布局入口（推荐）
+C:/Go/go/bin/go.exe build -o mappa.exe .                # 根目录兼容入口，二进制等价
 C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Python↔Go parity
 ```
 
 - Go 1.24+；本仓库零第三方依赖，无需联网拉模块。
-- 入口逻辑在 `internal/cli`，`cmd/recon-go/main.go` 与根 `main.go` 是两个等价薄壳。
+- 入口逻辑在 `internal/cli`，`cmd/mappa/main.go` 与根 `main.go` 是两个等价薄壳。
 - `go test` 全程零外网：crt.sh/certspotter 打 httptest stub，OneForAll 走
   `testdata/oneforall_fake.py.txt` fixture，subfinder 用注入桩。
 
@@ -50,7 +50,7 @@ C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Pyt
 ```
 engine-go/
 ├── main.go                  # 根兼容入口（薄壳）
-├── cmd/recon-go/main.go     # 标准布局入口（薄壳）；CLI 逻辑在 internal/cli
+├── cmd/mappa/main.go     # 标准布局入口（薄壳）；CLI 逻辑在 internal/cli
 ├── internal/cli/            # 14 子命令分发表 + 进度事件流
 ├── internal/netutil/        # fetch（HTTP 底座）/ urlcheck（SSRF 边界）/
 │                            # safeio（安全落盘）/ baseline（软404/存活复验）
@@ -100,7 +100,7 @@ engine-go/
   全部换 `_`，再剥首尾点/空格；空与 `..` 回 `unknown`；目录创建失败上抛（CLI
   exit 1，对齐 Python makedirs 抛 OSError 未捕获）。三处实现（Go cli / Python
   recon.py / desktop-go outDirFor）逐字符同规则，两引擎产物目录同名。
-- **--progress-file 全局参数（fix1 补齐）**：`recon-go --progress-file <path>
+- **--progress-file 全局参数（fix1 补齐）**：`mappa --progress-file <path>
   <子命令> ...`（或 `--progress-file=` 形态、环境变量 `RECON_PROGRESS_FILE` 兜底），
   事件 JSONL 键序 `{ts,event,module,detail}` 与 `recon.py:31-62` 契约一致：
   `pipeline_start → start → done|fail → pipeline_end`（all 无模块级事件；
@@ -189,7 +189,7 @@ curl -L -o tools/bin/subfinder.zip \
 增强、依赖外部 LLM 接口，与"纯 Go 单文件、零外网依赖"的引擎定位冲突。Python
 版已同步移除该模块（`modules/llm_assist.py` 已删除）——该功能需要向第三方服务
 发送扫描数据，与数据不出本机的红线冲突，两侧都不再提供。终修轮起 Go CLI 的
-`llm` 弃用占位槽位一并删除（公开面不保留 AI 词汇）：`recon-go llm` 按未知
+`llm` 弃用占位槽位一并删除（公开面不保留 AI 词汇）：`mappa llm` 按未知
 子命令处理（exit 2，无事件流）。
 
 ## 进程内嵌入契约（第三方消费方必读）

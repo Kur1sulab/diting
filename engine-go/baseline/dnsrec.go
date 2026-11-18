@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/mappa/engine-go/netutil"
 )
 
 // DoHBase DoH JSON API（免 key；可注入换靶）。

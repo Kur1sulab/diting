@@ -32,10 +32,10 @@
 
 | 命令 | 结果 |
 |---|---|
-| `go build -o recon-go-review.exe ./cmd/recon-go` | **rc=0** |
-| `go build -o recon-go-review-root.exe .`（根兼容入口） | **rc=0** |
+| `go build -o mappa-review.exe ./cmd/mappa` | **rc=0** |
+| `go build -o mappa-review-root.exe .`（根兼容入口） | **rc=0** |
 | `go vet ./...` | **rc=0，零告警** |
-| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 1.7s / asset 1.5s / cli 1.6s / fingerprint 0.9s / icp 1.4s / mockweb 2.6s / netutil 1.9s / **parity 58.1s** / paths 1.6s / poc 1.3s / **redteam_adv2 7.1s** / report 1.1s / reverseip 1.2s / subdomain 1.9s / toolrun 2.2s；root、cmd/recon-go、jsonx 三处 [no test files]） |
+| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 1.7s / asset 1.5s / cli 1.6s / fingerprint 0.9s / icp 1.4s / mockweb 2.6s / netutil 1.9s / **parity 58.1s** / paths 1.6s / poc 1.3s / **redteam_adv2 7.1s** / report 1.1s / reverseip 1.2s / subdomain 1.9s / toolrun 2.2s；root、cmd/mappa、jsonx 三处 [no test files]） |
 
 - parity 58.1s 与 redteam_adv2 7.1s 的耗时佐证 Python 探针与对抗场景**真跑**，非静默跳过。
 - `go.sum` 含 yaml.v3（c2 引入的仓库唯一第三方依赖，与 README:40 宣称一致）。
@@ -70,7 +70,7 @@ Python 侧驱动脚本与 Go 侧二进制各自独立 out 目录，互不污染�
 
 ### M1 paths + api + report 全链路（真实 CLI 二进制，/real 场景）
 
-- 命令：`recon-go-review paths|api -u http://127.0.0.1:8799/real` + `report -t http_127.0.0.1_8799_real`
+- 命令：`mappa-review paths|api -u http://127.0.0.1:8799/real` + `report -t http_127.0.0.1_8799_real`
   vs Python `modules.paths.run_paths / api_unauth.run_api / report.run_report` 同参。
 - **paths 存活 5 条全等**：`["/robots.txt","/.env","/swagger-ui.html","/actuator","/actuator/env"]`。
 - **api 存活命中 5 条全等**（env/heapdump/swagger/v3-docs/actuator，`live_hits=5`、

@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/jsintel"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/portscan"
+	"github.com/Kur1sulab/mappa/engine-go/jsintel"
+	"github.com/Kur1sulab/mappa/engine-go/portscan"
 )
 
 // extraInt 读整数旗标（缺省/非法回落 def；与 argparse 的 int 解析同口径：

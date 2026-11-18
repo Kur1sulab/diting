@@ -18,15 +18,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Kur1sulab/src-recon-tool/engine-go/apiunauth"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/asset"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/cli"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/fingerprint"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/icp"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/paths"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/report"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/reverseip"
-	"github.com/Kur1sulab/src-recon-tool/engine-go/subdomain"
+	"github.com/Kur1sulab/mappa/engine-go/apiunauth"
+	"github.com/Kur1sulab/mappa/engine-go/asset"
+	"github.com/Kur1sulab/mappa/engine-go/cli"
+	"github.com/Kur1sulab/mappa/engine-go/fingerprint"
+	"github.com/Kur1sulab/mappa/engine-go/icp"
+	"github.com/Kur1sulab/mappa/engine-go/paths"
+	"github.com/Kur1sulab/mappa/engine-go/report"
+	"github.com/Kur1sulab/mappa/engine-go/reverseip"
+	"github.com/Kur1sulab/mappa/engine-go/subdomain"
 )
 
 // allStep 单步执行（_run_step 同构）：start → fn → done | fail(module, err)。

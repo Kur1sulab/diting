@@ -1,4 +1,4 @@
-module github.com/Kur1sulab/src-recon-tool/engine-go
+module github.com/Kur1sulab/mappa/engine-go
 
 go 1.24
 
