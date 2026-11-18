@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/mappa/engine-go/portscan"
+	"github.com/Kur1sulab/sweep/engine-go/portscan"
 )
 
 // portscanPy 探测本机 Python：优先 python，回退 python3。不改全局

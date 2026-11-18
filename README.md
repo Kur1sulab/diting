@@ -1,10 +1,10 @@
-# 舆图 · Mappa
+# sweep
 
-![tests](https://github.com/Kur1sulab/mappa/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/Kur1sulab/sweep/actions/workflows/tests.yml/badge.svg)
 
 资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、资产测绘、指纹识别、敏感路径探测、
 API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
-Python 编排层 + Go 单文件内核（`mappa`，零第三方依赖）。
+Python 编排层 + Go 单文件内核（`sweep`，零第三方依赖）。
 
 > ⚠️ 仅限授权范围内的安全测试使用。禁止用于未授权目标。
 
@@ -29,7 +29,7 @@ Python 编排层 + Go 单文件内核（`mappa`，零第三方依赖）。
 ## 架构
 
 ```
-target → mappa.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
+target → sweep.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
                                               ↓
                                        poc_engine（YAML 模板）
                                               ↓
@@ -44,48 +44,48 @@ pip install -r requirements.txt
 
 ## Go 引擎（engine-go/）
 
-同一套引擎的纯 Go 重写（`mappa` 单文件、零外网测试、Python↔Go parity 全量对齐），
-子命令与 `python src/mappa.py` 一一对齐。详见 `engine-go/README.md`、
+同一套引擎的纯 Go 重写（`sweep` 单文件、零外网测试、Python↔Go parity 全量对齐），
+子命令与 `python src/sweep.py` 一一对齐。详见 `engine-go/README.md`、
 `docs/PARITY.md`（双引擎对照）与 `docs/TEST-PORT.md`（测试平移清点）。
 
 ```bash
 # 构建（Go 1.24+；仅在拉取 yaml.v3 时需代理）
 cd engine-go
-GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o mappa.exe ./cmd/mappa
+GOPROXY=https://goproxy.cn,direct C:/Go/go/bin/go.exe build -o sweep.exe ./cmd/sweep
 C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（python 缺失时 parity 自动 skip）
 
 # 用法（子命令与 Python 版同名同参）
-./mappa.exe subdomain -d example.com --verify
-./mappa.exe api -u https://example.com          # 含取证模式
-./mappa.exe report -t example.com               # 资产档案 + 证据包
-# ...其余子命令见 ./mappa.exe（无参数打印对照 help）
+./sweep.exe subdomain -d example.com --verify
+./sweep.exe api -u https://example.com          # 含取证模式
+./sweep.exe report -t example.com               # 资产档案 + 证据包
+# ...其余子命令见 ./sweep.exe（无参数打印对照 help）
 ```
 
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
 api / paths / jsintel / portscan / poc / patchdiff / report（jsintel 见
 `engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
-侧 llm_assist.py 已整体移除、mappa.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
+侧 llm_assist.py 已整体移除、sweep.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
 
 ## 用法
 
 ```bash
 export FOFA_EMAIL=... FOFA_KEY=... HUNTER_KEY=...   # Windows: setx
-python src/mappa.py all -d example.com        # 域名全流程
-python src/mappa.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
-python src/mappa.py subdomain -d example.com  # 仅子域
-python src/mappa.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
-python src/mappa.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
-python src/mappa.py asset -d example.com      # 仅资产测绘
-python src/mappa.py reverse -i 47.100.49.228  # 仅 IP 反查域名
-python src/mappa.py icp -d example.com        # 仅 ICP 备案查询
-python src/mappa.py api -u https://example.com        # 仅 API 文档/未授权探测
-python src/mappa.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
-python src/mappa.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
-python src/mappa.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
-python src/mappa.py fingerprint -u https://example.com
-python src/mappa.py paths -u https://example.com
-python src/mappa.py poc -t https://example.com -p pocs/example-http-detect.yaml
-python src/mappa.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
+python src/sweep.py all -d example.com        # 域名全流程
+python src/sweep.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
+python src/sweep.py subdomain -d example.com  # 仅子域
+python src/sweep.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
+python src/sweep.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
+python src/sweep.py asset -d example.com      # 仅资产测绘
+python src/sweep.py reverse -i 47.100.49.228  # 仅 IP 反查域名
+python src/sweep.py icp -d example.com        # 仅 ICP 备案查询
+python src/sweep.py api -u https://example.com        # 仅 API 文档/未授权探测
+python src/sweep.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
+python src/sweep.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
+python src/sweep.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
+python src/sweep.py fingerprint -u https://example.com
+python src/sweep.py paths -u https://example.com
+python src/sweep.py poc -t https://example.com -p pocs/example-http-detect.yaml
+python src/sweep.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
 ```
 
 `all` 跑完会自动生成 `out/<目标>/report.md`（资产档案）与 `out/<目标>/evidence-<目标>-<时间>.zip`（证据包，仅在有过存活取证时）。
@@ -120,8 +120,8 @@ requests:
 
 `llm` 模块（LLM 辅助解读）已**整体移除**：它会把子域/资产/指纹/敏感路径打包
 POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与「扫描数据不出
-本机」的形态红线冲突。Python 版 `mappa.py all` 不再调用该步骤，`mappa.py llm`
-打印弃用提示并以退出码 2 结束（与 Go 版 `mappa llm` 行为一致）；
+本机」的形态红线冲突。Python 版 `sweep.py all` 不再调用该步骤，`sweep.py llm`
+打印弃用提示并以退出码 2 结束（与 Go 版 `sweep llm` 行为一致）；
 `modules/llm_assist.py` 已删除。
 
 ## 效果
@@ -142,7 +142,7 @@ POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与�
 ## 目录
 
 ```
-src/mappa.py            CLI 入口
+src/sweep.py            CLI 入口
 src/modules/            各功能模块
 pocs/                   YAML POC 模板
 tests/                  单元测试

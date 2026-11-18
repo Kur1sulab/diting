@@ -1,6 +1,6 @@
 # REVIEW-merged.md —— 集成轮（engine-go 公开化 + desktop-native 直调重写）独立冷复核
 
-> 复核员未参与本轮施工（冷复核）。复核对象 = 仓库 `mappa` HEAD `88a9d1c`
+> 复核员未参与本轮施工（冷复核）。复核对象 = 仓库 `sweep` HEAD `88a9d1c`
 > **+ 暂存区（staged）201 项改动**——本轮施工成果（engine-go internal→顶层公开包、
 > desktop 子进程壳退役改进程内直调）尚未提交，`git status --short` 实证 staged 201 项、
 > 未 staged 仅 `docs/GOAL-20261002-go-desktop.md`（基线轮总结，文档）。两线 build+test
@@ -21,9 +21,9 @@ os/exec 外部工具子进程通道在合并二进制内存活，见 §一）；
 复核员亲跑 `go build` 重建两 exe 后 `go version -m`（验后两 exe 已删）：
 
 ```
-$ go version -m engine-go/mappa-review-merged.exe
-	engine-go/mappa-review-merged.exe: go1.24.1
-	path	github.com/Kur1sulab/mappa/engine-go
+$ go version -m engine-go/sweep-review-merged.exe
+	engine-go/sweep-review-merged.exe: go1.24.1
+	path	github.com/Kur1sulab/sweep/engine-go
 	dep	gopkg.in/yaml.v3	v3.0.1	h1:fxVm/…7CA=
 	build	CGO_ENABLED=0
 	build	GOOS=windows  GOARCH=amd64
@@ -32,7 +32,7 @@ $ go version -m desktop-native/recon-native-review-merged.exe
 	desktop-native/recon-native-review-merged.exe: go1.24.1
 	path	recon-native
 	dep	gioui.org	v0.10.3
-	dep	github.com/Kur1sulab/mappa/engine-go	v0.0.0-…  => ../engine-go (devel)
+	dep	github.com/Kur1sulab/sweep/engine-go	v0.0.0-…  => ../engine-go (devel)
 	dep	golang.org/x/{sys v0.39.0, net v0.48.0, image, text, exp/shiny}
 	dep	gopkg.in/yaml.v3	v3.0.1  // indirect（经 engine）
 	build	CGO_ENABLED=0
@@ -166,28 +166,28 @@ engine 线（`cd engine-go`）：
 ```
 $ go version
 go version go1.24.1 windows/amd64
-$ go build ./... && go build -o mappa-review-merged.exe .
+$ go build ./... && go build -o sweep-review-merged.exe .
 （无输出，退出码 0；exe 10,924,544 B，验后已删）
 $ go test -count=1 ./...
-?   	github.com/Kur1sulab/mappa/engine-go	[no test files]
-ok  	github.com/Kur1sulab/mappa/engine-go/apiunauth	1.060s
-ok  	github.com/Kur1sulab/mappa/engine-go/asset	0.666s
-ok  	github.com/Kur1sulab/mappa/engine-go/baseline	11.614s
-ok  	github.com/Kur1sulab/mappa/engine-go/cli	5.551s
-?   	github.com/Kur1sulab/mappa/engine-go/cmd/mappa	[no test files]
-ok  	github.com/Kur1sulab/mappa/engine-go/fingerprint	1.008s
-ok  	github.com/Kur1sulab/mappa/engine-go/icp	1.092s
-ok  	github.com/Kur1sulab/mappa/engine-go/internal/parity	46.759s
-ok  	github.com/Kur1sulab/mappa/engine-go/internal/redteam_adv2	6.874s
-?   	github.com/Kur1sulab/mappa/engine-go/jsonx	[no test files]
-ok  	github.com/Kur1sulab/mappa/engine-go/mockweb	2.223s
-ok  	github.com/Kur1sulab/mappa/engine-go/netutil	1.945s
-ok  	github.com/Kur1sulab/mappa/engine-go/paths	1.213s
-ok  	github.com/Kur1sulab/mappa/engine-go/poc	1.026s
-ok  	github.com/Kur1sulab/mappa/engine-go/report	1.113s
-ok  	github.com/Kur1sulab/mappa/engine-go/reverseip	1.038s
-ok  	github.com/Kur1sulab/mappa/engine-go/subdomain	1.482s
-ok  	github.com/Kur1sulab/mappa/engine-go/toolrun	2.166s
+?   	github.com/Kur1sulab/sweep/engine-go	[no test files]
+ok  	github.com/Kur1sulab/sweep/engine-go/apiunauth	1.060s
+ok  	github.com/Kur1sulab/sweep/engine-go/asset	0.666s
+ok  	github.com/Kur1sulab/sweep/engine-go/baseline	11.614s
+ok  	github.com/Kur1sulab/sweep/engine-go/cli	5.551s
+?   	github.com/Kur1sulab/sweep/engine-go/cmd/sweep	[no test files]
+ok  	github.com/Kur1sulab/sweep/engine-go/fingerprint	1.008s
+ok  	github.com/Kur1sulab/sweep/engine-go/icp	1.092s
+ok  	github.com/Kur1sulab/sweep/engine-go/internal/parity	46.759s
+ok  	github.com/Kur1sulab/sweep/engine-go/internal/redteam_adv2	6.874s
+?   	github.com/Kur1sulab/sweep/engine-go/jsonx	[no test files]
+ok  	github.com/Kur1sulab/sweep/engine-go/mockweb	2.223s
+ok  	github.com/Kur1sulab/sweep/engine-go/netutil	1.945s
+ok  	github.com/Kur1sulab/sweep/engine-go/paths	1.213s
+ok  	github.com/Kur1sulab/sweep/engine-go/poc	1.026s
+ok  	github.com/Kur1sulab/sweep/engine-go/report	1.113s
+ok  	github.com/Kur1sulab/sweep/engine-go/reverseip	1.038s
+ok  	github.com/Kur1sulab/sweep/engine-go/subdomain	1.482s
+ok  	github.com/Kur1sulab/sweep/engine-go/toolrun	2.166s
 （16 包 ok，退出码 0）
 ```
 

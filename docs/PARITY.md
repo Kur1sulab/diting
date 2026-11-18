@@ -96,7 +96,7 @@ parity 项沿用 `RequiresPython` 的 `python` 口径；CI=true 时全部 Skip�
 | 私网全集 | Go 标准库缺 Python 的私网/保留段（含 198.18.0.0/15 fake-ip 段） | 自实现全集 + 动态 python 探针单测逐 IP 钉死 |
 | portscan timeout 字面量 | Python json.dumps 写 `1.0`，Go float64 默认写 `1` | `Result.Timeout` 用 `PyFloat.MarshalJSON` 输出 `1.0`；ports.json / ports.txt 实测与 Python 逐字节一致（本机 diff 为空） |
 | portscan 写盘/退出码 | Python safe_write 抛异常未捕获 → traceback exit 1；Go 返回 error → CLI exit 1 | 行为等价（写盘失败即失败），日志文案不同 |
-| patchdiff 失败口径 | Python `run_patchdiff` 非仓库时返回 `{'ok': False, 'error': …}`，但 mappa.py 不看返回值 → **exit 0**；Go 返回 error → CLI `[!]` + exit 1 | **有意偏差**（脚本不该把「不是 git 仓库」当成功继续跑）；契约面：Go 以 error 表达 ok=False |
+| patchdiff 失败口径 | Python `run_patchdiff` 非仓库时返回 `{'ok': False, 'error': …}`，但 sweep.py 不看返回值 → **exit 0**；Go 返回 error → CLI `[!]` + exit 1 | **有意偏差**（脚本不该把「不是 git 仓库」当成功继续跑）；契约面：Go 以 error 表达 ok=False |
 | patchdiff limit=0 | Python 显式 `limit=0` → `git log -n 0` → 空结果；Go `Limit<=0` 视同未设置取默认 20 | 有意偏差（库 API 零值可用；CLI 恒显式传 20，无差异面） |
 | 私网表的 Python 版本口径 | ipaddress 私网表随 CPython 版本漂移：3.8 与 3.13 差异段 = IPv4 192.0.0.0/29(+170/31)→/24、IPv6 新增 64:ff9b:1::/48、2002::/16、3fff::/20。**Go 表统一按 3.13 口径**（与 CI runner 一致）；本机 3.8 引擎在上述 4 个极端段上更宽松（不影响 fake-ip/RFC1918/回环等核心场景） | 探针测试版本感知：python <3.9 跳过版本差异段对照（netutil:TestIPBlockedMatchesPython） |
 
@@ -139,11 +139,11 @@ parity 项沿用 `RequiresPython` 的 `python` 口径；CI=true 时全部 Skip�
 | jsintel | `jsintel.txt` | ✅ `diff` 空（含「线索≠漏洞」声明行与打码值） |
 | portscan | `ports.json` / `ports.txt` | ✅ 逐字节一致（`timeout` 字面经 `PyFloat` 修正后 `1.0` 与 Python 同形） |
 | patchdiff | `patchdiff.json` | ✅ 逐字节一致（同一 fixture 仓库 `--limit 3`：3 提交 / 3 hunk / 修复信号同序） |
-| all | `mappa all -t 127.0.0.1` | ✅ exit 0，10 步全跑通（reverse→icp→fingerprint→api→portscan→jsintel→report），`report.md` 落盘 |
+| all | `sweep all -t 127.0.0.1` | ✅ exit 0，10 步全跑通（reverse→icp→fingerprint→api→portscan→jsintel→report），`report.md` 落盘 |
 
 jsintel 实跑摘要（两版同）：端点 4 条（`/api/v1/users`、`/api/v2/login`、`/v3/pay`、
 `/weather/beijing`）／敏感 3 条（全部打码到前 4 位）／第三方域 1／内网 IP 1。
 
-`all` 编排核对：Go 侧步骤序与 `mappa.py cmd_all` 一致（域名分支 jsintel→portscan，
+`all` 编排核对：Go 侧步骤序与 `sweep.py cmd_all` 一致（域名分支 jsintel→portscan，
 IP 分支 portscan→jsintel），jsintel/portscan 均为非致命步骤——本地靶站端口扫描失败
 也照常进入 report 收尾（desktop-native `TestIntegrationAllDomainBranchRunsNewSteps` 钉住）。

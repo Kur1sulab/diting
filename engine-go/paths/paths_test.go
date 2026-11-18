@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/mockweb"
+	"github.com/Kur1sulab/sweep/engine-go/mockweb"
 )
 
 // TestPathsNoFalsePositives 四个误报陷阱场景必须零命中（test_probe_integration.py:52-66）。

@@ -1,5 +1,5 @@
-// Package engine 管理 mappa.py 子进程：起停、进程树终止、进度 JSONL 游标解析、
-// 原始日志落盘。Go 层是壳，扫描引擎仍是既有 Python 流水线（python src/mappa.py <子命令>）。
+// Package engine 管理 sweep.py 子进程：起停、进程树终止、进度 JSONL 游标解析、
+// 原始日志落盘。Go 层是壳，扫描引擎仍是既有 Python 流水线（python src/sweep.py <子命令>）。
 package engine
 
 import (
@@ -45,7 +45,7 @@ type Runner struct {
 	LookPath func(file string) (string, error)
 }
 
-// NewRunner repoRoot=仓库根（src/mappa.py 与 out/ 所在），dataDir=桌面端数据目录。
+// NewRunner repoRoot=仓库根（src/sweep.py 与 out/ 所在），dataDir=桌面端数据目录。
 func NewRunner(repoRoot, dataDir, pythonPath string) *Runner {
 	return &Runner{
 		repoRoot:   repoRoot,
@@ -132,7 +132,7 @@ func (r *Runner) ProbePython() (found bool, version string, depsOK bool) {
 // CmdAllowed 报告子命令是否在九模块白名单内。
 func CmdAllowed(cmd string) bool { return cmdSet[cmd] }
 
-// BuildCmdArgs 把子命令 + 目标拼成 mappa.py 的参数段（不含解释器与脚本路径）。
+// BuildCmdArgs 把子命令 + 目标拼成 sweep.py 的参数段（不含解释器与脚本路径）。
 // fix1 P0 纵深层：extra 过 ValidateExtraArgs 精确白名单（堵 argparse 前缀缩写
 // 展开覆盖目标）——server 层黑名单之外的任何调用方也绕不过这里。
 func BuildCmdArgs(cmd, target string, extra []string) ([]string, error) {
@@ -170,9 +170,9 @@ func (r *Runner) Start(id, cmd, target string, extra []string) error {
 	if err != nil {
 		return err
 	}
-	script := filepath.Join("src", "mappa.py")
+	script := filepath.Join("src", "sweep.py")
 	if _, err := os.Stat(filepath.Join(r.repoRoot, script)); err != nil {
-		return errors.New("未找到扫描引擎 src/mappa.py（工作目录必须为仓库根）")
+		return errors.New("未找到扫描引擎 src/sweep.py（工作目录必须为仓库根）")
 	}
 
 	progressPath := filepath.Join(r.dataDir, "progress", id+".jsonl")

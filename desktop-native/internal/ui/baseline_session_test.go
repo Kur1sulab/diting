@@ -3,7 +3,7 @@ package ui
 // baseline_session_test.go — 基线模块的会话层接线：
 //   - normalizeTarget baseline 分支 = 域名形态（拒绝协议/端口，同 subdomain/icp）；
 //   - CreateTask("target","baseline",args) 走既有校验链入库并进程内直调
-//     （mappa.exe 第二子进程已随第 2 步退役，SetGoEnginePath/SetPythonPath
+//     （sweep.exe 第二子进程已随第 2 步退役，SetGoEnginePath/SetPythonPath
 //     与 settings 双字段持久化用例一并移除）。
 
 import "testing"

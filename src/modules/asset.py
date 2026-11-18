@@ -14,7 +14,7 @@ try:
 except ImportError:
     import netutil
 
-_UA = {"User-Agent": "mappa/1.0 (+authorized-testing-only)"}
+_UA = {"User-Agent": "sweep/1.0 (+authorized-testing-only)"}
 
 
 def _fofa(domain: str) -> list:

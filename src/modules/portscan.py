@@ -17,7 +17,7 @@ import json
 import re
 import socket
 
-try:                                  # 作为包导入时（tests / mappa.py）用相对导入
+try:                                  # 作为包导入时（tests / sweep.py）用相对导入
     from . import netutil
 except ImportError:                   # 直接执行本文件时的兜底
     import netutil

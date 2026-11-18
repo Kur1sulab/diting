@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/icp"
-	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/sweep/engine-go/icp"
+	"github.com/Kur1sulab/sweep/engine-go/netutil"
 )
 
 const (

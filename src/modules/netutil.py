@@ -14,7 +14,7 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlsplit
 
-_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) mappa/1.0"}
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) sweep/1.0"}
 _RAND = secrets.token_hex(5)          # 基线探针随机串（secrets 源，替代 random）
 
 

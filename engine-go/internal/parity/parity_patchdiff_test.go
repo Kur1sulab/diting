@@ -25,7 +25,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/patchdiff"
+	"github.com/Kur1sulab/sweep/engine-go/patchdiff"
 )
 
 // ── 本地 fixture 仓库（与 patchdiff 包内测试同构，刻意重复：跨包不共享 test helper）──

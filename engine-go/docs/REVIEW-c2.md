@@ -32,10 +32,10 @@
 
 | 命令 | 结果 |
 |---|---|
-| `go build -o mappa-review.exe ./cmd/mappa` | **rc=0** |
-| `go build -o mappa-review-root.exe .`（根兼容入口） | **rc=0** |
+| `go build -o sweep-review.exe ./cmd/sweep` | **rc=0** |
+| `go build -o sweep-review-root.exe .`（根兼容入口） | **rc=0** |
 | `go vet ./...` | **rc=0，零告警** |
-| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 1.7s / asset 1.5s / cli 1.6s / fingerprint 0.9s / icp 1.4s / mockweb 2.6s / netutil 1.9s / **parity 58.1s** / paths 1.6s / poc 1.3s / **redteam_adv2 7.1s** / report 1.1s / reverseip 1.2s / subdomain 1.9s / toolrun 2.2s；root、cmd/mappa、jsonx 三处 [no test files]） |
+| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 1.7s / asset 1.5s / cli 1.6s / fingerprint 0.9s / icp 1.4s / mockweb 2.6s / netutil 1.9s / **parity 58.1s** / paths 1.6s / poc 1.3s / **redteam_adv2 7.1s** / report 1.1s / reverseip 1.2s / subdomain 1.9s / toolrun 2.2s；root、cmd/sweep、jsonx 三处 [no test files]） |
 
 - parity 58.1s 与 redteam_adv2 7.1s 的耗时佐证 Python 探针与对抗场景**真跑**，非静默跳过。
 - `go.sum` 含 yaml.v3（c2 引入的仓库唯一第三方依赖，与 README:40 宣称一致）。
@@ -56,7 +56,7 @@ GOAL 遗留#1 列 10 项，c2 兑现 7 项；`all`/`jsintel`/`portscan` 按计�
 | `internal/apiunauth/apiunauth.go` | README:36「27 端点清单 + 取证三件套」 | Endpoints 亲数 27 条与 api_unauth.py:22-50 逐条全等（含 `≥2 特征` 规则 ：80-86）；classify/基线过滤/复验/取证落盘逐段对齐；parity ③⑥ 绿 | ✅ |
 | `internal/poc/poc.go` | af5bf7d「poc(yaml.v3)」 | Matcher/condition and/or 与 poc_engine.py:30-43 全等；畸形/缺模板路径实测优雅降级（弹幕 T16a/b） | ✅ |
 | `internal/report/report.go` | README:42「资产档案 + 证据包 zip」 | Collect 11 键对齐 report.py:42-56；RenderMD 逐行对齐（§3 实测全等）；PackEvidence arcname 相对 out/ + `..` 按段复检（:447-466）+ ZipStamp 唯一性与 .part 原子改名（fix2 P2，:30-37,478-492） | ✅ |
-| `internal/cli/cli.go` | af5bf7d「cli 七子命令拆出真实现」 | asset/reverse/icp/api/paths/poc/report 七案全部真实现并接 MakeOutdir；knownCmds 14 命令与 mappa.py 子解析器对应 | ✅ |
+| `internal/cli/cli.go` | af5bf7d「cli 七子命令拆出真实现」 | asset/reverse/icp/api/paths/poc/report 七案全部真实现并接 MakeOutdir；knownCmds 14 命令与 sweep.py 子解析器对应 | ✅ |
 | `internal/parity/parity_c2_test.go` | 398ca9e「黄金四套 + render_md 逐行 diff + paths/api 全链路 + arcname/成员 + FOFA/Hunter 重放」 | 8 个 parity 测试全带 `RequiresPython`；本轮套件实跑全绿（parity 58.1s） | ✅ |
 | fix2 测试件（`fix2_cli_test.go` 5 例 / `icp/fix2b_test.go` 2 例 / `netutil/fix2_netutil_test.go` 3 例 / `subdomain/fix2b_test.go` / `toolrun/fix2b_test.go` 3 例 / `report/fix2_test.go` 3 例 / `redteam_adv2/redteam_adv2_test.go` 4 例） | SECURITY-ADVISORIES 第 2 轮附记 | 全部在本轮 `go test -run … -v` 定向复跑绿（§4） | ✅ |
 
@@ -70,7 +70,7 @@ Python 侧驱动脚本与 Go 侧二进制各自独立 out 目录，互不污染�
 
 ### M1 paths + api + report 全链路（真实 CLI 二进制，/real 场景）
 
-- 命令：`mappa-review paths|api -u http://127.0.0.1:8799/real` + `report -t http_127.0.0.1_8799_real`
+- 命令：`sweep-review paths|api -u http://127.0.0.1:8799/real` + `report -t http_127.0.0.1_8799_real`
   vs Python `modules.paths.run_paths / api_unauth.run_api / report.run_report` 同参。
 - **paths 存活 5 条全等**：`["/robots.txt","/.env","/swagger-ui.html","/actuator","/actuator/env"]`。
 - **api 存活命中 5 条全等**（env/heapdump/swagger/v3-docs/actuator，`live_hits=5`、

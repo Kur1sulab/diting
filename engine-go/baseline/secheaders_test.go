@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/mockweb"
+	"github.com/Kur1sulab/sweep/engine-go/mockweb"
 )
 
 func headerRowsByName(rows []secHeaderRow) map[string]secHeaderRow {

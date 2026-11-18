@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/mockweb"
-	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/sweep/engine-go/mockweb"
+	"github.com/Kur1sulab/sweep/engine-go/netutil"
 )
 
 // TestRulesInventory 规则清单回归：条数与 RE2 预编译（包初始化即验证语法）。

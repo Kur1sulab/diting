@@ -1,8 +1,8 @@
-# 信息收集工具（recon-desktop）—— mappa 桌面壳（Go）
+# 信息收集工具（recon-desktop）—— sweep 桌面壳（Go）
 
 把现有 Python 信息收集流水线包成一个桌面应用：`go build` 一把出单个 `recon-desktop.exe`，
 应用本体（HTTP 服务 / 进程管理 / WebView2 壳）全是 Go，运行时零 node 依赖；
-扫描引擎仍是既有 `python src/mappa.py <子命令>`，由 Go 以子进程方式管理。
+扫描引擎仍是既有 `python src/sweep.py <子命令>`，由 Go 以子进程方式管理。
 
 ## 构建
 
@@ -85,13 +85,13 @@ desktop-go/
   frontend/          前端三件套（无构建链，go:embed 直接打进 exe）
   internal/whitelist/  正点名单硬校验
   internal/store/      任务持久化（tasks.json，原子写）
-  internal/engine/     mappa.py 子进程管理 + 进度 JSONL 游标解析 + 进程树终止
+  internal/engine/     sweep.py 子进程管理 + 进度 JSONL 游标解析 + 进程树终止
   internal/server/     六接口 + 前端静态服务（仅 127.0.0.1）
 ```
 
 ## 进度事件契约（与 Python 引擎）
 
-`src/mappa.py --progress-file <jsonl>` 逐行落：
+`src/sweep.py --progress-file <jsonl>` 逐行落：
 `{"ts":float,"event":"pipeline_start|start|done|fail|pipeline_end","module":str,"detail":str}`
 Go 侧游标增量读取；进程退出但没等到 `pipeline_end` 时兜底补一条 fail，界面不挂空。
 

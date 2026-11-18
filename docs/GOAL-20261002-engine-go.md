@@ -1,7 +1,7 @@
 # engine-go 移植轮次日志（2026-10-02 起）
 
-总纲：把 mappa 的 Python 引擎（src/mappa.py + src/modules/）重写为纯 Go，落 `engine-go/`，
-产出单文件 `mappa.exe`，CLI 子命令与 `python src/mappa.py` 一一对齐。选择性重写：只移植引擎自身
+总纲：把 sweep 的 Python 引擎（src/sweep.py + src/modules/）重写为纯 Go，落 `engine-go/`，
+产出单文件 `sweep.exe`，CLI 子命令与 `python src/sweep.py` 一一对齐。选择性重写：只移植引擎自身
 编排逻辑；外部工具（OneForAll/vulmap/dirsearch 等）保持子进程调用；HTTP 数据源（crt.sh/certspotter/
 FOFA/Hunter/备案）用 Go 原生客户端实现；subfinder 仅作子域可选补充通道；llm 模块不移植（弃用）。
 红线：go test 全程零外网，真实目标实测仅限 xycovo.com / 47.100.49.228 / 本机 mock。
@@ -11,7 +11,7 @@ FOFA/Hunter/备案）用 Go 原生客户端实现；subfinder 仅作子域可选
 ## 第 1 轮（c1）— 2026-10-02
 
 ### 目标
-mappa 骨架 + subcommand 分发 + 外部工具子进程适配层（OneForAll 主通道 / subfinder 可选通道）
+sweep 骨架 + subcommand 分发 + 外部工具子进程适配层（OneForAll 主通道 / subfinder 可选通道）
 + 存活验证（--verify）+ 指纹模块 + httptest mock 基建 + Python↔Go parity 骨架。
 验收线：`go build` 单 exe + `go test ./...` 全绿（含 parity，python 在场必须真跑）。
 
@@ -20,7 +20,7 @@ mappa 骨架 + subcommand 分发 + 外部工具子进程适配层（OneForAll �
 - `2726c7a` 引擎底座：internal/netutil（fetch/软404 基线/SSRF 边界/安全落盘）+ internal/jsonx；单测含动态 python 探针钉死 Python 3.8 私网全集
 - `88373cc` internal/mockweb（httptest 靶站，与 tests/mock_server.py 逐字节对齐 + 漂移守卫）+ internal/toolrun（OneForAll 主通道 / subfinder 可选通道 + 路径纪律）
 - `3c76fa0` internal/subdomain（枚举 OneForAll→crt.sh→certspotter 降级链 + DNS/HTTP 存活验证）+ internal/fingerprint（28 条规则，与 src/modules/fingerprint.py:15-48 逐条对应）+ main.go 14 子命令 CLI + internal/parity 矩阵 + README
-- `c76962d` CLI 逻辑拆 internal/cli，cmd/mappa 与根 main.go 双薄壳入口（行为等价）
+- `c76962d` CLI 逻辑拆 internal/cli，cmd/sweep 与根 main.go 双薄壳入口（行为等价）
 
 规划侧（本轮前置，2026-10-02 架构师产出）：IterPlan 已定 11 项语义对齐点与 parity 矩阵；
 engine-go/ 最小 go.mod+main.go sanity build 先行验证工具链（Go 1.24.1，GOPROXY=goproxy.cn,direct 已就位）。
@@ -60,14 +60,14 @@ engine-go/ 最小 go.mod+main.go sanity build 先行验证工具链（Go 1.24.1�
 - **实测白名单**：本轮自动化测试零真实目标请求；xycovo.com / 47.100.49.228 仅留人工验收。
 
 ### 复核结论（本轮实跑，c76962d 独立 worktree，避开工作区在途 r2/fix1 改动）
-- `C:/Go/go/bin/go.exe build -o mappa.exe .` → BUILD OK，单 exe 9,451,520 bytes
+- `C:/Go/go/bin/go.exe build -o sweep.exe .` → BUILD OK，单 exe 9,451,520 bytes
 - `go vet ./...` → 干净
 - `go test ./...` → 6 个测试包全 ok（fingerprint/mockweb/netutil/parity/subdomain/toolrun）
 - `go test ./internal/parity/ -v` → **6/6 PASS、0 SKIP**：TestParityBaseline / TestParityFetch /
   TestParityFingerprint / TestParityHTTPProbe / TestParityVerifySubs / TestParityOneForAll
   （parity 11.6s ≈ python 探针真跑，非静默跳过）
-- CLI 面：internal/cli/cli.go 实测 grep 到全部 14 个子命令（与 mappa.py:137-212 对齐）
-- llm 弃用声明：engine-go/README.md:41、114-118（`mappa llm` 打印弃用提示并 exit 2）
+- CLI 面：internal/cli/cli.go 实测 grep 到全部 14 个子命令（与 sweep.py:137-212 对齐）
+- llm 弃用声明：engine-go/README.md:41、114-118（`sweep llm` 打印弃用提示并 exit 2）
 - 推送：origin/main 顶端 = c76962d，4 个 c1 提交全部在远端
 
 ### 遗留（转入 c2/c3）
@@ -141,14 +141,14 @@ zip）；CLI 七子命令从"未实现"拆出真实现；验收=go build 单 exe
 - **零外网红线**：FOFA/Hunter/apihz/hackertarget 全部 URL var 注入打 httptest stub。
 
 ### 复核结论（本轮实跑，398ca9e 独立 worktree，避开工作区在途 r3 改动）
-- `go build -o mappa.exe .` → BUILD OK，单 exe 10,265,600 bytes；`go vet ./...` 干净
+- `go build -o sweep.exe .` → BUILD OK，单 exe 10,265,600 bytes；`go vet ./...` 干净
 - `go test ./...` → 15 个测试包全 ok（含 asset/cli/icp/paths/poc/report/reverseip/apiunauth 新包；
   apiunauth 行首次被 tail 截去，补跑 `go test ./internal/apiunauth/ -v` → 6/6 PASS：
   EndpointsTableSane/ClassifyGolden/ProbeNoFalsePositives/ProbeRealDetectedAndLive/
   RunAPIWritesDocAndEvidence/SaveEvidencePathSafety）
 - `go test ./internal/parity/ -v` → **14/14 PASS、0 SKIP**，c2 新增 8 项：ParseICP/ParseHackerTarget/
   Classify/PocMatch/RenderMD/PathsAndAPIFullChain（35.8s 两引擎全链路）/AssetParsers/PackEvidence
-- CLI：cli.go:182-290 七子命令真实现（带 mappa.py 行号对照注释），:310 all/jsintel/portscan
+- CLI：cli.go:182-290 七子命令真实现（带 sweep.py 行号对照注释），:310 all/jsintel/portscan
   维持未实现 exit 2
 - README 状态表（:29-41）：c1/c2 逐子命令标注、c3 待办、llm 弃用声明
 - Python 侧回归：`python -m unittest discover -s tests` → Ran 73 tests, FAILED (failures=3)，
@@ -201,7 +201,7 @@ README 更新（Go 版用法/llm 弃用/状态表收口）；commit + push。
    （PARITY.md ⑤差异解释）。
 4. **digest 真实环境佐证**：xycovo.com 的 14691B 404 页，两版独立算出同一 SHA-256 前 16 位
    `1229a80e9158c935`——digest 口径对齐在真实目标上闭环。
-5. llm 弃用终态：Python 侧 llm_assist.py 已删除、mappa.py:260-262 子命令提示弃用 exit 2；
+5. llm 弃用终态：Python 侧 llm_assist.py 已删除、sweep.py:260-262 子命令提示弃用 exit 2；
    Go 侧 cli.go:177 同行为——"不移植"收敛为"两侧一致弃用"。
 
 ### 审计对抗处置
@@ -211,7 +211,7 @@ README 更新（Go 版用法/llm 弃用/状态表收口）；commit + push。
 - 证据链纪律：CLI 实跑 stdout 采样统一收编 `engine-go/docs/parity-samples/`，PARITY.md 逐表引用。
 
 ### 复核结论（本轮实跑，8b9717f 独立 worktree）
-- `go build -o mappa.exe .` → BUILD OK，单 exe 10,303,488 bytes；`go vet ./...` 干净
+- `go build -o sweep.exe .` → BUILD OK，单 exe 10,303,488 bytes；`go vet ./...` 干净
 - `go test ./...` → **15 包 ok + 1 FAIL**：`TestRunSubfinderTimeoutAborts`
   （internal/toolrun/fix2b_test.go:31——subfinder 300ms 超时未生效，实测阻塞 3.28s，Windows 本机
   实测失败；工作区在途改动为 subdomain/fix2b_test.go，未见 toolrun 对应修复）。其余全部绿，

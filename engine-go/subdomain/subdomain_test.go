@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/sweep/engine-go/netutil"
 )
 
 // withStubs 集中管理包级注入点的保存/恢复（测试串行，无并行竞争）。

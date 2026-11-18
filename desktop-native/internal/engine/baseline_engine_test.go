@@ -1,6 +1,6 @@
 package engine
 
-// baseline_engine_test.go — baseline 模块直调接线（第二子进程 mappa.exe 已退役）：
+// baseline_engine_test.go — baseline 模块直调接线（第二子进程 sweep.exe 已退役）：
 // 基线检查在桌面进程内直调 engine-go baseline.RunContext，与 engine-go cli.go
 // baseline 分支同参（Domain/URL=PickBase/Out/Checks/--checks 归一化/AllowPrivate/
 // Emit 直通 sink/Logf 静默）。
@@ -9,7 +9,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/baseline"
+	"github.com/Kur1sulab/sweep/engine-go/baseline"
 )
 
 func TestCmdAllowedBaseline(t *testing.T) {

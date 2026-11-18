@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/mappa/engine-go/jsonx"
-	"github.com/Kur1sulab/mappa/engine-go/netutil"
+	"github.com/Kur1sulab/sweep/engine-go/jsonx"
+	"github.com/Kur1sulab/sweep/engine-go/netutil"
 )
 
 // Endpoint 对齐 api_unauth.py:22-50 的 (路径, 名称, 特征[小写], 风险)。

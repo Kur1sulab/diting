@@ -6,7 +6,7 @@ package paths
 import (
 	"testing"
 
-	"github.com/Kur1sulab/mappa/engine-go/mockweb"
+	"github.com/Kur1sulab/sweep/engine-go/mockweb"
 )
 
 func TestMergeExtra(t *testing.T) {

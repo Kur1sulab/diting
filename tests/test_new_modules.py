@@ -11,7 +11,7 @@ sys.path.insert(0, ROOT)
 
 class TestIPDetect(unittest.TestCase):
     def test_is_ip(self):
-        from mappa import is_ip
+        from sweep import is_ip
         self.assertTrue(is_ip("47.100.49.228"))
         self.assertTrue(is_ip("2001:db8::1"))
         self.assertFalse(is_ip("example.com"))

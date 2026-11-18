@@ -13,7 +13,7 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-import mappa  # noqa: E402
+import sweep  # noqa: E402
 from modules import netutil, subdomain  # noqa: E402
 
 
@@ -41,7 +41,7 @@ class MakeOutdirTest(unittest.TestCase):
             "x.com.": "x.com",
         }
         for target, want in cases.items():
-            out = mappa.make_outdir(target)
+            out = sweep.make_outdir(target)
             base = os.path.basename(out)
             self.assertEqual(base, want, "target=%r" % target)
             self.assertTrue(os.path.isdir(out))

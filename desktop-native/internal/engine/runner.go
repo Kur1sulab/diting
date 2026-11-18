@@ -17,14 +17,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/mappa/engine-go/apiunauth"
-	"github.com/Kur1sulab/mappa/engine-go/baseline"
-	"github.com/Kur1sulab/mappa/engine-go/cli"
-	"github.com/Kur1sulab/mappa/engine-go/fingerprint"
-	"github.com/Kur1sulab/mappa/engine-go/icp"
-	"github.com/Kur1sulab/mappa/engine-go/paths"
-	"github.com/Kur1sulab/mappa/engine-go/reverseip"
-	"github.com/Kur1sulab/mappa/engine-go/subdomain"
+	"github.com/Kur1sulab/sweep/engine-go/apiunauth"
+	"github.com/Kur1sulab/sweep/engine-go/baseline"
+	"github.com/Kur1sulab/sweep/engine-go/cli"
+	"github.com/Kur1sulab/sweep/engine-go/fingerprint"
+	"github.com/Kur1sulab/sweep/engine-go/icp"
+	"github.com/Kur1sulab/sweep/engine-go/paths"
+	"github.com/Kur1sulab/sweep/engine-go/reverseip"
+	"github.com/Kur1sulab/sweep/engine-go/subdomain"
 
 	"recon-native/internal/store"
 	"recon-native/internal/whitelist"
@@ -213,7 +213,7 @@ func (r *Runner) Start(id, cmd, target string, extra []string) error {
 
 // execTask 单任务调度：发 pipeline_start → start(cmd) → 模块执行（含引擎
 // 内层事件）→ done|fail(cmd) → pipeline_end(done|fail)。all 无模块级
-// start/done（mappa.py:250-256 / cli.go:98 契约），步骤级事件由 allrunner 发。
+// start/done（sweep.py:250-256 / cli.go:98 契约），步骤级事件由 allrunner 发。
 func (r *Runner) execTask(ctx context.Context, id, cmd, target string, extra []string) error {
 	r.emit(id, "pipeline", "pipeline_start", cmd)
 	if cmd != "all" {
