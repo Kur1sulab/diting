@@ -55,7 +55,7 @@ func Run(args []string) int {
 
   shinra serve [--addr 127.0.0.1:8788] [--open]
 
-环境变量（AI 研判 / 问答；旧名 ATLAS_AI_* 仍兼容读取）:
+环境变量（AI 研判 / 问答；旧名 SHINRA_AI_* 仍兼容读取）:
   SHINRA_AI_BASE    OpenAI 兼容端点，默认 https://api.openai.com/v1
   SHINRA_AI_KEY     API key；本地端点可留空
   SHINRA_AI_MODEL   模型名，默认 gpt-4o-mini

@@ -52,7 +52,7 @@ const helpText = `shinra — 资产测绘引擎（Go 单文件内核，仅限授
 
 // Version 版本号，由构建时 ldflags 注入：
 //
-//	go build -ldflags "-X github.com/Kur1sulab/shinra/engine-go/cli.Version=v1.0.0"
+//	go build -ldflags "-X github.com/Kur1sulab/shinra/engine-go/cli.Version=v2.0.0"
 //
 // 未注入时保持 "dev"——本地 `go run` 与 `go build` 都不该伪装成正式版。
 // 存在的理由很实在：装了二进制却无法自证版本，报障时只能靠猜。

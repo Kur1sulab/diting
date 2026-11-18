@@ -1,6 +1,6 @@
-# GOAL 日志 — atlas Go 桌面版
+# GOAL 日志 — shinra Go 桌面版
 
-> 项目：atlas 桌面化（desktop-go/）｜远端真相源：`git@github.com:Kur1sulab/atlas.git`
+> 项目：shinra 桌面化（desktop-go/）｜远端真相源：`git@github.com:Kur1sulab/shinra.git`
 > 本文档为迭代日志，每轮收尾由架构师追加。另：`pentest/vulnscan-platform/docs/` 下有同名文件属**另一项目**（Wails 壳），勿混淆（REVIEW-c1 §6-P1）。
 
 ---
@@ -9,21 +9,21 @@
 
 ### 目标
 
-按第 1 轮方向：git fetch 对齐远端 → 从零建 `desktop-go/`（go.mod + internal/server 六接口 + internal/engine atlas.py 子进程管理 + desktop 壳 + frontend 五页面板接真 API），引擎进度机制按设计定案落地；验收 = `go build` 单 exe + `go test` 全绿 + mock 靶站端到端（模块进度/结果表格/证据包导出按钮在位）+ 零对话组件。
+按第 1 轮方向：git fetch 对齐远端 → 从零建 `desktop-go/`（go.mod + internal/server 六接口 + internal/engine shinra.py 子进程管理 + desktop 壳 + frontend 五页面板接真 API），引擎进度机制按设计定案落地；验收 = `go build` 单 exe + `go test` 全绿 + mock 靶站端到端（模块进度/结果表格/证据包导出按钮在位）+ 零对话组件。
 
 架构师设计期三项定案（C1 IterPlan，已交施工）：
 
 1. **壳选型 jchv/go-webview2**（弃 Wails v2）：免 CGO、依赖树最小、`go build` 一把出单 exe；架构 = 同进程 `127.0.0.1` 随机端口 HTTP server（embed 前端 + 六接口），壳 Navigate 该地址；`--dev` 旗标不起壳只起服务供浏览器联调。
-2. **进度机制定案 `--progress-file` JSONL**（弃 stdout 解析）：atlas.py 原有输出仅 `print("[*]/[+]/[!]")` 无模块边界事件（src/atlas.py:66-212 通读），正则猜边界脆弱且踩 Windows 中文编码坑；JSONL 增量落盘支持 UI 轮询 tail、进程崩溃进度不丢；Python 侧最小改动全在 atlas.py 内。
+2. **进度机制定案 `--progress-file` JSONL**（弃 stdout 解析）：shinra.py 原有输出仅 `print("[*]/[+]/[!]")` 无模块边界事件（src/shinra.py:66-212 通读），正则猜边界脆弱且踩 Windows 中文编码坑；JSONL 增量落盘支持 UI 轮询 tail、进程崩溃进度不丢；Python 侧最小改动全在 shinra.py 内。
 3. **白名单=正点名单**：`{xycovo.com, 47.100.49.228, 127.0.0.1:8799(mock)}` 名单外一律拒绝——mock 靶站是用户红线明示授权项，正点名单比"拒环回/私网"黑名单更严，平台级约束的冲突按此处置。
 
 ### 产出
 
 **git（本轮实跑 `git log --oneline -8` / `git remote -v`）**：
 
-- origin 已 set-url 至 SSH 真相源：`git@github.com:Kur1sulab/atlas.git` ✅（C1 计划第①步兑现；计划前状态为误指 xiaoyang-xyc 旧地址）
+- origin 已 set-url 至 SSH 真相源：`git@github.com:Kur1sulab/shinra.git` ✅（C1 计划第①步兑现；计划前状态为误指 xiaoyang-xyc 旧地址）
 - 新 commit 链（自旧到新）：
-  - `c5a131c` engine(progress): atlas.py --progress-file JSONL 落盘+单测（`src/atlas.py:175` argparse 参数 + `:34-60` `_emit` + `tests/test_progress_file.py`，独立提交）
+  - `c5a131c` engine(progress): shinra.py --progress-file JSONL 落盘+单测（`src/shinra.py:175` argparse 参数 + `:34-60` `_emit` + `tests/test_progress_file.py`，独立提交）
   - `2726c7a` / `88373cc` / `3c76fa0` / `c76962d` **engine-go(c1) 系列**：Go 引擎底座（netutil/jsonx 含 SSRF 边界与安全落盘）、mockweb httptest 靶站（与 mock_server.py 逐字节对齐+漂移守卫）+ toolrun 子进程适配、subdomain/fingerprint 28 规则 + 14 子命令 CLI + Python↔Go parity 矩阵、CLI 布局重构。——超出 C1 架构师草案的额外 track：desktop 壳本身仍按铁律以子进程调 Python 引擎（REVIEW-c1 §1.5 证实 runner.go:188 argv 注入 `--progress-file`），engine-go 为并行 Go 引擎工程（关系待第 2 轮明确，见遗留 7）
   - `afcbf98` desktop-go(r1): 桌面壳入库 + 第 1 轮审计/对抗修复
 
@@ -99,7 +99,7 @@ webview 线（desktop-go/）走到美术方案 C 双主题提案（`a3a3c0c`，1
 
 - 模块 `recon-native`；whitelist/store/engine 三包自 desktop-go 拷贝，go test 证等价；32 文件 +4145 行（`git show --stat` 实查）。
 - 五页导航骨架：仪表盘/新建任务/结果/工具/设置（页面命名按定名令即「新建任务」，无「新建侦察」）；「石板声呐」深色令牌进 theme.go Go 常量。
-- 新建任务页接线引擎子进程管理全链（白名单闸→目标归一→参数白名单→入库→起 atlas.py），TDD 红绿；mock 靶站端到端测试（真引擎跑通结果表格出条目，无靶站自动跳过）。
+- 新建任务页接线引擎子进程管理全链（白名单闸→目标归一→参数白名单→入库→起 shinra.py），TDD 红绿；mock 靶站端到端测试（真引擎跑通结果表格出条目，无靶站自动跳过）。
 
 ### 全功能轮（`f0a08f0`，10-04 19:23）
 

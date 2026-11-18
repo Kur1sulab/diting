@@ -150,17 +150,17 @@ shinra serve                                    # 然后在界面里扫 127.0.0.
 研判结果单独标注「AI 推断 · 非实测」，与实测表格分开呈现。
 
 ```bash
-export ATLAS_AI_BASE=https://api.openai.com/v1   # 任意 OpenAI 兼容端点
-export ATLAS_AI_KEY=sk-...
-export ATLAS_AI_MODEL=gpt-4o-mini                # 默认值
+export SHINRA_AI_BASE=https://api.openai.com/v1   # 任意 OpenAI 兼容端点
+export SHINRA_AI_KEY=sk-...
+export SHINRA_AI_MODEL=gpt-4o-mini                # 默认值
 shinra serve
 ```
 
-要数据不出本机，把 `ATLAS_AI_BASE` 指向本地推理端点（本地地址不要求 key）：
+要数据不出本机，把 `SHINRA_AI_BASE` 指向本地推理端点（本地地址不要求 key）：
 
 ```bash
-export ATLAS_AI_BASE=http://127.0.0.1:11434/v1
-export ATLAS_AI_MODEL=qwen3:8b
+export SHINRA_AI_BASE=http://127.0.0.1:11434/v1
+export SHINRA_AI_MODEL=qwen3:8b
 ```
 
 发给模型的是**压缩后的实测摘要**（各项计数 + 端口/路径/API 命中 + 指纹），

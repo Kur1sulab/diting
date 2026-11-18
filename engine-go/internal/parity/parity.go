@@ -33,7 +33,7 @@ func RepoRoot() string {
 // "could not be found"，会把本应 Skip 的 parity 变成 FAIL，破坏「python
 // 缺席不阻塞纯 Go 测试」这条铁律。因此一律用实跑探针验证。
 //
-// 优先级：SHINRA_PYTHON → ATLAS_PYTHON（旧名）→ PYTHON → python3 → python。
+// 优先级：SHINRA_PYTHON → SHINRA_PYTHON（旧名）→ PYTHON → python3 → python。
 // 探针结果用 sync.Once 缓存，避免每个 parity 用例都 fork 一次进程。
 var (
 	pythonOnce sync.Once
@@ -44,7 +44,7 @@ func PythonBin() string {
 	pythonOnce.Do(func() {
 		for _, cand := range []string{
 			strings.TrimSpace(os.Getenv("SHINRA_PYTHON")),
-			strings.TrimSpace(os.Getenv("ATLAS_PYTHON")),
+			strings.TrimSpace(os.Getenv("SHINRA_PYTHON")),
 			strings.TrimSpace(os.Getenv("PYTHON")),
 			"python3",
 			"python",

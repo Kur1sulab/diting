@@ -209,7 +209,7 @@ apiunauth 编排成可观测任务，用 HTTP + SSE 暴露给 `serve/web/`（`go
 子命令处理（exit 2，无事件流）。
 
 **AI 的现行位置**：只存在于 `shinra serve` 的 `AI 研判`（`serve/ai.go`），
-默认关闭、显式配置 `ATLAS_AI_BASE/KEY/MODEL` 才启用，只发压缩后的实测摘要
+默认关闭、显式配置 `SHINRA_AI_BASE/KEY/MODEL` 才启用，只发压缩后的实测摘要
 （不含原始响应体与凭据值），可指向本地推理端点以保证数据不出本机。CLI 侧
 仍然没有、也不会加 `llm` 子命令。
 

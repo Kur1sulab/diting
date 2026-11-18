@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Light Bench
-description: 信息收集工具（atlas 桌面端）的浅色工程台视觉体系——工程白五级底、品牌墨青唯一强调、圆形 LED、等宽数据列、斑马纹数据行；与深色方案 A 共享全部变量名契约，落地为纯 tokens.css 换值。
+description: 信息收集工具（shinra 桌面端）的浅色工程台视觉体系——工程白五级底、品牌墨青唯一强调、圆形 LED、等宽数据列、斑马纹数据行；与深色方案 A 共享全部变量名契约，落地为纯 tokens.css 换值。
 colors:
   primary: "#0e7668"
   secondary: "#46586a"
@@ -172,7 +172,7 @@ components:
 
 ## Overview
 
-「浅色工程台 · Light Bench」是「信息收集工具」桌面端（atlas，Wails/WebView2，五页：任务列表 / 新建任务 / 任务详情 / 证据包 / 设置）的**浅色**视觉体系提案，与深色方案 A（现行「石板声呐」，见 `frontend/DESIGN.md`）竞稿。
+「浅色工程台 · Light Bench」是「信息收集工具」桌面端（shinra，Wails/WebView2，五页：任务列表 / 新建任务 / 任务详情 / 证据包 / 设置）的**浅色**视觉体系提案，与深色方案 A（现行「石板声呐」，见 `frontend/DESIGN.md`）竞稿。
 
 **方案 B 的一句话定位：把界面做成工程师白天用的数据图纸台——白纸面板、冷灰画布、墨青刻度，一切为了长时间读表、比对、复制证据，而不是夜间值守。**
 
