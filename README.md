@@ -1,4 +1,4 @@
-# atlas
+# 舆图 Atlas
 
 ![tests](https://github.com/Kur1sulab/atlas/actions/workflows/tests.yml/badge.svg)
 ![release](https://img.shields.io/github/v/release/Kur1sulab/atlas)
