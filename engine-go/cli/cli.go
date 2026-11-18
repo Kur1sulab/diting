@@ -48,6 +48,9 @@ const helpText = `shinra — 资产测绘引擎（Go 单文件内核，仅限授
                                          # ✅ 补丁差分→变种狩猎（本地 git 仓库，零外联）
   shinra report -t example.com          # ✅ c2（资产档案+证据包）
   shinra version                        # 版本与构建平台自省（不发请求/不写产物）
+  shinra -v | --version                 # 同上，全局形态（等价 version 子命令）
+
+全局参数: --progress-file <path> | -h/--help | -v/--version（须位于子命令之前）
 `
 
 // Version 版本号，由构建时 ldflags 注入：
@@ -57,6 +60,12 @@ const helpText = `shinra — 资产测绘引擎（Go 单文件内核，仅限授
 // 未注入时保持 "dev"——本地 `go run` 与 `go build` 都不该伪装成正式版。
 // 存在的理由很实在：装了二进制却无法自证版本，报障时只能靠猜。
 var Version = "dev"
+
+// printVersion 版本自省输出。`version` 子命令与全局 -v/--version 共用，
+// 保证两种入口的字符串逐字一致（否则脚本解析版本要写两条正则）。
+func printVersion() {
+	fmt.Printf("shinra %s (%s %s/%s)\n", Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+}
 
 // knownCmds 合法子命令集合（argparse 在解析阶段即拒绝未知子命令，进度事件
 // 不发——故 Run 只对集合内子命令包事件流）。与 shinra.py:164-187 的子解析器
@@ -87,6 +96,10 @@ func Run(args []string) int {
 	if rest == nil {
 		if code == -1 { // -h/--help/help：等价 argparse 阶段退出，不发事件
 			fmt.Print(helpText)
+			return 0
+		}
+		if code == -2 { // -v/--version：同属解析阶段退出，只读自省，不建目录/不发请求/不写产物
+			printVersion()
 			return 0
 		}
 		return code
@@ -466,7 +479,7 @@ func dispatch(cmd string, rest []string) int {
 
 	case "version":
 		// 只读自省：不创建输出目录、不发网络请求、不写任何产物。
-		fmt.Printf("shinra %s (%s %s/%s)\n", Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		printVersion()
 		return 0
 
 	default:

@@ -66,7 +66,7 @@ func applyProgressFile(args []string) ([]string, int) {
 		switch {
 		case tok == "--progress-file": // fix3：argparse 不认下划线别名，仅精确长名
 			if len(args) < 2 {
-				fmt.Println("[!] --progress-file 需要一个路径参数\n\n用法: shinra [--progress-file <path>] <子命令> ...")
+				fmt.Println("[!] --progress-file 需要一个路径参数\n\n用法: shinra [--progress-file <path>] [-h] [-v] <子命令> ...")
 				return nil, 2
 			}
 			setProgressFile(args[1])
@@ -76,8 +76,13 @@ func applyProgressFile(args []string) ([]string, int) {
 			args = args[1:]
 		case tok == "-h" || tok == "--help" || tok == "help":
 			return nil, -1 // 帮助：不发事件，退出码 0
+		case tok == "-v" || tok == "--version":
+			// 全局版本：与 -h 同属「解析阶段即退出」，不发事件、不建数据目录、不写产物。
+			// 用独立返回码 -2 与 -1 区分（两者输出不同，Run 需分别处理），
+			// 保证 shinra -v 与 shinra version 逐字节一致（共用 printVersion）。
+			return nil, -2
 		default:
-			fmt.Printf("[!] 未知全局参数: %s\n（全局仅支持 --progress-file；其余参数请放在子命令之后）\n", tok)
+			fmt.Printf("[!] 未知全局参数: %s\n（全局仅支持 --progress-file / -h / -v；其余参数请放在子命令之后）\n", tok)
 			return nil, 2
 		}
 	}
