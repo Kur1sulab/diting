@@ -19,24 +19,24 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-import recon  # noqa: E402
+import mappa  # noqa: E402
 
 
 class EmitContractTest(unittest.TestCase):
     def setUp(self):
-        self._old = recon._PROGRESS_FILE
+        self._old = mappa._PROGRESS_FILE
         fd, self.path = tempfile.mkstemp(prefix="prog_", suffix=".jsonl")
         os.close(fd)
         os.remove(self.path)  # 只留路径，emit 自己负责创建/追加
 
     def tearDown(self):
-        recon._PROGRESS_FILE = self._old
+        mappa._PROGRESS_FILE = self._old
         if os.path.exists(self.path):
             os.remove(self.path)
 
     def test_emit_writes_jsonl_contract(self):
-        recon._PROGRESS_FILE = self.path
-        recon._emit("start", "api", "探测开始")
+        mappa._PROGRESS_FILE = self.path
+        mappa._emit("start", "api", "探测开始")
         with open(self.path, "r", encoding="utf-8") as f:
             lines = [ln for ln in f.read().splitlines() if ln.strip()]
         self.assertEqual(len(lines), 1)
@@ -48,25 +48,25 @@ class EmitContractTest(unittest.TestCase):
         self.assertEqual(rec["detail"], "探测开始")
 
     def test_emit_appends_lines_in_order(self):
-        recon._PROGRESS_FILE = self.path
-        recon._emit("pipeline_start", "pipeline", "portscan")
-        recon._emit("pipeline_end", "pipeline", "done")
+        mappa._PROGRESS_FILE = self.path
+        mappa._emit("pipeline_start", "pipeline", "portscan")
+        mappa._emit("pipeline_end", "pipeline", "done")
         with open(self.path, "r", encoding="utf-8") as f:
             recs = [json.loads(ln) for ln in f if ln.strip()]
         self.assertEqual([r["event"] for r in recs], ["pipeline_start", "pipeline_end"])
         self.assertEqual(recs[0]["ts"] <= recs[1]["ts"], True)
 
     def test_emit_noop_when_disabled(self):
-        recon._PROGRESS_FILE = ""
-        recon._emit("start", "api", "")  # 不应抛异常也不应创建文件
+        mappa._PROGRESS_FILE = ""
+        mappa._emit("start", "api", "")  # 不应抛异常也不应创建文件
         self.assertEqual(os.path.exists(self.path), False)
 
     def test_emit_tolerates_bad_path(self):
         # 目录当文件写 → 打开必炸，但 emit 必须吞掉异常保证扫描不受影响
         d = tempfile.mkdtemp(prefix="prog_dir_")
         try:
-            recon._PROGRESS_FILE = d
-            recon._emit("start", "api", "")  # 不抛即通过
+            mappa._PROGRESS_FILE = d
+            mappa._emit("start", "api", "")  # 不抛即通过
         finally:
             os.rmdir(d)
 
@@ -80,7 +80,7 @@ class SmokeTest(unittest.TestCase):
         os.remove(pf)
         try:
             p = subprocess.run(
-                [sys.executable, os.path.join("src", "recon.py"),
+                [sys.executable, os.path.join("src", "mappa.py"),
                  "--progress-file", pf,
                  "portscan", "-t", "127.0.0.1", "--ports", "1", "--timeout", "0.1"],
                 cwd=ROOT, timeout=120,

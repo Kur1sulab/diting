@@ -2,7 +2,7 @@ package ui
 
 // final_fix_test.go — 集成终修轮验收（ui 会话层）：
 // findRepoRoot 仓库根判据随直调重写收紧——引擎内置后仓库根唯一用途是 out/
-// 产物落点，探针不得再以退役中的 python 入口脚本（src/recon.py）存在性为
+// 产物落点，探针不得再以退役中的 python 入口脚本（src/mappa.py）存在性为
 // 判据（python 树缺席即回退 "."，产物目录随启动 CWD 漂移）；改为 engine-go/
 // 目录标记（公开模块根，python 退役后仍在）。
 
@@ -15,11 +15,11 @@ import (
 
 func TestFindRepoRootProbeEngineGoMarker(t *testing.T) {
 	stub := t.TempDir()
-	// 负例：只有退役中的 src/recon.py 的目录不再判为仓库根
+	// 负例：只有退役中的 src/mappa.py 的目录不再判为仓库根
 	if err := os.MkdirAll(filepath.Join(stub, "src"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(stub, "src", "recon.py"), []byte("# stub\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(stub, "src", "mappa.py"), []byte("# stub\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	oldWd, err := os.Getwd()
@@ -31,7 +31,7 @@ func TestFindRepoRootProbeEngineGoMarker(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(oldWd) })
 	if got := findRepoRoot(); got == stub {
-		t.Fatalf("src/recon.py 不应再作为仓库根判据，得 %q", got)
+		t.Fatalf("src/mappa.py 不应再作为仓库根判据，得 %q", got)
 	}
 	// 正例：engine-go/ 目录标记在 → 判为仓库根
 	// 注意 macOS：/var 是 /private/var 的符号链接，os.Getwd 返回解析后的路径，

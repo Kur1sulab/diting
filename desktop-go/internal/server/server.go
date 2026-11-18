@@ -179,7 +179,7 @@ type createReq struct {
 
 var argsTokenRe = regexp.MustCompile(`^[A-Za-z0-9_.=,:/+@%^-]+$`)
 
-// targetFlagTokens recon.py 各子解析器的目标旗标同义全集：目标只能由壳按
+// targetFlagTokens mappa.py 各子解析器的目标旗标同义全集：目标只能由壳按
 // 白名单校验后注入，args 里出现同名/同义旗标一律拒绝——否则 argparse
 // "重复单值旗标后者胜"，用户 args 可覆盖受控目标、扫描名单外资产。
 var targetFlagTokens = map[string]bool{
@@ -383,7 +383,7 @@ func (s *server) hDetail(w http.ResponseWriter, r *http.Request) {
 }
 
 // outDirSanitizer 产物目录名清洗：与引擎 MakeOutdir（engine-go/internal/cli）
-// 及 Python make_outdir（src/recon.py）三方同规则（fix1 P1）——://、/、\、:、
+// 及 Python make_outdir（src/mappa.py）三方同规则（fix1 P1）——://、/、\、:、
 // Windows 非法字符 ?&="<|>* 全部换 _，再剔首尾点/空格；空与 ".." 回 "unknown"。
 // 三处必须产出同名目录，否则桌面壳在 out/ 下找不到引擎产物。
 var outDirSanitizer = strings.NewReplacer(

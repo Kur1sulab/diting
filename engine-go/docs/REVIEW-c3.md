@@ -44,7 +44,7 @@ GOAL 日志 c1 四笔 + c2 三笔提交的全部文件在本轮工作树中均�
 
 | # | 遗留项 | 核对证据 | 判定 |
 |---|---|---|---|
-| 1 | `all` 串联、jsintel/portscan 移植拍板 + README 收口 | **拍板=维持不实现**：`cli.go:330-339`（all/jsintel/portscan → exit 2，指路 `python src/recon.py`）、helpText `cli.go:31/38/39`、README:32/38/39 三处一致。复核员真实二进制实测：`all`→rc=2、`jsintel`→rc=2、`portscan`→rc=2（本会话亲手跑）。README 状态表已收口（c1/c2 ✅行 + c3 ❌/⏸ 行 + llm 弃用声明） | ✅ |
+| 1 | `all` 串联、jsintel/portscan 移植拍板 + README 收口 | **拍板=维持不实现**：`cli.go:330-339`（all/jsintel/portscan → exit 2，指路 `python src/mappa.py`）、helpText `cli.go:31/38/39`、README:32/38/39 三处一致。复核员真实二进制实测：`all`→rc=2、`jsintel`→rc=2、`portscan`→rc=2（本会话亲手跑）。README 状态表已收口（c1/c2 ✅行 + c3 ❌/⏸ 行 + llm 弃用声明） | ✅ |
 | 2 | paths.go:14 注释「18 条」→「19 条」 | `paths.go:14` 现为「PathsList 19 条逐字对照 paths.py:20-26」，实数 19（亲数） | ✅ |
 | 3 | subfinder 二进制部署 | `tools/bin` 仍不存在（本轮 `ls` 实证）；适配层「存在才用」语义不变（README:162-172），顺延遗留 | ⏸ 顺延 |
 | 4 | go-engine-ci push 后确认绿 | **未核（工具缺席）**：`gh` 不在本机 PATH（`gh run list` → command not found）。工作流文件本体亲读无碍（.github/workflows/go-engine-ci.yml：windows-latest、build/vet/test -v + 环境取证步）。CI 是否绿属「未能验证」而非「已验证绿」 | ⚠️ 未核 |
@@ -68,7 +68,7 @@ GOAL 日志 c1 四笔 + c2 三笔提交的全部文件在本轮工作树中均�
 靶站双开（复核员亲手启动、复核后已杀进程）：仓库正牌 `tests/mock_server.py`（127.0.0.1:8799）+
 **复核员自建指纹靶站**（127.0.0.1:8801，一页混入 8 条规则特征 + 1 个自然语言诱饵「本课讲解
 ThinkPHP 框架的用法」）。Go 从 `mappa-c3review.exe`（HEAD+fix3 工作树构建）、Python 从
-`python src/recon.py` 独立 CWD 运行，产物互不污染。
+`python src/mappa.py` 独立 CWD 运行，产物互不污染。
 
 ### M1 fingerprint（自建靶站 8801）——c1 模块 + c3 误报回归
 

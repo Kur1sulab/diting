@@ -18,7 +18,7 @@ func writeSettingsFile(dir, body string) error {
 }
 
 // makeStubRepo 造一个含 engine-go/ 标记的假仓库根（终修轮：findRepoRoot
-// 仓库根判据随直调重写改为 engine-go 目录，src/recon.py 桩退役）。
+// 仓库根判据随直调重写改为 engine-go 目录，src/mappa.py 桩退役）。
 func makeStubRepo(repo string) error {
 	return os.MkdirAll(filepath.Join(repo, "engine-go"), 0o755)
 }

@@ -2,7 +2,7 @@
 //
 // 形态：纯工具。Go 起 127.0.0.1 本地服务（六接口 + 内嵌前端），
 // WebView2 窗口加载该地址；扫描引擎是既有 Python 流水线，
-// 由 internal/engine 以子进程方式管理（python src/recon.py <子命令>）。
+// 由 internal/engine 以子进程方式管理（python src/mappa.py <子命令>）。
 //
 // 用法：
 //
@@ -164,7 +164,7 @@ func main() {
 	shutdown()
 }
 
-// findRepoRoot 从 exe 目录与 cwd 向上找 src/recon.py（≤4 层），找不到回 "."。
+// findRepoRoot 从 exe 目录与 cwd 向上找 src/mappa.py（≤4 层），找不到回 "."。
 func findRepoRoot() string {
 	var candidates []string
 	if exe, err := os.Executable(); err == nil {
@@ -181,7 +181,7 @@ func findRepoRoot() string {
 		}
 	}
 	for _, c := range candidates {
-		if _, err := os.Stat(filepath.Join(c, "src", "recon.py")); err == nil {
+		if _, err := os.Stat(filepath.Join(c, "src", "mappa.py")); err == nil {
 			return c
 		}
 	}

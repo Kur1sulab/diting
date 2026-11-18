@@ -101,7 +101,7 @@ toolrun 适配层（7）、asset（6）、jsonx、redteam_adv2 对抗包（4）�
 | EmitContractTest.test_emit_writes_jsonl_contract | cli:TestProgressFileDoneContract | ✅ |
 | test_emit_appends_lines_in_order | cli:TestProgressFileDoneContract/FailContract | ✅ |
 | test_emit_noop_when_disabled | cli:TestProgressFileEnvFallbackAndNoOpEvents* | ✅ |
-| （env 回退/recon.py:191） | cli:TestProgressFileEnvFallbackAndNoEventsOnHelp | ✅ 等价改写 |
+| （env 回退/mappa.py:191） | cli:TestProgressFileEnvFallbackAndNoEventsOnHelp | ✅ 等价改写 |
 | （-h 不发事件） | cli:TestProgressFileEnvFallbackAndNoEventsOnHelp | ✅ |
 
 ### test_jsintel.py（15）→ Go jsintel

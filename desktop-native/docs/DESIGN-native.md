@@ -123,7 +123,7 @@
 
 ## 六、暴露面仪表盘执行器（2026-10-06，基线轮）
 
-- mappa.exe baseline 第二子进程：`<mappa.exe> --progress-file <dataDir>/progress/<id>.jsonl baseline -d <域名>`（--progress-file 在子命令之前；与 python recon.py 九模块并行共存，按子命令选引擎分支）。
+- mappa.exe baseline 第二子进程：`<mappa.exe> --progress-file <dataDir>/progress/<id>.jsonl baseline -d <域名>`（--progress-file 在子命令之前；与 python mappa.py 九模块并行共存，按子命令选引擎分支）。
 - 解析顺序：settings.go_engine_path > MAPPA_EXE 环境变量 > repoRoot/engine-go/mappa.exe 探测；缺失显式报错 + 构建指引（设置页可改，自检跑 `mappa -h`）。
 - 进度事件与 python 引擎同构：外层 start/done(module=baseline) + 内层每检查 start/done|fail|skipped；聚合流程走完即 done（个别检查 fail 不改终态）；Tailer/monitor 零改动复用。
 - 产物：outDirFor 三方同名目录的 `{secheaders,webfiles,mailsec,archives,sslchain,dnsrec,whois,geoasn}.json`，包络 = engine-go baseline/result.go 冻结 schema（两线对测试不对实现：引擎 schema 单测 + 桌面 baselineview fixture 单测）。

@@ -98,7 +98,7 @@ $ diff fix1_whitelist_test.go → 完全一致（BYTE-IDENTICAL）
 
 ### 3.3 应用层零 Python 运行时依赖（引擎子进程除外）
 
-- `os/exec` 全树仅 `internal/engine/runner.go`：`python src/recon.py --progress-file ... <子命令>` 子进程（`runner.go:230-231`）与 `taskkill /T /F` 树杀（`:431`）。
+- `os/exec` 全树仅 `internal/engine/runner.go`：`python src/mappa.py --progress-file ... <子命令>` 子进程（`runner.go:230-231`）与 `taskkill /T /F` 树杀（`:431`）。
 - 应用层（main/ui/store/whitelist）无任何解释器嵌入、无 `python -c`、无 pip 依赖；`net/http` 仅 3.1 所述 mock 探测一处。
 - UI 不依赖 Python 即可启动渲染：Python 仅在后台 goroutine 自检（`app.go:147-151`），找不到时界面照常出「未找到可用 Python」提示（shot-04 依赖卡、`page_settings.go:78-79`）。
 - 引擎子进程随壳消亡：Windows Job Object `KILL_ON_JOB_CLOSE`（`job_windows.go:39`），壳被硬杀不留孤儿扫描。

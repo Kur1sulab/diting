@@ -1,7 +1,7 @@
-# mappa —— mappa 的 Go 引擎
+# mappa 内核 —— 舆图的 Go 引擎（零第三方依赖，单文件）
 
-把 Python 引擎（`src/recon.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
-产出**单文件** `mappa.exe`，CLI 子命令与 `python src/recon.py` 一一对齐。
+把 Python 引擎（`src/mappa.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
+产出**单文件** `mappa.exe`，CLI 子命令与 `python src/mappa.py` 一一对齐。
 
 **移植边界（铁律）**：只有引擎自身的编排逻辑被重写（HTTP 数据源 / 软 404 基线 /
 存活验证 / 指纹匹配 / 输出解析 / 去重合并 / 安全落盘）；外部工具一律保持子进程
@@ -22,14 +22,14 @@ C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Pyt
 - `go test` 全程零外网：crt.sh/certspotter 打 httptest stub，OneForAll 走
   `testdata/oneforall_fake.py.txt` fixture，subfinder 用注入桩。
 
-## 子命令对照表（15 个，对齐 recon.py:137-213）
+## 子命令对照表（15 个，对齐 mappa.py:137-213）
 
 | 子命令 | Python 对应 | Go 版状态 |
 |---|---|---|
 | `subdomain -d <domain> [--verify]` | `modules.subdomain.run_subdomain` | ✅ c1 已实现 |
 | `verify -d <domain> [-w 8]` | `modules.subdomain.run_verify` | ✅ c1 已实现 |
 | `fingerprint -u <url>` | `modules.fingerprint.run_fingerprint` | ✅ c1 已实现 |
-| `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 recon.py 步骤序一致） |
+| `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 mappa.py 步骤序一致） |
 | `asset -d` | `modules.asset` | ✅ c2（FOFA/Hunter 原生客户端，key 走环境变量） |
 | `reverse -i <ip>` | `modules.reverse_ip` | ✅ c2（hackertarget；域名正则改写为 RE2 兼容 label 校验） |
 | `icp -d` | `modules.icp` | ✅ c2（apihz；限频假 200 防御） |
@@ -99,10 +99,10 @@ engine-go/
 - **输出目录（make_outdir）**：`://` `/` `\` `:` `?` `&` `=` `"` `<` `>` `|` `*`
   全部换 `_`，再剥首尾点/空格；空与 `..` 回 `unknown`；目录创建失败上抛（CLI
   exit 1，对齐 Python makedirs 抛 OSError 未捕获）。三处实现（Go cli / Python
-  recon.py / desktop-go outDirFor）逐字符同规则，两引擎产物目录同名。
+  mappa.py / desktop-go outDirFor）逐字符同规则，两引擎产物目录同名。
 - **--progress-file 全局参数（fix1 补齐）**：`mappa --progress-file <path>
   <子命令> ...`（或 `--progress-file=` 形态、环境变量 `RECON_PROGRESS_FILE` 兜底），
-  事件 JSONL 键序 `{ts,event,module,detail}` 与 `recon.py:31-62` 契约一致：
+  事件 JSONL 键序 `{ts,event,module,detail}` 与 `mappa.py:31-62` 契约一致：
   `pipeline_start → start → done|fail → pipeline_end`（all 无模块级事件；
   help/无子命令/未知子命令不发事件）。桌面壳 Runner 靠它驱动任务状态机。
 - **verify 证据包形态（fix1 对齐）**：`subdomains_live.json` 死亡行 `ips:[]`、

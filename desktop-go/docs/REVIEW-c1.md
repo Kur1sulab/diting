@@ -18,7 +18,7 @@
 
 ## 1. 计划兑现 — 逐条验证
 
-计划原文（cycleHints[0]）：「git fetch 对齐→建 desktop-go/（go.mod+internal/server 六接口+internal/engine recon.py 子进程管理+desktop 壳+frontend 五页面板接真 API）。引擎进度机制按设计定案落地。验收=go build 单 exe+go test 全绿；--dev 或 exe 起来后新建一条 mock 靶站侦察任务看到模块进度与结果表格、证据包导出按钮在位、零对话组件。」
+计划原文（cycleHints[0]）：「git fetch 对齐→建 desktop-go/（go.mod+internal/server 六接口+internal/engine mappa.py 子进程管理+desktop 壳+frontend 五页面板接真 API）。引擎进度机制按设计定案落地。验收=go build 单 exe+go test 全绿；--dev 或 exe 起来后新建一条 mock 靶站侦察任务看到模块进度与结果表格、证据包导出按钮在位、零对话组件。」
 
 ### 1.1 对齐远端（Kur1sulab/mappa@b83d5b3）✅
 - `git remote -v` → `origin git@github.com:Kur1sulab/mappa.git (fetch/push)`——指向正确远端。
@@ -38,8 +38,8 @@
 - 六条路由 `server.go:52-59`：`GET /api/env`、`POST /api/scans`、`GET /api/scans`、`GET /api/scans/{id}`、`POST /api/scans/{id}/stop`、`GET /api/scans/{id}/evidence`（另有 `/` 静态兜底）。api.js:4-9 头注即此契约。
 - 全响应 no-store（server.go:94-101）；body 8KB 封顶（server.go:193 MaxBytesReader）。
 
-### 1.5 recon.py 子进程管理（--progress-file JSONL 定案）✅
-- 定案证据链：`src/recon.py:175` argparse `--progress-file` + `:34-60` `_emit` 事件落盘 + `tests/test_progress_file.py`（emit 契约单测+子进程端到端冒烟），独立提交 c5a131c「engine(progress): recon.py --progress-file JSONL 落盘+单测」。
+### 1.5 mappa.py 子进程管理（--progress-file JSONL 定案）✅
+- 定案证据链：`src/mappa.py:175` argparse `--progress-file` + `:34-60` `_emit` 事件落盘 + `tests/test_progress_file.py`（emit 契约单测+子进程端到端冒烟），独立提交 c5a131c「engine(progress): mappa.py --progress-file JSONL 落盘+单测」。
 - 注入点：`runner.go:188` `append([]string{python, script, "--progress-file", progressPath}, argv...)`——主解析器参数置于子命令前（:187 注释），progressPath 在数据目录 `progress/<id>.jsonl`（:178）。
 - 子进程纪律：列表 argv 无 shell（runner.go:189）、`PYTHONUTF8=1`+`PYTHONIOENCODING=utf-8`（:191）、stdout/stderr 原样落 logs/<id>.log 不解析（:192-197）、监视 goroutine 400ms Tailer 游标增量（runner.go:225-249 + progress.go:27-59，半行 pending 缓存不丢事件）、`pipeline_end` 缺失兜底补 fail（:256-261）、状态机 stopped/done/fail（:277-284）。
 - 树杀：`killTree` runner.go:334-353——Windows `taskkill /T /F /PID`，失败回退 Kill，已退出进程（ErrProcessDone/EINVAL）幂等成功。
@@ -95,7 +95,7 @@ zipfile 校验：16 条目、testzip=None、无 `..`/前导`/`/盘符条目
 | 白名单闸在位 | `whitelist.go:14-18` 三条目（xycovo.com / 47.100.49.228 / 127.0.0.1:8799）；`Check` :24-101 深校验（控制字符/非 ASCII 拒、`%2e/%2f/%25` 拒、协议仅 http(s)、userinfo 拒、环回仅 8799 端口、域名格式校验）；服务端 `server.go:214-217` 名单外 403。**活体**：evil.com→403、127.0.0.1:8080→403。纵深：args 目标旗标黑名单（server.go:178-181）+ `--progress-file` 前缀拦截（:310-313）+ `ValidateExtraArgs` 按模块精确白名单（fix1_extra.go:42-72，堵 argparse 前缀缩写）。**活体**：`-u`→400、`--ur`→400、`--progress-file`→400、`--progress_file=x`→400。模糊表固化 fix1_whitelist_test.go（staged，90+ 用例子集） | ✅ |
 | 应用层零 Python 依赖 | `go version -m`（复核员自建 exe）：依赖仅 go-webview2/go-winloader/x/sys，CGO_ENABLED=0，无任何 Python 运行时；grep Go 源码 python 引用仅在 runner.go（子进程 argv）与 server.go:141（自检上报）；ProbePython 只以固定 argv 跑 `python --version` 与 `import requests, yaml`（runner.go:119-128）。引擎保持 Python 属设计内（铁律 2 原文：弃的是应用语言不是引擎语言） | ✅ |
 
-附带 grep：`src/recon.py` 的 `llm` 子命令已弃用（活体：POST cmd=llm → 400「不支持的子命令」）。
+附带 grep：`src/mappa.py` 的 `llm` 子命令已弃用（活体：POST cmd=llm → 400「不支持的子命令」）。
 
 ---
 
@@ -190,4 +190,4 @@ $ node --check frontend/js/**/*.js（7 文件）→ 全 OK
 
 ## 7. 结论
 
-第 1 轮（骨架轮）验收目标**达成**：desktop-go 从零建齐（go-webview2 壳 + 127.0.0.1 六接口 + recon.py 子进程管理含 --progress-file JSONL 定案 + 原生五页面板接真 API），单 exe 构建与全量测试复核员亲跑全绿，mock 靶站端到端（进度事件→产物→证据包 zip）活体贯通，14 项对抗活体复现全过，四条铁律全数证实。遗留：真窗视觉验收与美术轮收口提交（第 2 轮既定范围）。
+第 1 轮（骨架轮）验收目标**达成**：desktop-go 从零建齐（go-webview2 壳 + 127.0.0.1 六接口 + mappa.py 子进程管理含 --progress-file JSONL 定案 + 原生五页面板接真 API），单 exe 构建与全量测试复核员亲跑全绿，mock 靶站端到端（进度事件→产物→证据包 zip）活体贯通，14 项对抗活体复现全过，四条铁律全数证实。遗留：真窗视觉验收与美术轮收口提交（第 2 轮既定范围）。

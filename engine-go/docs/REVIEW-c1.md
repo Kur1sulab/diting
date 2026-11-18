@@ -125,7 +125,7 @@ Go 侧另用临时探针（复核员自建自删目录，未触碰生产代码�
   Go 4 条——**漂移，见 D1**。
 - 缺必填参数（`subdomain` 无 -d）：Python **0 条**（argparse 阶段退出），Go **4 条**。
 - 成功路径（单测 `TestProgressFileDoneContract` 钉死 4 事件键序）与 Python
-  `recon.py:34-43/209-272` 契约一致；退出码契约（rc=1/2）双引擎实测一致。
+  `mappa.py:34-43/209-272` 契约一致；退出码契约（rc=1/2）双引擎实测一致。
 
 ## 4. 审计与对抗修复抽查（对照 audit-20260924 与 SECURITY-ADVISORIES）
 
@@ -151,10 +151,10 @@ Go 侧另用临时探针（复核员自建自删目录，未触碰生产代码�
 
 - **D1（低·语义漂移未备案）进度事件错误路径契约**：Python 对「已知子命令缺必填参数」
   在 argparse 阶段 exit 2、**0 条事件**（实测）；对 `llm` 经 `sys.exit(2)`→
-  `except SystemExit: raise`（recon.py:262-263）跳过收尾、**仅 2 条**。
+  `except SystemExit: raise`（mappa.py:262-263）跳过收尾、**仅 2 条**。
   Go 对两场景一律 **4 条**（pipeline_start→start→fail→pipeline_end，实测）。
   退出码一致（rc=2）、成功路径一致；但 progress.go:10-13 与 README「事件序对齐
-  recon.py:195-257 逐项一致」的表述在错误路径不成立。对桌面壳消费者 Go 行为反而
+  mappa.py:195-257 逐项一致」的表述在错误路径不成立。对桌面壳消费者 Go 行为反而
   更完整（有终态事件），建议 c2 轮定案：对齐 Python 豁免或双侧备案为有意差异。
 - **D2（信息·环境）**：`-race` 因本机无 gcc 不可执行；P0 竞态修复以 10 倍压测 +
   代码审读为替代证据。建议有 C 工具链的环境补一次 `go test -race ./...`。

@@ -1,7 +1,7 @@
 # engine-go 移植轮次日志（2026-10-02 起）
 
-总纲：把 mappa 的 Python 引擎（src/recon.py + src/modules/）重写为纯 Go，落 `engine-go/`，
-产出单文件 `mappa.exe`，CLI 子命令与 `python src/recon.py` 一一对齐。选择性重写：只移植引擎自身
+总纲：把 mappa 的 Python 引擎（src/mappa.py + src/modules/）重写为纯 Go，落 `engine-go/`，
+产出单文件 `mappa.exe`，CLI 子命令与 `python src/mappa.py` 一一对齐。选择性重写：只移植引擎自身
 编排逻辑；外部工具（OneForAll/vulmap/dirsearch 等）保持子进程调用；HTTP 数据源（crt.sh/certspotter/
 FOFA/Hunter/备案）用 Go 原生客户端实现；subfinder 仅作子域可选补充通道；llm 模块不移植（弃用）。
 红线：go test 全程零外网，真实目标实测仅限 xycovo.com / 47.100.49.228 / 本机 mock。
@@ -66,7 +66,7 @@ engine-go/ 最小 go.mod+main.go sanity build 先行验证工具链（Go 1.24.1�
 - `go test ./internal/parity/ -v` → **6/6 PASS、0 SKIP**：TestParityBaseline / TestParityFetch /
   TestParityFingerprint / TestParityHTTPProbe / TestParityVerifySubs / TestParityOneForAll
   （parity 11.6s ≈ python 探针真跑，非静默跳过）
-- CLI 面：internal/cli/cli.go 实测 grep 到全部 14 个子命令（与 recon.py:137-212 对齐）
+- CLI 面：internal/cli/cli.go 实测 grep 到全部 14 个子命令（与 mappa.py:137-212 对齐）
 - llm 弃用声明：engine-go/README.md:41、114-118（`mappa llm` 打印弃用提示并 exit 2）
 - 推送：origin/main 顶端 = c76962d，4 个 c1 提交全部在远端
 
@@ -148,7 +148,7 @@ zip）；CLI 七子命令从"未实现"拆出真实现；验收=go build 单 exe
   RunAPIWritesDocAndEvidence/SaveEvidencePathSafety）
 - `go test ./internal/parity/ -v` → **14/14 PASS、0 SKIP**，c2 新增 8 项：ParseICP/ParseHackerTarget/
   Classify/PocMatch/RenderMD/PathsAndAPIFullChain（35.8s 两引擎全链路）/AssetParsers/PackEvidence
-- CLI：cli.go:182-290 七子命令真实现（带 recon.py 行号对照注释），:310 all/jsintel/portscan
+- CLI：cli.go:182-290 七子命令真实现（带 mappa.py 行号对照注释），:310 all/jsintel/portscan
   维持未实现 exit 2
 - README 状态表（:29-41）：c1/c2 逐子命令标注、c3 待办、llm 弃用声明
 - Python 侧回归：`python -m unittest discover -s tests` → Ran 73 tests, FAILED (failures=3)，
@@ -201,7 +201,7 @@ README 更新（Go 版用法/llm 弃用/状态表收口）；commit + push。
    （PARITY.md ⑤差异解释）。
 4. **digest 真实环境佐证**：xycovo.com 的 14691B 404 页，两版独立算出同一 SHA-256 前 16 位
    `1229a80e9158c935`——digest 口径对齐在真实目标上闭环。
-5. llm 弃用终态：Python 侧 llm_assist.py 已删除、recon.py:260-262 子命令提示弃用 exit 2；
+5. llm 弃用终态：Python 侧 llm_assist.py 已删除、mappa.py:260-262 子命令提示弃用 exit 2；
    Go 侧 cli.go:177 同行为——"不移植"收敛为"两侧一致弃用"。
 
 ### 审计对抗处置

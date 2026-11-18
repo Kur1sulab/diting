@@ -3,17 +3,17 @@
 """SRC 信息收集自动化工具 CLI 入口。
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
-  python src/recon.py all -t example.com          # 域名全流程
-  python src/recon.py all -t 47.100.49.228        # IP 全流程（反查域名→ICP→指纹→API）
-  python src/recon.py subdomain -d example.com
-  python src/recon.py reverse -i 47.100.49.228    # IP 反查域名
-  python src/recon.py icp -d example.com          # ICP 备案查询
-  python src/recon.py api -u https://example.com  # API 文档/未授权探测
-  python src/recon.py jsintel -u https://example.com  # JS 情报提取（端点/敏感线索/域名）
-  python src/recon.py portscan -t 47.100.49.228   # 常用端口扫描（仅限授权目标）
-  python src/recon.py fingerprint -u https://example.com
-  python src/recon.py paths -u https://example.com
-  python src/recon.py poc -t https://example.com -p pocs/example.yaml
+  python src/mappa.py all -t example.com          # 域名全流程
+  python src/mappa.py all -t 47.100.49.228        # IP 全流程（反查域名→ICP→指纹→API）
+  python src/mappa.py subdomain -d example.com
+  python src/mappa.py reverse -i 47.100.49.228    # IP 反查域名
+  python src/mappa.py icp -d example.com          # ICP 备案查询
+  python src/mappa.py api -u https://example.com  # API 文档/未授权探测
+  python src/mappa.py jsintel -u https://example.com  # JS 情报提取（端点/敏感线索/域名）
+  python src/mappa.py portscan -t 47.100.49.228   # 常用端口扫描（仅限授权目标）
+  python src/mappa.py fingerprint -u https://example.com
+  python src/mappa.py paths -u https://example.com
+  python src/mappa.py poc -t https://example.com -p pocs/example.yaml
 
 仅限授权范围内的安全测试使用。
 """

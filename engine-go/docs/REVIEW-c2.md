@@ -56,7 +56,7 @@ GOAL 遗留#1 列 10 项，c2 兑现 7 项；`all`/`jsintel`/`portscan` 按计�
 | `internal/apiunauth/apiunauth.go` | README:36「27 端点清单 + 取证三件套」 | Endpoints 亲数 27 条与 api_unauth.py:22-50 逐条全等（含 `≥2 特征` 规则 ：80-86）；classify/基线过滤/复验/取证落盘逐段对齐；parity ③⑥ 绿 | ✅ |
 | `internal/poc/poc.go` | af5bf7d「poc(yaml.v3)」 | Matcher/condition and/or 与 poc_engine.py:30-43 全等；畸形/缺模板路径实测优雅降级（弹幕 T16a/b） | ✅ |
 | `internal/report/report.go` | README:42「资产档案 + 证据包 zip」 | Collect 11 键对齐 report.py:42-56；RenderMD 逐行对齐（§3 实测全等）；PackEvidence arcname 相对 out/ + `..` 按段复检（:447-466）+ ZipStamp 唯一性与 .part 原子改名（fix2 P2，:30-37,478-492） | ✅ |
-| `internal/cli/cli.go` | af5bf7d「cli 七子命令拆出真实现」 | asset/reverse/icp/api/paths/poc/report 七案全部真实现并接 MakeOutdir；knownCmds 14 命令与 recon.py 子解析器对应 | ✅ |
+| `internal/cli/cli.go` | af5bf7d「cli 七子命令拆出真实现」 | asset/reverse/icp/api/paths/poc/report 七案全部真实现并接 MakeOutdir；knownCmds 14 命令与 mappa.py 子解析器对应 | ✅ |
 | `internal/parity/parity_c2_test.go` | 398ca9e「黄金四套 + render_md 逐行 diff + paths/api 全链路 + arcname/成员 + FOFA/Hunter 重放」 | 8 个 parity 测试全带 `RequiresPython`；本轮套件实跑全绿（parity 58.1s） | ✅ |
 | fix2 测试件（`fix2_cli_test.go` 5 例 / `icp/fix2b_test.go` 2 例 / `netutil/fix2_netutil_test.go` 3 例 / `subdomain/fix2b_test.go` / `toolrun/fix2b_test.go` 3 例 / `report/fix2_test.go` 3 例 / `redteam_adv2/redteam_adv2_test.go` 4 例） | SECURITY-ADVISORIES 第 2 轮附记 | 全部在本轮 `go test -run … -v` 定向复跑绿（§4） | ✅ |
 

@@ -174,10 +174,10 @@ func (f *fakeSink) snapshot() ([]store.ProgressEvent, string) {
 	return f.events["t1"], f.status["t1"]
 }
 
-// writeEngineStub 在临时 repoRoot 里放一个假 src/recon.py（引擎存在性检查用）。
+// writeEngineStub 在临时 repoRoot 里放一个假 src/mappa.py（引擎存在性检查用）。
 func writeEngineStub(t *testing.T, repoRoot string) {
 	t.Helper()
-	p := filepath.Join(repoRoot, "src", "recon.py")
+	p := filepath.Join(repoRoot, "src", "mappa.py")
 	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
 		t.Fatal(err)
 	}

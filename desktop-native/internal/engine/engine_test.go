@@ -159,7 +159,7 @@ func TestStartModuleErrorFails(t *testing.T) {
 	}
 }
 
-// all 契约（recon.py:250-256 / cli.go:98）：无模块级 start/done，只有
+// all 契约（mappa.py:250-256 / cli.go:98）：无模块级 start/done，只有
 // pipeline_start / 步骤级事件 / pipeline_end。步骤级事件由 allrunner 发。
 func TestStartAllHasNoModuleLevelEvents(t *testing.T) {
 	r, sink := newTestRunner(t)

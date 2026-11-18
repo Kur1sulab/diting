@@ -29,7 +29,7 @@ Python 编排层 + Go 单文件内核（`mappa`，零第三方依赖）。
 ## 架构
 
 ```
-target → recon.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
+target → mappa.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
                                               ↓
                                        poc_engine（YAML 模板）
                                               ↓
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ## Go 引擎（engine-go/）
 
 同一套引擎的纯 Go 重写（`mappa` 单文件、零外网测试、Python↔Go parity 全量对齐），
-子命令与 `python src/recon.py` 一一对齐。详见 `engine-go/README.md`、
+子命令与 `python src/mappa.py` 一一对齐。详见 `engine-go/README.md`、
 `docs/PARITY.md`（双引擎对照）与 `docs/TEST-PORT.md`（测试平移清点）。
 
 ```bash
@@ -64,28 +64,28 @@ C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（pyth
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
 api / paths / jsintel / portscan / poc / patchdiff / report（jsintel 见
 `engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
-侧 llm_assist.py 已整体移除、recon.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
+侧 llm_assist.py 已整体移除、mappa.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
 
 ## 用法
 
 ```bash
 export FOFA_EMAIL=... FOFA_KEY=... HUNTER_KEY=...   # Windows: setx
-python src/recon.py all -d example.com        # 域名全流程
-python src/recon.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
-python src/recon.py subdomain -d example.com  # 仅子域
-python src/recon.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
-python src/recon.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
-python src/recon.py asset -d example.com      # 仅资产测绘
-python src/recon.py reverse -i 47.100.49.228  # 仅 IP 反查域名
-python src/recon.py icp -d example.com        # 仅 ICP 备案查询
-python src/recon.py api -u https://example.com        # 仅 API 文档/未授权探测
-python src/recon.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
-python src/recon.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
-python src/recon.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
-python src/recon.py fingerprint -u https://example.com
-python src/recon.py paths -u https://example.com
-python src/recon.py poc -t https://example.com -p pocs/example-http-detect.yaml
-python src/recon.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
+python src/mappa.py all -d example.com        # 域名全流程
+python src/mappa.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
+python src/mappa.py subdomain -d example.com  # 仅子域
+python src/mappa.py subdomain -d example.com --verify   # 子域 + 存活验证（DNS/HTTP）
+python src/mappa.py verify -d example.com     # 对已有 subdomains.txt 做存活验证
+python src/mappa.py asset -d example.com      # 仅资产测绘
+python src/mappa.py reverse -i 47.100.49.228  # 仅 IP 反查域名
+python src/mappa.py icp -d example.com        # 仅 ICP 备案查询
+python src/mappa.py api -u https://example.com        # 仅 API 文档/未授权探测
+python src/mappa.py jsintel -u https://example.com    # 仅 JS 情报提取（端点/敏感线索/域名）
+python src/mappa.py portscan -t 47.100.49.228         # 仅端口扫描（默认常用端口表，仅限授权目标）
+python src/mappa.py portscan -t 127.0.0.1 --ports 80,443,8000-8100 --timeout 1   # 自定义端口/超时
+python src/mappa.py fingerprint -u https://example.com
+python src/mappa.py paths -u https://example.com
+python src/mappa.py poc -t https://example.com -p pocs/example-http-detect.yaml
+python src/mappa.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
 ```
 
 `all` 跑完会自动生成 `out/<目标>/report.md`（资产档案）与 `out/<目标>/evidence-<目标>-<时间>.zip`（证据包，仅在有过存活取证时）。
@@ -120,7 +120,7 @@ requests:
 
 `llm` 模块（LLM 辅助解读）已**整体移除**：它会把子域/资产/指纹/敏感路径打包
 POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与「扫描数据不出
-本机」的形态红线冲突。Python 版 `recon.py all` 不再调用该步骤，`recon.py llm`
+本机」的形态红线冲突。Python 版 `mappa.py all` 不再调用该步骤，`mappa.py llm`
 打印弃用提示并以退出码 2 结束（与 Go 版 `mappa llm` 行为一致）；
 `modules/llm_assist.py` 已删除。
 
@@ -142,7 +142,7 @@ POST 到第三方 LLM 服务（如 `LLM_BASE_URL` 指向的外部 API），与�
 ## 目录
 
 ```
-src/recon.py            CLI 入口
+src/mappa.py            CLI 入口
 src/modules/            各功能模块
 pocs/                   YAML POC 模板
 tests/                  单元测试
