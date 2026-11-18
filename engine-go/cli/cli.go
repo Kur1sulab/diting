@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -46,7 +47,16 @@ const helpText = `sweep — 资产测绘引擎（Go 单文件内核，仅限授�
   sweep patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
                                          # ✅ 补丁差分→变种狩猎（本地 git 仓库，零外联）
   sweep report -t example.com          # ✅ c2（资产档案+证据包）
+  sweep version                        # 版本与构建平台自省（不发请求/不写产物）
 `
+
+// Version 版本号，由构建时 ldflags 注入：
+//
+//	go build -ldflags "-X github.com/Kur1sulab/sweep/engine-go/cli.Version=v1.0.0"
+//
+// 未注入时保持 "dev"——本地 `go run` 与 `go build` 都不该伪装成正式版。
+// 存在的理由很实在：装了二进制却无法自证版本，报障时只能靠猜。
+var Version = "dev"
 
 // knownCmds 合法子命令集合（argparse 在解析阶段即拒绝未知子命令，进度事件
 // 不发——故 Run 只对集合内子命令包事件流）。与 sweep.py:164-187 的子解析器
@@ -57,6 +67,7 @@ var knownCmds = map[string]bool{
 	"icp": true, "api": true, "fingerprint": true, "paths": true, "jsintel": true,
 	"portscan": true, "poc": true, "patchdiff": true, "report": true,
 	"baseline": true, // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python sweep.py 对齐项）
+	"version":  true, // 版本自省（Go 侧独有，Python sweep.py 无对应子命令）
 }
 
 // Run 处理全局参数与子命令（args 不含程序名），返回进程退出码。
@@ -451,6 +462,11 @@ func dispatch(cmd string, rest []string) int {
 
 	case "help", "-h", "--help":
 		fmt.Print(helpText)
+		return 0
+
+	case "version":
+		// 只读自省：不创建输出目录、不发网络请求、不写任何产物。
+		fmt.Printf("sweep %s (%s %s/%s)\n", Version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		return 0
 
 	default:
