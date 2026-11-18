@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,6 +83,17 @@ func Run(args []string) int {
 	}
 	url := "http://" + addr
 	fmt.Printf("atlas %s · Web 控制台\n", cli.Version)
+
+	// 端口被占（本地常驻代理很容易撞 8788）就顺延找空位，最多试 10 个。
+	ln, realAddr, lerr := listenWithFallback(addr, 10)
+	if lerr != nil {
+		fmt.Printf("[!] 服务启动失败: %v\n", lerr)
+		return 1
+	}
+	if realAddr != addr {
+		fmt.Printf("  端口   %s 被占用，已顺延到 %s\n", addr, realAddr)
+	}
+	url = "http://" + realAddr
 	fmt.Printf("  地址   %s\n", url)
 	fmt.Printf("  AI     %s\n", aiStatusLine(srv.ai))
 	fmt.Printf("  停止   Ctrl-C\n")
@@ -90,11 +103,33 @@ func Run(args []string) int {
 			openBrowser(url)
 		}()
 	}
-	if err := hs.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("[!] 服务启动失败: %v\n", err)
+	if err := hs.Serve(ln); err != nil && err != http.ErrServerClosed {
+		fmt.Printf("[!] 服务异常退出: %v\n", err)
 		return 1
 	}
 	return 0
+}
+
+// listenWithFallback 从 addr 起顺延找可用端口（host 不变，端口 +1）。
+func listenWithFallback(addr string, tries int) (net.Listener, string, error) {
+	host, portStr, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, addr, err
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return nil, addr, err
+	}
+	var lastErr error
+	for i := 0; i < tries; i++ {
+		try := net.JoinHostPort(host, strconv.Itoa(port+i))
+		ln, err := net.Listen("tcp", try)
+		if err == nil {
+			return ln, try, nil
+		}
+		lastErr = err
+	}
+	return nil, addr, lastErr
 }
 
 // buildMux 组装路由（单独拆出来，测试可以直接对着它发请求）。
