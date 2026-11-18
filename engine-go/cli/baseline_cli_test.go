@@ -1,7 +1,7 @@
 package cli
 
 // baseline_cli_test.go — baseline 子命令契约（桌面执行器裁决的第二子进程入口）：
-//   - 命令行契约：<sweep> --progress-file <f> baseline -d <域名> [--checks c1,c2]
+//   - 命令行契约：<atlas> --progress-file <f> baseline -d <域名> [--checks c1,c2]
 //     （--progress-file 全局参数在子命令之前；-u 可选，缺省 PickBase 推导）
 //   - 事件契约：pipeline_start(baseline) → start(baseline) → 内层每检查
 //     start/done|fail → done(baseline) → pipeline_end(pipeline,done|fail)；
@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/sweep/engine-go/mockweb"
+	"github.com/Kur1sulab/atlas/engine-go/mockweb"
 )
 
 // runBaseline 辅助：带进度文件跑 baseline，返回退出码与事件列表。

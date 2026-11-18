@@ -168,7 +168,7 @@ func genID() string {
 
 var argsTokenRe = regexp.MustCompile(`^[A-Za-z0-9_.=,:/+@%^-]+$`)
 
-// targetFlagTokens sweep.py 各子解析器的目标旗标同义全集：目标只能由壳按
+// targetFlagTokens atlas.py 各子解析器的目标旗标同义全集：目标只能由壳按
 // 白名单校验后注入，可选参数里出现同名/同义旗标一律拒绝——否则 argparse
 // "重复单值旗标后者胜"，用户参数可覆盖受控目标、扫到名单外资产。
 var targetFlagTokens = map[string]bool{
@@ -257,7 +257,7 @@ func parseArgs(raw string) ([]string, error) {
 // findRepoRoot 从 exe 目录与工作目录向上找仓库根（扫描产物 out/ 的落点）。
 // 直调重写后引擎内置于程序本体，仓库根唯一用途是 out/ 产物落点——判据改为
 // engine-go/ 目录（公开模块根，python 树退役后仍在）；不再以退役中的
-// src/sweep.py 存在性为前置（否则 python 树缺席即回退 "."，产物目录随启动
+// src/atlas.py 存在性为前置（否则 python 树缺席即回退 "."，产物目录随启动
 // CWD 漂移）。找不到时回退 "."（下游 SafeOutdir 兜底）。
 func findRepoRoot() string {
 	var candidates []string

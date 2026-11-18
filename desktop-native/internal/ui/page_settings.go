@@ -7,7 +7,7 @@ import (
 )
 
 // pageSettings 设置页：输出目录 / 关于。第 2 步直调重写后引擎内置于程序
-// 本体（Python 解释器卡与 sweep.exe 路径卡随子进程壳一并移除），设置页
+// 本体（Python 解释器卡与 atlas.exe 路径卡随子进程壳一并移除），设置页
 // 无路径配置项。整页包在持久 List 里滚动（与工具页同款）。
 func (a *appUI) pageSettings(gtx layout.Context) layout.Dimensions {
 	blocks := []layout.Widget{

@@ -1,12 +1,12 @@
-// sweep 根目录兼容入口：逻辑已迁至 cli + cmd/sweep/main.go，
-// 此薄壳保留是为了旧验收命令 `go build -o sweep.exe .`（engine-go 根）继续可用。
+// atlas 根目录兼容入口：逻辑已迁至 cli + cmd/atlas/main.go，
+// 此薄壳保留是为了旧验收命令 `go build -o atlas.exe .`（engine-go 根）继续可用。
 // 两个入口产出的二进制行为完全一致。
 package main
 
 import (
 	"os"
 
-	"github.com/Kur1sulab/sweep/engine-go/cli"
+	"github.com/Kur1sulab/atlas/engine-go/cli"
 )
 
 func main() {

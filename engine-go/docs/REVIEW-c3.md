@@ -20,10 +20,10 @@
 
 | 命令 | 结果 |
 |---|---|
-| `go build -o sweep-c3review.exe ./cmd/sweep` | **rc=0** |
-| `go build -o sweep-c3review-root.exe .`（根兼容入口） | **rc=0** |
+| `go build -o atlas-c3review.exe ./cmd/atlas` | **rc=0** |
+| `go build -o atlas-c3review-root.exe .`（根兼容入口） | **rc=0** |
 | `go vet ./...` | **rc=0，零告警** |
-| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 2.1s / asset 1.0s / cli 1.7s / fingerprint 0.9s / icp 1.3s / mockweb 2.7s / netutil 2.4s / **parity 49.4s** / paths 1.8s / poc 1.3s / **redteam_adv2 7.1s** / report 1.2s / reverseip 1.4s / subdomain 1.9s / toolrun 2.1s；root、cmd/sweep、jsonx 三处 [no test files]） |
+| `go test -count=1 ./...` | **15 个测试包全 ok，0 FAIL**（apiunauth 2.1s / asset 1.0s / cli 1.7s / fingerprint 0.9s / icp 1.3s / mockweb 2.7s / netutil 2.4s / **parity 49.4s** / paths 1.8s / poc 1.3s / **redteam_adv2 7.1s** / report 1.2s / reverseip 1.4s / subdomain 1.9s / toolrun 2.1s；root、cmd/atlas、jsonx 三处 [no test files]） |
 | `go test -count=1 -v ./internal/parity/` | **14/14 PASS、0 SKIP**（ParseICP/ParseHackerTarget/Classify/PocMatch/RenderMD/PathsAndAPIFullChain 35.8s 两引擎全链路/AssetParsers/PackEvidence/Baseline/Fetch/Fingerprint/HTTPProbe/VerifySubs/OneForAll） |
 | `python -m unittest discover -s tests`（Python 侧回归） | **Ran 73 tests, FAILED (failures=3)**，失败名单 = `test_verify_and_evidence.TestVerifySubs` 三例（test_dns_lookup / test_run_verify_writes_outputs / test_verify_subs_marks_alive）——与 c1/c2 基线完全相同的 fake-ip 环境性失败，**fix3 无新增 Python 回归** |
 
@@ -44,7 +44,7 @@ GOAL 日志 c1 四笔 + c2 三笔提交的全部文件在本轮工作树中均�
 
 | # | 遗留项 | 核对证据 | 判定 |
 |---|---|---|---|
-| 1 | `all` 串联、jsintel/portscan 移植拍板 + README 收口 | **拍板=维持不实现**：`cli.go:330-339`（all/jsintel/portscan → exit 2，指路 `python src/sweep.py`）、helpText `cli.go:31/38/39`、README:32/38/39 三处一致。复核员真实二进制实测：`all`→rc=2、`jsintel`→rc=2、`portscan`→rc=2（本会话亲手跑）。README 状态表已收口（c1/c2 ✅行 + c3 ❌/⏸ 行 + llm 弃用声明） | ✅ |
+| 1 | `all` 串联、jsintel/portscan 移植拍板 + README 收口 | **拍板=维持不实现**：`cli.go:330-339`（all/jsintel/portscan → exit 2，指路 `python src/atlas.py`）、helpText `cli.go:31/38/39`、README:32/38/39 三处一致。复核员真实二进制实测：`all`→rc=2、`jsintel`→rc=2、`portscan`→rc=2（本会话亲手跑）。README 状态表已收口（c1/c2 ✅行 + c3 ❌/⏸ 行 + llm 弃用声明） | ✅ |
 | 2 | paths.go:14 注释「18 条」→「19 条」 | `paths.go:14` 现为「PathsList 19 条逐字对照 paths.py:20-26」，实数 19（亲数） | ✅ |
 | 3 | subfinder 二进制部署 | `tools/bin` 仍不存在（本轮 `ls` 实证）；适配层「存在才用」语义不变（README:162-172），顺延遗留 | ⏸ 顺延 |
 | 4 | go-engine-ci push 后确认绿 | **未核（工具缺席）**：`gh` 不在本机 PATH（`gh run list` → command not found）。工作流文件本体亲读无碍（.github/workflows/go-engine-ci.yml：windows-latest、build/vet/test -v + 环境取证步）。CI 是否绿属「未能验证」而非「已验证绿」 | ⚠️ 未核 |
@@ -67,8 +67,8 @@ GOAL 日志 c1 四笔 + c2 三笔提交的全部文件在本轮工作树中均�
 
 靶站双开（复核员亲手启动、复核后已杀进程）：仓库正牌 `tests/mock_server.py`（127.0.0.1:8799）+
 **复核员自建指纹靶站**（127.0.0.1:8801，一页混入 8 条规则特征 + 1 个自然语言诱饵「本课讲解
-ThinkPHP 框架的用法」）。Go 从 `sweep-c3review.exe`（HEAD+fix3 工作树构建）、Python 从
-`python src/sweep.py` 独立 CWD 运行，产物互不污染。
+ThinkPHP 框架的用法」）。Go 从 `atlas-c3review.exe`（HEAD+fix3 工作树构建）、Python 从
+`python src/atlas.py` 独立 CWD 运行，产物互不污染。
 
 ### M1 fingerprint（自建靶站 8801）——c1 模块 + c3 误报回归
 
@@ -153,7 +153,7 @@ ThinkPHP 框架的用法」）。Go 从 `sweep-c3review.exe`（HEAD+fix3 工作�
   测试适配 + `src/modules/netutil.py` 同步）。本文 §1 验收与 §3 对照均对该工作树状态作出；
   提交时建议 CI 复跑（go-engine-ci.yml 路径触发 engine-go/** 应覆盖）。
 - **P4（清场记录）**：临时产物全部位于 `%TEMP%/c3rev/`（未写入仓库）；`internal/` 下无任何探针
-  目录（本轮双引擎对照全部走公开 CLI，零仓库内临时包）；构建产物 sweep-c3review*.exe 已删除；
+  目录（本轮双引擎对照全部走公开 CLI，零仓库内临时包）；构建产物 atlas-c3review*.exe 已删除；
   两个 mock 靶站进程已按 PID 终止（8799/8801 复核为 down）；`git status` 仅余复核开始前即存在的
   20 项 staged fix3，无新增未跟踪文件。本轮唯一新增 = 本文档。
 - **P5（不可行项）**：`gh` 不在 PATH → go-engine-ci 运行记录未能核查（§2.2-#4 如实记「未核」）；

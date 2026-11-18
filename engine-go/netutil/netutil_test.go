@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/sweep/engine-go/internal/parity"
+	"github.com/Kur1sulab/atlas/engine-go/internal/parity"
 )
 
 // ── fetch ──

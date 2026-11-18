@@ -1,4 +1,4 @@
-module github.com/Kur1sulab/sweep/engine-go
+module github.com/Kur1sulab/atlas/engine-go
 
 go 1.24
 

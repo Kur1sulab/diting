@@ -8,7 +8,7 @@
 
 - **扫描器定位**：`internal/ui/app.go:131` 「疑似跨文件污点」（2026-10-04 扫描时点）。
 - **数据流（原始）**：环境变量 `RECON_PYTHON` → `NewSession()`（internal/ui/session.go）→
-  `Runner.pythonPath` → `ResolvePython()` → `exec.Command(python, src/sweep.py, …)`
+  `Runner.pythonPath` → `ResolvePython()` → `exec.Command(python, src/atlas.py, …)`
   子进程执行。
 - **为什么当时是设计而非漏洞**：解释器路径是本机用户显式配置（环境变量或设置页
   「保存并生效」，session.go 落配置文件），与 desktop-go 壳 `main.go:64` 的

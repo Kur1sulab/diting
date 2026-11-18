@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/sweep/engine-go/mockweb"
+	"github.com/Kur1sulab/atlas/engine-go/mockweb"
 )
 
 const goodSitemap = `<?xml version="1.0" encoding="UTF-8"?>

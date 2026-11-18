@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/sweep/engine-go/netutil"
+	"github.com/Kur1sulab/atlas/engine-go/netutil"
 )
 
 func withCheckAllow(t *testing.T) {

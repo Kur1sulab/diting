@@ -1,1 +1,1 @@
-"""sweep modules"""
+"""atlas modules"""

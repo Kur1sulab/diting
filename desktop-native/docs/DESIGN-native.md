@@ -104,7 +104,7 @@
 2. **新建任务**：单卡表单（s2 r3，内衬 3/3/4/4）；标签 12sp Tx2；输入井 s1 r2 高 42dp、文字 14sp Tx1、hint Tx3；模块九宫单选（三列，基线轮起为 10 模块四行）；可选参数提示随模块联动（11sp Tx3 等宽）；主按钮「开始扫描」青底墨字；错误横条 err-bg/err、成功横条 ok-bg/ok（最多 5 行——指引类必达文案防裁尾，Gio 截断无省略号）。
 3. **结果**：标题行右侧「停止选中任务」（err-bg/err，仅运行中显示，恒占 96dp 槽位——出现/消失不挤动右侧「导出证据包」）与「导出证据包」（s3 底，打包中变 s1/Tx3「正在打包…」并真禁用）；导出回执行 12sp 等宽（成败色来自结构化回执位，成绿/败红）；停止失败回执走标题行下 err 横条槽（停止钮与 Esc 共用，任务终态即清）；模块 tab 胶囊行（80dp 定宽 × 26dp 高，横向 List 可滚——11 枚胶囊 880dp ≤ 主区 908dp 全见，选中 acc-bg/acc-hi + Medium 字重）；任务列表 50 行/页分页（‹ 上一页 / 第 x/y 页 / 下一页 ›，边界钮 s1/Tx3 灰显且 Disabled 真禁用）＋列表视口钳 min(300dp, 可用高)——满一页时分页条与任务详情不再被挤出窗口；概要卡 + 过程记录表 50 行/页，表头「时间/模块/事件/详情」权重 0.7/0.9/1/3；基线任务在过程行尾追加「每检查结论」行（8 行：模块=检查中文名，事件=结论/未运行，详情=[level] 结论文本）。
 4. **工具**：十模块清单（名称 Tx1 / 说明 Tx2 / 子命令键 11sp Tx3 等宽，行间 Sp1）；外部依赖状态卡（7dp 实心圆点：绿=正常 橙=有问题 灰=检测中，路径行 11sp Tx3 等宽）；数据落点卡（两列布局：定宽 96dp 标签 + 12sp 等宽路径——含中文标签靠补空格对不齐）；分区间距统一 Sp4。
-5. **设置**：整页持久 List 滚动（四卡+标题超一屏时「关于」可达）；Python 卡（输入井 + 「自检」次钮（后台跑，自检中按钮禁用） + 「保存并生效」主钮 + 结论行按成败分档着色 + 当前生效路径 11sp Tx3 等宽）；Go 引擎卡（同构：sweep.exe 输入井 + 「自检」跑 `sweep -h` + 「保存并生效」+ 探测路径绿字 + 构建命令 11sp Tx3 等宽「进入仓库 engine-go 目录执行 go build -o sweep.exe .」——引擎缺失显式给指引不静默；后台自检未回时显「检测中…」不误报「未找到」）；输出目录卡（只读展示产物/证据包路径，12sp 等宽 Tx1）；关于卡（三条大白话：是什么/纯本地无 AI/子进程跑本地流水线）。**没有「界面主题」行。**
+5. **设置**：整页持久 List 滚动（四卡+标题超一屏时「关于」可达）；Python 卡（输入井 + 「自检」次钮（后台跑，自检中按钮禁用） + 「保存并生效」主钮 + 结论行按成败分档着色 + 当前生效路径 11sp Tx3 等宽）；Go 引擎卡（同构：atlas.exe 输入井 + 「自检」跑 `atlas -h` + 「保存并生效」+ 探测路径绿字 + 构建命令 11sp Tx3 等宽「进入仓库 engine-go 目录执行 go build -o atlas.exe .」——引擎缺失显式给指引不静默；后台自检未回时显「检测中…」不误报「未找到」）；输出目录卡（只读展示产物/证据包路径，12sp 等宽 Tx1）；关于卡（三条大白话：是什么/纯本地无 AI/子进程跑本地流水线）。**没有「界面主题」行。**
 6. **暴露面（第六页，基线轮 2026-10-06 新增）**：页题「暴露面」+ 副题「域名暴露面基线体检 · 8 项检查一键跑 · 零凭据」；输入卡（目标域名输入井 + 青底主钮「一键跑全部检查」，运行中灰显 s1/Tx3「检查进行中…」；Go 引擎缺失时 warn 横条给构建指引；错误 err 横条 / 成功 ok 横条带任务 id）；「检查项（8）」分区卡列表（横向 List 可滚），每卡：顶部 6dp 结论色条（level→ColOkBg/ColWarnBg/ColErrBg/ColAccBg 族）+ 8dp 相位 LED + 中文名 + 相位字（未运行/排队中/检查中…/已跳过/执行失败/有结论）+ 检查键 11sp 等宽 + 右缘「原始 JSON ▸/▾」折叠钮；有结论时展示 `[level] 结论文本`（族色字）+ 生成时间 + 风险明细（`· [level] 标题 — 详情`，族色）+ 引擎摘要行（11sp 等宽 Tx2）+ 折叠的原始 JSON（s0 凹井 11sp 等宽，超 2000 字节截断并注明产物路径）。产物契约 = engine-go baseline/result.go 冻结包络；缺文件=「未运行」不编造，error 非空=失败态红字。
 
 ## 四、键盘流
@@ -123,8 +123,8 @@
 
 ## 六、暴露面仪表盘执行器（2026-10-06，基线轮）
 
-- sweep.exe baseline 第二子进程：`<sweep.exe> --progress-file <dataDir>/progress/<id>.jsonl baseline -d <域名>`（--progress-file 在子命令之前；与 python sweep.py 九模块并行共存，按子命令选引擎分支）。
-- 解析顺序：settings.go_engine_path > SWEEP_EXE 环境变量 > repoRoot/engine-go/sweep.exe 探测；缺失显式报错 + 构建指引（设置页可改，自检跑 `sweep -h`）。
+- atlas.exe baseline 第二子进程：`<atlas.exe> --progress-file <dataDir>/progress/<id>.jsonl baseline -d <域名>`（--progress-file 在子命令之前；与 python atlas.py 九模块并行共存，按子命令选引擎分支）。
+- 解析顺序：settings.go_engine_path > ATLAS_EXE 环境变量 > repoRoot/engine-go/atlas.exe 探测；缺失显式报错 + 构建指引（设置页可改，自检跑 `atlas -h`）。
 - 进度事件与 python 引擎同构：外层 start/done(module=baseline) + 内层每检查 start/done|fail|skipped；聚合流程走完即 done（个别检查 fail 不改终态）；Tailer/monitor 零改动复用。
 - 产物：outDirFor 三方同名目录的 `{secheaders,webfiles,mailsec,archives,sslchain,dnsrec,whois,geoasn}.json`，包络 = engine-go baseline/result.go 冻结 schema（两线对测试不对实现：引擎 schema 单测 + 桌面 baselineview fixture 单测）。
 

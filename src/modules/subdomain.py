@@ -14,7 +14,7 @@ try:
 except ImportError:
     import netutil
 
-_UA = {"User-Agent": "sweep/1.0 (+authorized-testing-only)"}
+_UA = {"User-Agent": "atlas/1.0 (+authorized-testing-only)"}
 
 
 def _from_oneforall(domain: str, out: str) -> list:

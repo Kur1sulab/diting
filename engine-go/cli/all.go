@@ -1,8 +1,8 @@
 // Package cli —— `all` 子命令：一键全流程编排。
 //
-// 对应 sweep.py:120-178 的 cmd_all（唯一行为基准）：
+// 对应 atlas.py:120-178 的 cmd_all（唯一行为基准）：
 //   - 目标自动识别 IP / 域名，两条流水线分支；
-//   - 每个模块级步骤都包一层 _run_step（sweep.py:44-62）：发 start/done|fail
+//   - 每个模块级步骤都包一层 _run_step（atlas.py:44-62）：发 start/done|fail
 //     进度事件，fatal=true 时异常上抛终止流水线，fatal=false 时降级为警告；
 //   - 步骤顺序、警告文案、输出目录语义与 Python 逐项对齐，不做"优化"。
 //
@@ -13,14 +13,14 @@ package cli
 import (
 	"fmt"
 
-	"github.com/Kur1sulab/sweep/engine-go/apiunauth"
-	"github.com/Kur1sulab/sweep/engine-go/asset"
-	"github.com/Kur1sulab/sweep/engine-go/fingerprint"
-	"github.com/Kur1sulab/sweep/engine-go/icp"
-	"github.com/Kur1sulab/sweep/engine-go/paths"
-	"github.com/Kur1sulab/sweep/engine-go/report"
-	"github.com/Kur1sulab/sweep/engine-go/reverseip"
-	"github.com/Kur1sulab/sweep/engine-go/subdomain"
+	"github.com/Kur1sulab/atlas/engine-go/apiunauth"
+	"github.com/Kur1sulab/atlas/engine-go/asset"
+	"github.com/Kur1sulab/atlas/engine-go/fingerprint"
+	"github.com/Kur1sulab/atlas/engine-go/icp"
+	"github.com/Kur1sulab/atlas/engine-go/paths"
+	"github.com/Kur1sulab/atlas/engine-go/report"
+	"github.com/Kur1sulab/atlas/engine-go/reverseip"
+	"github.com/Kur1sulab/atlas/engine-go/subdomain"
 )
 
 // step 是 _run_step 的 Go 版：发事件 + 按 fatal 决定是否把错误当致命。
@@ -53,7 +53,7 @@ func runAll(target string) int {
 	return runAllDomain(target, out)
 }
 
-// runAllIP：sweep.py:126-155 —— 反查域名 → 逐个 ICP → 指纹 → API → 端口/JS。
+// runAllIP：atlas.py:126-155 —— 反查域名 → 逐个 ICP → 指纹 → API → 端口/JS。
 func runAllIP(target, out string) int {
 	var doms []string
 	// reverse 是 fatal 步骤：拿不到反查结果整个流水线没有意义，与 Python 一致。
@@ -69,7 +69,7 @@ func runAllIP(target, out string) int {
 		return 1
 	}
 
-	// 备案查询最多查 5 个，避免限频；单条失败只打印不影响主流程（sweep.py:131-137）。
+	// 备案查询最多查 5 个，避免限频；单条失败只打印不影响主流程（atlas.py:131-137）。
 	_ = step("icp", false, func() error {
 		for i, d := range doms {
 			if i >= 5 {
@@ -87,7 +87,7 @@ func runAllIP(target, out string) int {
 		return nil
 	})
 
-	// 裸 IP 常被按域名路由的站点返回 404，优先用反查出的域名探测（sweep.py:139-143）。
+	// 裸 IP 常被按域名路由的站点返回 404，优先用反查出的域名探测（atlas.py:139-143）。
 	host := target
 	if len(doms) > 0 {
 		host = doms[0]
@@ -111,14 +111,14 @@ func runAllIP(target, out string) int {
 		return 1
 	}
 
-	// 第二轮升级：端口扫描 + JS 情报（失败只警告，不阻断主流程；sweep.py:150-154）。
+	// 第二轮升级：端口扫描 + JS 情报（失败只警告，不阻断主流程；atlas.py:150-154）。
 	_ = step("portscan", false, func() error { return runPortStep(target, out) })
 	_ = step("jsintel", false, func() error { return runJSStep(base, out) })
 
 	return finishAll(out, target)
 }
 
-// runAllDomain：sweep.py:156-173 —— 子域 → 存活 → 资产 → ICP → 指纹 → 路径 → API → JS/端口。
+// runAllDomain：atlas.py:156-173 —— 子域 → 存活 → 资产 → ICP → 指纹 → 路径 → API → JS/端口。
 func runAllDomain(target, out string) int {
 	if err := step("subdomain", true, func() error {
 		_, err := subdomain.Run(target, out)
@@ -128,7 +128,7 @@ func runAllDomain(target, out string) int {
 		return 1
 	}
 
-	// 审计补充：证书日志含大量失效域名，必须验证存活（sweep.py:162）。
+	// 审计补充：证书日志含大量失效域名，必须验证存活（atlas.py:162）。
 	_ = step("verify", true, func() error {
 		subdomain.RunVerify(out, 8, true)
 		return nil
@@ -172,7 +172,7 @@ func runAllDomain(target, out string) int {
 		return 1
 	}
 
-	// 第二轮升级：JS 情报 + 端口扫描（失败只警告，不阻断主流程；sweep.py:169-173）。
+	// 第二轮升级：JS 情报 + 端口扫描（失败只警告，不阻断主流程；atlas.py:169-173）。
 	_ = step("jsintel", false, func() error { return runJSStep(base, out) })
 	_ = step("portscan", false, func() error { return runPortStep(target, out) })
 

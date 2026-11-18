@@ -11,14 +11,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/sweep/engine-go/apiunauth"
-	"github.com/Kur1sulab/sweep/engine-go/asset"
-	"github.com/Kur1sulab/sweep/engine-go/icp"
-	"github.com/Kur1sulab/sweep/engine-go/mockweb"
-	"github.com/Kur1sulab/sweep/engine-go/paths"
-	"github.com/Kur1sulab/sweep/engine-go/poc"
-	"github.com/Kur1sulab/sweep/engine-go/report"
-	"github.com/Kur1sulab/sweep/engine-go/reverseip"
+	"github.com/Kur1sulab/atlas/engine-go/apiunauth"
+	"github.com/Kur1sulab/atlas/engine-go/asset"
+	"github.com/Kur1sulab/atlas/engine-go/icp"
+	"github.com/Kur1sulab/atlas/engine-go/mockweb"
+	"github.com/Kur1sulab/atlas/engine-go/paths"
+	"github.com/Kur1sulab/atlas/engine-go/poc"
+	"github.com/Kur1sulab/atlas/engine-go/report"
+	"github.com/Kur1sulab/atlas/engine-go/reverseip"
 )
 
 // ── ① parse_icp parity（含限频假 200）──

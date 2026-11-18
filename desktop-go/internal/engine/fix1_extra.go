@@ -5,14 +5,14 @@ package engine
 // 默认允许前缀缩写（allow_abbrev=True）——`--ur http://evil` 会在 Python 侧
 // 展开成 --url 并按 last-wins 覆盖受控目标，黑名单按精确名匹配拦不住。
 // 这里在起进程前的最后一道闸（BuildCmdArgs）加「按模块精确白名单」：
-// 长旗标必须与 sweep.py 子解析器定义全名一致，缩写/未知/跨模块旗标一律拒绝。
+// 长旗标必须与 atlas.py 子解析器定义全名一致，缩写/未知/跨模块旗标一律拒绝。
 
 import (
 	"fmt"
 	"strings"
 )
 
-// moduleFlags 各子命令允许用户附加的旗标白名单（与 sweep.py:164-187 子解析器
+// moduleFlags 各子命令允许用户附加的旗标白名单（与 atlas.py:164-187 子解析器
 // 一一对应）。all/paths/api/fingerprint/reverse/icp 的子解析器除目标旗标外
 // 无可选项，故为空集。
 var moduleFlags = map[string]map[string]bool{

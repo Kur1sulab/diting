@@ -29,8 +29,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/Kur1sulab/sweep/engine-go/jsonx"
-	"github.com/Kur1sulab/sweep/engine-go/netutil"
+	"github.com/Kur1sulab/atlas/engine-go/jsonx"
+	"github.com/Kur1sulab/atlas/engine-go/netutil"
 )
 
 // 常量逐项对照 jsintel.py:31-34。

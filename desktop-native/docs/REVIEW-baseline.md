@@ -1,6 +1,6 @@
 # REVIEW-baseline.md —— 基线轮（域名暴露面 8 检查）独立冷复核
 
-> 复核员未参与本轮施工（冷复核）。复核对象 = `sweep` 仓库 HEAD `e7573e4`
+> 复核员未参与本轮施工（冷复核）。复核对象 = `atlas` 仓库 HEAD `e7573e4`
 > （工作区无对已跟踪文件的未提交改动，`git status --short` 实证），本轮四个提交：
 > `e0e31d5`（engine-go baseline 8 检查）→ `dacb6da`（desktop 第六页+执行器接线）→
 > `1f1fbf4`（engine-go 审计+对抗终修）→ `e7573e4`（desktop 对抗 F6 修复）。
@@ -184,8 +184,8 @@ fixture 正则=报告验收 2）、`TestWhoisFallback43`（:129，**RDAP 不可�
   `--extra`（见 §5.2）；mockweb 独立 sec 场景（`internal/mockweb/sec_test.go` 在场）；
   `netutil.ProbeTransport/ProbeTLSConfig` 免校验策略单点化（netutil/fetch.go:101,114）。
 - **桌面接入**：执行器按子命令选分支——`desktop-native/internal/engine/runner.go:281-286`
-  baseline → sweep.exe 第二子进程（`--progress-file` 在子命令前，:286）；
-  `ResolveGoEngine` 三级回退（:117-122，settings > SWEEP_EXE > 仓库探测）；cmdSet
+  baseline → atlas.exe 第二子进程（`--progress-file` 在子命令前，:286）；
+  `ResolveGoEngine` 三级回退（:117-122，settings > ATLAS_EXE > 仓库探测）；cmdSet
   第十成员 baseline（:30）。会话层域名形态闸 `TestCreateTaskBaselineDomainShape`
   （baseline_session_test.go:14）。进度事件内层 module=检查名与桌面
   `baselineEventStates`（baselineview.go:215-237）对齐。
@@ -231,7 +231,7 @@ engine 线（`cd engine-go`）：
 ```
 $ go version
 go version go1.24.1 windows/amd64
-$ go build ./... && go build -o sweep-review-cold.exe .
+$ go build ./... && go build -o atlas-review-cold.exe .
 （无输出，退出码 0；exe 10,913,280B，验后已删）
 $ go test -count=1 ./...
 ok  internal/apiunauth      0.826s
@@ -303,7 +303,7 @@ KILLED pid=68636   ← Stop-Process 验证已退出
 - p3 结果：任务表（多条**基线检查**模块行）+ 模块 tab + 分页 + 导出按钮；
 - p4 工具：模块清单含「**基线检查 域名暴露面基线体检（8 项检查一键跑）**」+ mock 探测
   + 外部依赖状态点；
-- p5 设置：Python 卡 + **Go 引擎卡**（路径「C:\Users\18270\sweep\engine-go\sweep.exe」
+- p5 设置：Python 卡 + **Go 引擎卡**（路径「C:\Users\18270\atlas\engine-go\atlas.exe」
   + 自检/保存并生效 + 绿字「已探测到」+ 构建命令指引行）+ 输出目录卡；
 - p6 暴露面：页题+副题「域名暴露面基线体检 · 8 项检查一键跑 · 零凭据」+ 目标输入 +
   青底「一键跑全部检查」+「检查项（8）」空态引导卡。

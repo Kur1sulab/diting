@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/sweep/engine-go/mockweb"
+	"github.com/Kur1sulab/atlas/engine-go/mockweb"
 
 	"recon-native/internal/store"
 )
