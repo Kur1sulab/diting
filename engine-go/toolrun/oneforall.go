@@ -19,6 +19,32 @@ import (
 	"time"
 )
 
+// resolvePython 解析 OneForAll 用的 Python 解释器。
+//
+// 顺序：RECON_PYTHON（显式配置，与桌面壳同源）→ python3 → python。
+// 后两者必须「实跑探针」通过才采信——某些包装器（ServBay / pyenv shim 等）
+// 会占住 python 这个名字，LookPath 命中但一执行就报 "could not be found"，
+// 只靠 LookPath 会让 OneForAll 通道静默失效并退回 crt.sh，
+// 使用者却看不到任何原因。
+//
+// 全部不可用时仍返回 "python"：让子进程以原始错误暴露真实环境问题，
+// 而不是在适配层提前吞掉（对齐 Python 版 subprocess 的失败语义）。
+func resolvePython() string {
+	if v := strings.TrimSpace(os.Getenv("RECON_PYTHON")); v != "" {
+		return v
+	}
+	for _, name := range []string{"python3", "python"} {
+		pl, err := subproc.LookPath(name)
+		if err != nil {
+			continue
+		}
+		if subproc.Command(pl, "-c", "import sys;sys.exit(0 if sys.version_info[0]==3 else 1)").Run() == nil {
+			return pl
+		}
+	}
+	return "python"
+}
+
 // RunOneForAll 子进程调用 OneForAll，解析其 NDJSON 输出，对齐 subdomain.py:20-43：
 //   - home 为空 → 直接返回空（未配置该通道）；
 //   - home/oneforall.py 不存在 → 打印提示并返回空；
@@ -121,12 +147,9 @@ func RunOneForAllContext(ctx context.Context, home, domain, out string, timeout 
 	}
 	runCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	// 解释器解析与桌面壳一致：RECON_PYTHON 优先，缺省 python——
-	// 不再硬编码，避免与壳侧解析顺序不一致
-	py := strings.TrimSpace(os.Getenv("RECON_PYTHON"))
-	if py == "" {
-		py = "python"
-	}
+	// 解释器解析与桌面壳一致：RECON_PYTHON 优先；缺省不再硬编码 "python"，
+	// 而是 python3 → python 实跑探针（见 resolvePython）。
+	py := resolvePython()
 	// 参数列表调用（无 shell）：与 Python subprocess.run([...], check=False, timeout=1800) 一致
 	cmd := subproc.CommandContext(runCtx, py, exe, "--target", domain, "--fmt", "json", "--path", out)
 	cmd.Stdout = os.Stdout

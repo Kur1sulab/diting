@@ -25,20 +25,18 @@ import (
 	"github.com/Kur1sulab/sweep/engine-go/portscan"
 )
 
-// portscanPy 探测本机 Python：优先 python，回退 python3。不改全局
-// RequiresPython 口径——OneForAll 适配层硬编码 `python`，全局放宽会让
-// TestParityOneForAll 在只有 python3 的机器上因环境缺失而红。
+// portscanPy 复用 PythonBin 的统一解析（实跑探针 + SWEEP_PYTHON/PYTHON 优先）。
+// 早期本文件各自 LookPath("python")，在 ServBay / pyenv shim 占住 python
+// 名字的机器上会「探测成功、执行失败」，把本应 Skip 的用例变成 FAIL——已收口。
 func portscanPy(t *testing.T) string {
 	t.Helper()
 	if os.Getenv("CI") == "true" {
 		t.Skip("CI 环境：parity=本地黄金对照门禁，跳过")
 	}
-	for _, name := range []string{"python", "python3"} {
-		if p, err := exec.LookPath(name); err == nil {
-			return p
-		}
+	if p := PythonBin(); p != "" {
+		return p
 	}
-	t.Skip("python/python3 不在 PATH，跳过 parity 测试（纯 Go 测试不受影响）")
+	t.Skip("未找到可执行的 Python 3，跳过 parity 测试（纯 Go 测试不受影响）")
 	return ""
 }
 
