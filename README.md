@@ -1,6 +1,8 @@
 # sweep
 
 ![tests](https://github.com/Kur1sulab/sweep/actions/workflows/tests.yml/badge.svg)
+![release](https://img.shields.io/github/v/release/Kur1sulab/sweep)
+![license](https://img.shields.io/github/license/Kur1sulab/sweep)
 
 资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、资产测绘、指纹识别、敏感路径探测、
 API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
@@ -25,6 +27,7 @@ Python 编排层 + Go 单文件内核（`sweep`，零第三方依赖）。
 | **patchdiff** | **补丁差分 → 变种狩猎**（本地 git 仓库：自动挑安全相关提交 → 按「被删的行=漏洞指纹 / 新增的行=补的检查」分类 hunk → 可导出 semgrep 变种规则；`--commit` 看单提交，`--range` 看区间，`--emit-rule` 出规则） |
 | **report** | **资产档案 + 证据包**（把所有模块产出聚合成 `report.md`：归属线索/子域存活/指纹/敏感路径/API 暴露 + 待人工跟进；并把 `evidence/` 打成 zip 随提交稿交付；`all` 自动生成） |
 | ~~llm~~ | **已弃用**：需向第三方服务发送扫描数据，为守住数据不出本机的红线整体移除（Python 与 Go 引擎同步） |
+| **version** | **版本自省**（Go 侧独有）：`sweep version` 打印版本号与构建平台（`go1.24.x darwin/arm64`）。版本号由构建时 ldflags 注入，未注入显示 `dev`；纯只读，不发请求不写产物 |
 
 ## 架构
 
@@ -36,6 +39,29 @@ target → sweep.py → subdomain / asset / fingerprint / paths / jsintel / port
 ```
 
 ## 安装
+
+### 预编译二进制（推荐）
+
+四个平台各一个静态二进制，零运行时依赖，不需要装 Go / Python：
+
+| 平台 | 文件 |
+|---|---|
+| macOS Apple Silicon | `sweep-darwin-arm64` |
+| macOS Intel | `sweep-darwin-amd64` |
+| Linux x86_64 | `sweep-linux-amd64` |
+| Linux arm64 | `sweep-linux-arm64` |
+
+```bash
+# macOS Apple Silicon 为例
+curl -L -o sweep https://github.com/Kur1sulab/sweep/releases/latest/download/sweep-darwin-arm64
+chmod +x sweep && sudo mv sweep /usr/local/bin/
+sweep version
+```
+
+macOS 首次运行若提示「无法验证开发者」：`xattr -d com.apple.quarantine /usr/local/bin/sweep`。
+校验用同页 `SHA256SUMS.txt`（`shasum -a 256 -c SHA256SUMS.txt`），全部产物见 [Releases](https://github.com/Kur1sulab/sweep/releases)。
+
+### 从源码（Python 编排层）
 
 ```bash
 pip install -r requirements.txt

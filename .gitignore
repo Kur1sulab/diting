@@ -10,3 +10,6 @@ __pycache__/
 
 # 第 1 轮整仓副本残留（来历待查，只 ignore 不删除）
 .wt-r1/
+
+# QA / PR 临时正文（commit message 草稿、PR body），一律不入库
+.qa/
