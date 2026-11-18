@@ -6,8 +6,13 @@ import (
 	"os"
 
 	"github.com/Kur1sulab/atlas/engine-go/cli"
+	"github.com/Kur1sulab/atlas/engine-go/serve"
 )
 
 func main() {
-	os.Exit(cli.Run(os.Args[1:]))
+	args := os.Args[1:]
+	if len(args) > 0 && args[0] == "serve" {
+		os.Exit(serve.Run(args[1:]))
+	}
+	os.Exit(cli.Run(args))
 }

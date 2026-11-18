@@ -183,6 +183,22 @@ curl -L -o tools/bin/subfinder.zip \
 禁打任何其他真实目标。DNS 锚点一律用 `127.0.0.1` 字面量——Clash fake-ip 环境下
 假域名会"解析成功"（198.18.0.0/15），禁止依赖 NXDOMAIN 断言。
 
+## serve 包（Web 控制台后端）
+
+`atlas serve` 的实现在 `serve/`：把 subdomain / portscan / fingerprint / paths /
+apiunauth 编排成可观测任务，用 HTTP + SSE 暴露给 `serve/web/`（`go:embed` 进二进制，
+零外部前端依赖）。
+
+- `serve/job.go` —— 任务状态机、日志环形缓冲、SSE 广播、内存任务表
+- `serve/pipeline.go` —— 流水线编排（IP 目标跳子域两步；显式端口并进扫描清单）
+- `serve/serve.go` —— 路由 / 静态资源 / SSE / 报告导出
+- `serve/ai.go` —— 可选 AI 研判（OpenAI 兼容，默认关闭，可指向本地端点）
+- `serve/web/` —— 单页前端（深色毛玻璃、桌面级密度、中文枚举映射）
+
+测试（`serve/serve_test.go`）用 `mockweb.DemoHandler()` 起本地靶站做端到端：
+子域/存活两步通过 `subsFn`/`verifyFn` 注入桩，**不联 crt.sh、不打外网**；
+断言路径/API 必须真有命中、计数器与结果一致、步骤都落在终态。
+
 ## llm 模块：Go 版不提供
 
 `llm` 子命令（`modules.llm_assist`，LLM 辅助解读）在 Go 版**不移植**：属可选
@@ -191,6 +207,11 @@ curl -L -o tools/bin/subfinder.zip \
 发送扫描数据，与数据不出本机的红线冲突，两侧都不再提供。终修轮起 Go CLI 的
 `llm` 弃用占位槽位一并删除（公开面不保留 AI 词汇）：`atlas llm` 按未知
 子命令处理（exit 2，无事件流）。
+
+**AI 的现行位置**：只存在于 `atlas serve` 的 `AI 研判`（`serve/ai.go`），
+默认关闭、显式配置 `ATLAS_AI_BASE/KEY/MODEL` 才启用，只发压缩后的实测摘要
+（不含原始响应体与凭据值），可指向本地推理端点以保证数据不出本机。CLI 侧
+仍然没有、也不会加 `llm` 子命令。
 
 ## 进程内嵌入契约（第三方消费方必读）
 

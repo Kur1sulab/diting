@@ -26,7 +26,7 @@ Python 编排层 + Go 单文件内核（`atlas`，零第三方依赖）。
 | poc | YAML 化 POC 模板引擎（nuclei 风格子集，status/contains matcher，and/or 条件） |
 | **patchdiff** | **补丁差分 → 变种狩猎**（本地 git 仓库：自动挑安全相关提交 → 按「被删的行=漏洞指纹 / 新增的行=补的检查」分类 hunk → 可导出 semgrep 变种规则；`--commit` 看单提交，`--range` 看区间，`--emit-rule` 出规则） |
 | **report** | **资产档案 + 证据包**（把所有模块产出聚合成 `report.md`：归属线索/子域存活/指纹/敏感路径/API 暴露 + 待人工跟进；并把 `evidence/` 打成 zip 随提交稿交付；`all` 自动生成） |
-| ~~llm~~ | **已弃用**：需向第三方服务发送扫描数据，为守住数据不出本机的红线整体移除（Python 与 Go 引擎同步） |
+| ~~llm~~ | **已弃用**：需向第三方服务发送扫描数据，为守住数据不出本机的红线整体移除（Python 与 Go 引擎同步）。**现由 Web 控制台的 `AI 研判` 承接**：默认关闭、显式配置才启用、只发压缩后的实测摘要，且可指向本地端点（详见「Web 控制台」一节） |
 | **version** | **版本自省**（Go 侧独有）：`atlas version` 打印版本号与构建平台（`go1.24.x darwin/arm64`）。版本号由构建时 ldflags 注入，未注入显示 `dev`；纯只读，不发请求不写产物 |
 
 ## 架构
@@ -88,9 +88,61 @@ C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（pyth
 ```
 
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
-api / paths / jsintel / portscan / poc / patchdiff / report（jsintel 见
+api / paths / jsintel / portscan / poc / patchdiff / report / **serve**（jsintel 见
 `engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
 侧 llm_assist.py 已整体移除、atlas.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
+**AI 只以 Web 控制台的可选研判形式存在**（见下节），默认关闭，不发任何请求。
+
+## Web 控制台（`atlas serve`）
+
+浏览器里跑整条流水线：任务列表、实时进度条、日志流、资产明细、AI 研判、报告导出。
+
+![Web 控制台](docs/images/web-console.png)
+
+```bash
+atlas serve                                  # 默认 http://127.0.0.1:8788
+atlas serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
+```
+
+- 只绑回环地址、不对外暴露；页面禁缓存，前端改完刷新即见
+- 流水线：子域枚举 → 存活验证 → 端口扫描 → 指纹识别 → 敏感路径 → API 未授权
+  （IP 目标自动跳过前两步；目标带显式端口时该端口并进扫描清单）
+- 实时：SSE 推进度 / 步骤状态 / 日志；随时可停，已跑出的结果保留不丢
+- 资产明细：端口 · 路径 · API · 子域 四个视图 + 过滤；长 banner/token 截断、悬停看全文
+- 导出：`导出报告` 直接下载 `report.md`——内容全部来自落盘产物，不掺推演
+
+离线自测（不打任何外部目标）：
+
+```bash
+go run ./cmd/mocksite -addr 127.0.0.1:18080   # 起本地演示靶站（暴露面全是假数据）
+atlas serve                                    # 然后在界面里扫 127.0.0.1:18080
+```
+
+### AI 研判（可选，默认关闭）
+
+不配环境变量就没有 AI 入口；配了之后界面右上角会出现绿色「AI 就绪」，
+研判结果单独标注「AI 推断 · 非实测」，与实测表格分开呈现。
+
+```bash
+export ATLAS_AI_BASE=https://api.openai.com/v1   # 任意 OpenAI 兼容端点
+export ATLAS_AI_KEY=sk-...
+export ATLAS_AI_MODEL=gpt-4o-mini                # 默认值
+atlas serve
+```
+
+要数据不出本机，把 `ATLAS_AI_BASE` 指向本地推理端点（本地地址不要求 key）：
+
+```bash
+export ATLAS_AI_BASE=http://127.0.0.1:11434/v1
+export ATLAS_AI_MODEL=qwen3:8b
+```
+
+发给模型的是**压缩后的实测摘要**（各项计数 + 端口/路径/API 命中 + 指纹），
+不含原始响应体、不含凭据值；提示词硬性要求「只使用给定事实，信息不足写需补测」。
+
+HTTP 接口（给脚本用）：`GET /api/env`、`POST /api/jobs`、`GET /api/jobs`、
+`GET /api/jobs/{id}`、`GET /api/jobs/{id}/events`（SSE）、`GET /api/jobs/{id}/report.md`、
+`POST /api/jobs/{id}/stop`、`POST /api/ai/analyze`、`POST /api/ai/ask`。
 
 ## 用法
 

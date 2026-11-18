@@ -207,3 +207,35 @@ func Handler() http.Handler {
 func New() *httptest.Server {
 	return httptest.NewServer(Handler())
 }
+
+// DemoExtra 是 DemoHandler 在 Real 之外多暴露的几处敏感面（全部假数据）。
+var DemoExtra = map[string]RealEntry{
+	"/v2/api-docs":      {"application/json", `{"swagger":"2.0","paths":{"/user":{"get":{}}}}`},
+	"/druid/index.html": {"text/html", `<html><head><title>Druid Stat Index</title></head><body>druid</body></html>`},
+	"/backup.zip":       {"application/zip", "PK\x03\x04 fake-backup-for-demo"},
+	"/www.zip":          {"application/zip", "PK\x03\x04 fake-www-for-demo"},
+	"/config.php.bak":   {"text/plain", "<?php $db_pass='demo-not-real'; ?>"},
+	"/.git/config":      {"text/plain", "[core]\n	repositoryformatversion = 0\n"},
+	"/admin":            {"text/html", `<html><head><title>Admin Login</title></head><body><form>login</form></body></html>`},
+	"/": {"text/html; charset=utf-8", `<!doctype html><html><head><title>Atlas 演示靶站</title></head><body>
+<h1>Atlas 演示靶站</h1><p>本机演示用，暴露面全是假数据。</p></body></html>`},
+}
+
+// DemoHandler 是「根路径即靶站」的演示站点：Real + DemoExtra 摊在 / 下，
+// 并带上可被指纹识别的响应头。供 cmd/mocksite 与 serve 的端到端测试共用。
+func DemoHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Server", "nginx")
+		w.Header().Set("X-Powered-By", "PHP/7.4")
+		p := r.URL.Path
+		if e, ok := DemoExtra[p]; ok {
+			send(w, http.StatusOK, e.Ctype, e.Body)
+			return
+		}
+		if e, ok := Real[p]; ok {
+			send(w, http.StatusOK, e.Ctype, e.Body)
+			return
+		}
+		send(w, http.StatusNotFound, "text/html; charset=utf-8", "<html><body>404</body></html>")
+	})
+}
