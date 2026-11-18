@@ -27,7 +27,7 @@ import (
 	"github.com/Kur1sulab/mappa/engine-go/subdomain"
 )
 
-const helpText = `mappa — SRC 信息收集自动化工具（Go 引擎，仅限授权测试）
+const helpText = `mappa · 舆图 — 资产测绘引擎（Go 单文件内核，仅限授权测试）
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
   mappa all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
