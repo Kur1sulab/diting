@@ -127,6 +127,7 @@ button,input{font-family:inherit;color:inherit}
 .brand-main{min-width:0}
 .brand-row{display:flex;align-items:center;gap:6px}
 .brand-row b{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.brand-en{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
 .badge{
   font-family:var(--mono);font-size:10px;color:var(--faint);
   border:1px solid var(--line-2);border-radius:5px;padding:0 5px;line-height:15px;
