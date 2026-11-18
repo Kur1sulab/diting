@@ -127,6 +127,53 @@ chmod 600 ~/.yata/keys.env
 > 代理：引擎遵循 `HTTP_PROXY` / `HTTPS_PROXY` 环境变量（`http.ProxyFromEnvironment`），
 > 出海源（subdomain.center / urlscan / crt.sh）不稳时挂上代理即可。
 
+## 部署与发版
+
+### 本机
+
+```bash
+# 仓库内二进制 + PATH shim（改完源码 go build 即生效，不用重装）
+cd engine-go && go build -trimpath -buildvcs=false \
+  -ldflags "-s -w -X github.com/Kur1sulab/yata/engine-go/cli.Version=v3.1.1" -o ../yata ./cmd/yata
+# ~/.local/bin/yata 已是指向仓库二进制的 shim：
+#   #!/bin/sh
+#   exec "$HOME/tools/yata/yata" "$@"
+yata version
+```
+
+### 服务器（Linux）
+
+```bash
+scp dist/yata-linux-amd64 <host>:/tmp/yata
+ssh <host> 'install -m 0755 /tmp/yata /usr/local/bin/yata && rm -f /tmp/yata && yata version && yata providers'
+# 需要 key 时在服务器上单独建（不要跟仓库同一个文件）
+mkdir -p ~/.yata && printf 'QUAKE_TOKEN=%s\n' '<token>' > ~/.yata/keys.env && chmod 600 ~/.yata/keys.env
+```
+
+### 发版（四平台 + GitHub Release）
+
+```bash
+./scripts/release.sh v3.1.2                        # 编译 4 平台 → SHA256SUMS → tag → push → Release
+./scripts/release.sh v3.1.2 --dry-run              # 只编译校验，不碰 git / GitHub
+./scripts/release.sh v3.1.2 --notes-file notes.md  # 自定义 Release 正文
+```
+
+脚本的硬门禁：**逐个资产回查 `state=uploaded` 且字节数与本地一致**，任一不符即非零退出——
+杜绝「本地能跑、下载的人是坏的」。构建带 `-trimpath -buildvcs=false`，
+同源码两轮构建字节一致（可复现），`shasum -a 256 -c SHA256SUMS.txt` 可校验下载件。
+
+## 已知不可用（2026-11 实测，非缺陷）
+
+| 项 | 状态 | 说明 |
+|---|---|---|
+| Censys Legacy Search | 已下线（2026-09-30） | 只能走 `api.platform.censys.io/v3` + token |
+| 工信部官方备案接口 | 401 | `authKey=md5(timestamp)` + Cookie/UA/Origin 全试过，被拒 |
+| beianx.cn | 410 Gone | ICP 兜底通道已废，主线仍是 apihz |
+| ZoomEye `api.zoomeye.ai` | 403 | 区域限制，必须 `.org` |
+| IANA RDAP bootstrap | 无 `cn` | 已用 43 端口 whois 兜底（`whois.cnnic.cn`） |
+| `whois.edu.cn:43` | Connection refused | `.edu.cn` 注册信息查不到，主体归属改用 ICP 备案 |
+| crt.sh | 502/限流常见 | 内置 3 次重试 + 40s 超时，失败如实写 `error` 而非 0 条 |
+
 ## 安装
 
 ### 预编译二进制（推荐）
