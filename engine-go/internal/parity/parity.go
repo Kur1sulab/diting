@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -22,6 +23,44 @@ import (
 func RepoRoot() string {
 	_, file, _, _ := runtime.Caller(0)
 	return filepath.Clean(filepath.Join(filepath.Dir(file), "..", "..", ".."))
+}
+
+// PythonBin 解析可用于 parity 对照的 Python 3 解释器，找不到返回 ""。
+// 导出以便 portscan / patchdiff 等测试文件复用同一套解析，不再各自造轮子。
+//
+// 判定标准是「真能跑起来」而非 LookPath 命中：某些包装器（ServBay / pyenv
+// shim 等）会在 PATH 上占住 python 这个名字，LookPath 成功但一执行就报
+// "could not be found"，会把本应 Skip 的 parity 变成 FAIL，破坏「python
+// 缺席不阻塞纯 Go 测试」这条铁律。因此一律用实跑探针验证。
+//
+// 优先级：SWEEP_PYTHON → PYTHON → python3 → python。
+// 探针结果用 sync.Once 缓存，避免每个 parity 用例都 fork 一次进程。
+var (
+	pythonOnce sync.Once
+	pythonPath string
+)
+
+func PythonBin() string {
+	pythonOnce.Do(func() {
+		for _, cand := range []string{
+			strings.TrimSpace(os.Getenv("SWEEP_PYTHON")),
+			strings.TrimSpace(os.Getenv("PYTHON")),
+			"python3",
+			"python",
+		} {
+			if cand == "" {
+				continue
+			}
+			if pl, err := exec.LookPath(cand); err == nil {
+				probe := exec.Command(pl, "-c", "import sys;sys.exit(0 if sys.version_info[0]==3 else 1)")
+				if probe.Run() == nil {
+					pythonPath = pl
+					return
+				}
+			}
+		}
+	})
+	return pythonPath
 }
 
 // RequiresPython：parity 类测试的统一入口门禁。
@@ -37,6 +76,9 @@ func RequiresPython(t *testing.T) {
 	}
 	if _, err := exec.LookPath("python"); err != nil {
 		t.Skip("python 不在 PATH，跳过 parity 测试（纯 Go 测试不受影响）")
+	}
+	if PythonBin() == "" {
+		t.Skip("未找到可执行的 Python 3（可用 SWEEP_PYTHON / PYTHON 指定），跳过 parity 测试（纯 Go 测试不受影响）")
 	}
 }
 
@@ -55,7 +97,11 @@ func RunPyStdin(t *testing.T, stdin string, code string, args ...string) string 
 func runPy(t *testing.T, stdin io.Reader, code string, args ...string) string {
 	t.Helper()
 	RequiresPython(t)
-	cmd := exec.Command("python", append([]string{"-c", code}, args...)...)
+	py := PythonBin()
+	if py == "" {
+		t.Skip("未找到可执行的 Python 3，跳过 parity 测试")
+	}
+	cmd := exec.Command(py, append([]string{"-c", code}, args...)...)
 	cmd.Dir = RepoRoot()
 	cmd.Env = append(os.Environ(),
 		"PYTHONUTF8=1",

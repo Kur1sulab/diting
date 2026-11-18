@@ -121,12 +121,10 @@ func pdRequiresPython(t *testing.T) string {
 	if os.Getenv("CI") == "true" {
 		t.Skip("CI 环境：parity=本地黄金对照门禁（见 PARITY.md），跳过")
 	}
-	for _, name := range []string{"python", "python3"} {
-		if p, err := exec.LookPath(name); err == nil {
-			return p
-		}
+	if p := PythonBin(); p != "" {
+		return p
 	}
-	t.Skip("python/python3 不在 PATH，跳过 patchdiff parity")
+	t.Skip("未找到可执行的 Python 3，跳过 patchdiff parity")
 	return ""
 }
 
