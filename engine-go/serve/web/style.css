@@ -1,11 +1,43 @@
 /* ─────────────────────────────────────────────────────────────
-   Atlas 控制台 · 苹果风深色毛玻璃
-   规范：desktop-ui-design（纯深色底 / 面板半透明+真实 blur / 圆角 16 / 禁光斑渐变）
+   Atlas 控制台 · 纸白为主，深色可切
+   规范：desktop-ui-design（面板半透明+真实 blur / 圆角 16 / 禁光斑渐变）
    色板：design-review references/light-theme-palette.md（对比度全部活 DOM 实测）
-   三套主题：slate 石墨蓝（默认）· gold 暖金 · light 纸白
+   三套主题：light 纸白（默认）· slate 石墨蓝 · gold 暖金
    ───────────────────────────────────────────────────────────── */
 
+/* 纸白：默认主题，白面板 + 深字 */
 :root{
+  --bg:#f4f6f8;
+  --rail:rgba(255,255,255,.88);
+  --panel:rgba(255,255,255,.82);
+  --panel-2:rgba(255,255,255,.9);
+  --field:rgba(16,24,40,.04);
+  --line:rgba(16,24,40,.10);
+  --line-2:rgba(16,24,40,.16);
+  --shadow:0 12px 30px -22px rgba(16,24,40,.5),inset 0 1px 0 rgba(255,255,255,.9);
+
+  --fg:#101828;          /* 16.38:1 */
+  --fg-2:#5b6676;        /*  5.37:1 */
+  --faint:#626c7a;       /*  4.91:1（10px 标签也要过 4.5） */
+
+  --accent:#0b5cbf;      /*  5.88:1 */
+  --accent-fill:#0066cc; /* 白字 5.57:1 */
+  --accent-ink:#ffffff;
+  --accent-soft:rgba(11,92,191,.09);
+  --accent-line:rgba(11,92,191,.24);
+
+  --ok:#0a7a4e;   --ok-soft:rgba(10,122,78,.09);    --ok-line:rgba(10,122,78,.22);
+  --warn:#a35a06; --warn-soft:rgba(163,90,6,.09);   --warn-line:rgba(163,90,6,.22);
+  --danger:#b42318; --danger-soft:rgba(180,35,24,.08); --danger-line:rgba(180,35,24,.24);
+  --violet:#5b3fd6; --violet-soft:rgba(91,63,214,.09); --violet-line:rgba(91,63,214,.22);
+  /* 几何 */
+  --r:16px; --r-sm:10px; --r-xs:8px;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+
+/* 石墨蓝：纯深色底 + 苹果风毛玻璃 */
+[data-theme="slate"]{
   /* 结构 */
   --bg:#0e1013;
   --rail:rgba(19,22,26,.72);
@@ -34,10 +66,6 @@
   --danger:#ff6b6b; --danger-soft:rgba(255,107,107,.12); --danger-line:rgba(255,107,107,.34);
   --violet:#a78bfa; --violet-soft:rgba(167,139,250,.13); --violet-line:rgba(167,139,250,.32);
 
-  /* 几何 */
-  --r:16px; --r-sm:10px; --r-xs:8px;
-  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
 }
 
 /* 暖金：炭黑底 + 琥珀金，深字压金底 */
@@ -65,33 +93,6 @@
   --danger:#ef7a6d; --danger-soft:rgba(239,122,109,.12); --danger-line:rgba(239,122,109,.34);
   --violet:#c4a3f5; --violet-soft:rgba(196,163,245,.13); --violet-line:rgba(196,163,245,.3);
   --shadow:0 18px 40px -28px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,240,214,.05);
-}
-
-/* 纸白：浅色默认，面板白 + 深字 */
-[data-theme="light"]{
-  --bg:#f4f6f8;
-  --rail:rgba(255,255,255,.88);
-  --panel:rgba(255,255,255,.82);
-  --panel-2:rgba(255,255,255,.9);
-  --field:rgba(16,24,40,.04);
-  --line:rgba(16,24,40,.10);
-  --line-2:rgba(16,24,40,.16);
-  --shadow:0 12px 30px -22px rgba(16,24,40,.5),inset 0 1px 0 rgba(255,255,255,.9);
-
-  --fg:#101828;          /* 16.38:1 */
-  --fg-2:#5b6676;        /*  5.37:1 */
-  --faint:#626c7a;       /*  4.91:1（10px 标签也要过 4.5） */
-
-  --accent:#0b5cbf;      /*  5.88:1 */
-  --accent-fill:#0066cc; /* 白字 5.57:1 */
-  --accent-ink:#ffffff;
-  --accent-soft:rgba(11,92,191,.09);
-  --accent-line:rgba(11,92,191,.24);
-
-  --ok:#0a7a4e;   --ok-soft:rgba(10,122,78,.09);    --ok-line:rgba(10,122,78,.22);
-  --warn:#a35a06; --warn-soft:rgba(163,90,6,.09);   --warn-line:rgba(163,90,6,.22);
-  --danger:#b42318; --danger-soft:rgba(180,35,24,.08); --danger-line:rgba(180,35,24,.24);
-  --violet:#5b3fd6; --violet-soft:rgba(91,63,214,.09); --violet-line:rgba(91,63,214,.22);
 }
 
 *{box-sizing:border-box}

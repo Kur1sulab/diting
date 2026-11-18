@@ -445,10 +445,11 @@
     });
   });
 
-  // ── 主题切换：三套色板，localStorage 记忆 ──────────────────────
-  const THEMES = ['slate', 'gold', 'light'];
+  // ── 主题切换：三套色板，localStorage 记忆（默认纸白）───────────
+  const THEMES = ['light', 'slate', 'gold'];
+  const DEFAULT_THEME = 'light';
   function applyTheme(id) {
-    if (!THEMES.includes(id)) id = 'slate';
+    if (!THEMES.includes(id)) id = DEFAULT_THEME;
     document.documentElement.dataset.theme = id;
     try { localStorage.setItem('atlas-theme', id); } catch (e) {}
     document.querySelectorAll('[data-theme-set]').forEach((b) => {
@@ -459,7 +460,7 @@
     const b = ev.target.closest('[data-theme-set]');
     if (b) applyTheme(b.dataset.themeSet);
   });
-  applyTheme(document.documentElement.dataset.theme || 'slate');
+  applyTheme(document.documentElement.dataset.theme || DEFAULT_THEME);
 
   boot();
 })();
