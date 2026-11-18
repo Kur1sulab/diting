@@ -53,6 +53,12 @@ func isExplicitV6Literal(host string) bool {
 	return strings.Contains(host, ":")
 }
 
+// IsBlockedIP 报告 addr 是否落在 Python ipaddress 的
+// is_private ∪ is_loopback ∪ is_link_local ∪ is_reserved 并集内。
+// 供需要同口径归类的模块（jsintel 内网 IP 线索）复用——与 CheckHTTPURL 共用
+// 同一张阻断表，避免两处私网口径漂移。
+func IsBlockedIP(addr netip.Addr) bool { return ipBlocked(addr) }
+
 // ipBlocked 等价 Python: ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
 func ipBlocked(a netip.Addr) bool {
 	list := v4Blocked

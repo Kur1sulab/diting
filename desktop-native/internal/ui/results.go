@@ -7,21 +7,23 @@ import (
 	"recon-native/internal/store"
 )
 
-// ModuleInfo 一个扫描模块的展示元数据（八模块，与 engine.cmdSet 一一对应）。
+// ModuleInfo 一个扫描模块的展示元数据（十模块，与 engine.cmdSet 一一对应）。
 type ModuleInfo struct {
 	Key   string // 传给引擎的子命令
 	Label string // 中文名（界面用）
 	Desc  string // 一句话说明（工具页/新建任务页用）
 }
 
-// Modules 八个扫描模块（顺序即界面排列顺序）。jsintel/portscan 随全集成
-// 退役（不在此表：不可新建任务、无 tab）；历史任务由 retiredModuleLabels
-// 照常展示中文名。
+// Modules 十个扫描模块（顺序即界面排列顺序）。第三轮升级把 jsintel/portscan
+// 接回（engine-go 已移植）：可新建任务、有 tab；retiredModuleLabels 保留作
+// 历史任务的中文名兜底。
 var Modules = []ModuleInfo{
 	{"all", "全部模块", "按顺序跑完整条信息收集流水线"},
 	{"subdomain", "子域枚举", "从公开数据源枚举子域并做存活验证"},
 	{"paths", "敏感路径", "探测备份文件、后台入口、敏感配置等路径"},
 	{"api", "API 面", "梳理 Swagger/OpenAPI 等接口文档与接口端点"},
+	{"jsintel", "JS 情报", "抓外链 JS 提取端点、密钥线索与内网 IP"},
+	{"portscan", "端口扫描", "常用端口表 TCP 连接探测与服务 banner"},
 	{"fingerprint", "指纹识别", "识别 Web 框架、中间件与组件指纹"},
 	{"reverse", "IP 反查", "反查 IP 绑定的域名与旁站线索"},
 	{"icp", "ICP 备案", "查询域名 ICP 备案主体信息"},

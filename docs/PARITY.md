@@ -18,7 +18,7 @@
 5. **不可比项显式豁免**：baseline 探针随机串（两引擎进程级各自 crypto/rand）、生成时间戳、
    zip 文件名时间戳——断言只比"结构位置"或跳过该行。
 
-## ② parity 测试矩阵（14 项，HEAD 108ce88 全部 PASS）
+## ② parity 测试矩阵（24 项；1-14 为 HEAD 108ce88 基线，15-17 portscan 移植轮，18-21 patchdiff 移植轮，22-24 jsintel 移植轮）
 
 | # | 测试（internal/parity/） | 断言内容 | 最近实跑 |
 |---|---|---|---|
@@ -36,8 +36,23 @@
 | 12 | TestParityPathsAndAPIFullChain | 五陷阱场景（soft404/api404/waf/loginredirect/empty）两版零命中 + real 必含五端点全 live + paths 三路径全 verified（两版 CLI 全链路） | PASS |
 | 13 | TestParityAssetParsers | FOFA/Hunter 解析推导式 python 内联重放 vs Go 纯函数，同 fixture 同输出（含 None→"None"） | PASS |
 | 14 | TestParityPackEvidence | 两侧各打包 → arcname 集合（正斜杠规范化）+ 成员内容逐字节 | PASS |
+| 15 | TestParityParsePorts | 14 条 spec（默认表/区间/去重/非法/`1-65535` 截断/`+80`、`1_0` 的 Python int 口径）逐条比 ParsePorts 输出 | PASS |
+| 16 | TestParityClassifyBanner | 27 例 banner 特征矩阵（SSH/HTTP/FTP/SMTP/Redis/Memcached/MySQL/Mongo/VNC/AMQP/ES/Telnet + 端口兜底） | PASS |
+| 17 | TestParityPortscanLocalTargets | 同一组本机 TCP 靶标（SSH 样/Redis 样/静默/关闭）双引擎对打：ports.json 反序列化后结构全等 + ports.txt 去 `\r` 逐字符全等 | PASS |
+| 18 | TestParityPatchdiffClassify | 80 行逐行语料（12 修复信号 + 8 漏洞痕迹 + `\b` 的 CJK 词边界 + execute/占位符上下文 + 去重保序 + 样本截 10 行）→ fix/vuln 标签与顺序全等 | PASS |
+| 19 | TestParityPatchdiffEmitRule | 转义/短行与注释过滤/120 字符截断（含中文，按码点）/去重/12 条上限 → 规则文件逐字节全等 | PASS |
+| 20 | TestParityPatchdiffRun | 同一本地 fixture 仓库（8 提交，含空提交/二进制/重命名/CJK/`--` 注释行）→ commits+hunks 结构、规则文件、终端摘要（输出目录归一）全等 | PASS |
+| 21 | TestParityPatchdiffCommits | `--grep` 关键词 / `--range` / `--commit` / `--limit` 四种挑法 → sha 列表全等 | PASS |
+| 22 | TestParityJSIntelPure | mask/normalize/endpoints/sensitive/domains/scripts 六组纯函数逐样本对打（stdin 喂源码 → stdout JSON，含模板占位/静态资源/内网 IP/公网噪声；另含 endpoint/domain/sensitive 三路正则的 CJK 词边界 Python Unicode 语义、lone `\r`/`\f` 行号-片段错位 quirk） | PASS |
+| 23 | TestParityJSIntelFullChain | jssite / waf / soft404 三场景：`jsintel.json` 反序列化结构全等 + `jsintel.txt` 逐字符全等（strip `\r`） + 全量敏感值不落盘 | PASS |
+| 24 | TestParityJSIntelTrickySite | 自建陷阱站同站对打：协议相对 URL / `data:` / 静态资源 / 二进制 / 空 JS / 内联序号 / 同行多敏感键，脚本计数与线索锚点双断言 | PASS |
 
-复跑命令：`cd engine-go && C:/Go/go/bin/go.exe test -count=1 ./internal/parity/`（python 在场约 60-70s）。
+复跑命令：`cd engine-go && go test -count=1 ./internal/parity/`。portscan 3 项与
+patchdiff 4 项自带 `python`→`python3` 回退探测（本机 Homebrew 只有 python3），其余
+parity 项沿用 `RequiresPython` 的 `python` 口径；CI=true 时全部 Skip（本地黄金门禁）。
+已知在案：`TestParityOneForAll` 依赖 PATH 里有 `python` 可执行文件（toolrun 适配层
+按 `python` 起 OneForAll 子进程），python3-only 机器上该测试与其余 `RequiresPython`
+项一样走 Skip——不是本轮引入的缺口。
 
 ## ③ mock 全场景关键输出对照表（两版 CLI 实跑，2026-10-02）
 
@@ -62,8 +77,9 @@
   过滤不误杀真命中"）：Go 版 25 个端点全命中且全存活——证据 `engine-go/docs/parity-samples/api_r302_stdout.txt`
   （同目录 fp_r302 / paths_r302 / api_direct_lan 为同轮采样）。
 - **口径说明**：「mock 全流程对照」= 模块全集逐个对照（api/paths/fingerprint/baseline/verify/poc），
-  **不含 `all` 一键全流程**——all 在 c3 拍板为不实现（见 README 状态表），Python 版可跑全流程作参照。
-- jssite 场景属 jsintel（未移植，c3 拍板），不进对照表。
+  **不含 `all` 一键全流程**——该表是 2026-10-02 抽样，all 当时未移植；第三轮升级后 Go 侧
+  `all` 已落地（cli/all.go，10 步编排），实跑证据见 ⑥「第三轮 all 实跑」。
+- jssite 场景属 jsintel，已由 `TestParityJSIntelFullChain` 覆盖（见 ② 矩阵 22-24）。
 
 ## ④ 已知口径差异清单（两轮沉淀，全部"可解释且已对齐"）
 
@@ -78,6 +94,10 @@
 | 数字类型 | JSON→float64 vs Go int 字面量 | 渲染层 numOf 通用提取（c2 parity 抓出后修） |
 | 子进程超时 | Python TimeoutExpired 炸穿 vs Go 告警返空走降级链 | README 差异说明（行为等价：该通道无结果） |
 | 私网全集 | Go 标准库缺 Python 的私网/保留段（含 198.18.0.0/15 fake-ip 段） | 自实现全集 + 动态 python 探针单测逐 IP 钉死 |
+| portscan timeout 字面量 | Python json.dumps 写 `1.0`，Go float64 默认写 `1` | `Result.Timeout` 用 `PyFloat.MarshalJSON` 输出 `1.0`；ports.json / ports.txt 实测与 Python 逐字节一致（本机 diff 为空） |
+| portscan 写盘/退出码 | Python safe_write 抛异常未捕获 → traceback exit 1；Go 返回 error → CLI exit 1 | 行为等价（写盘失败即失败），日志文案不同 |
+| patchdiff 失败口径 | Python `run_patchdiff` 非仓库时返回 `{'ok': False, 'error': …}`，但 recon.py 不看返回值 → **exit 0**；Go 返回 error → CLI `[!]` + exit 1 | **有意偏差**（脚本不该把「不是 git 仓库」当成功继续跑）；契约面：Go 以 error 表达 ok=False |
+| patchdiff limit=0 | Python 显式 `limit=0` → `git log -n 0` → 空结果；Go `Limit<=0` 视同未设置取默认 20 | 有意偏差（库 API 零值可用；CLI 恒显式传 20，无差异面） |
 | 私网表的 Python 版本口径 | ipaddress 私网表随 CPython 版本漂移：3.8 与 3.13 差异段 = IPv4 192.0.0.0/29(+170/31)→/24、IPv6 新增 64:ff9b:1::/48、2002::/16、3fff::/20。**Go 表统一按 3.13 口径**（与 CI runner 一致）；本机 3.8 引擎在上述 4 个极端段上更宽松（不影响 fake-ip/RFC1918/回环等核心场景） | 探针测试版本感知：python <3.9 跳过版本差异段对照（netutil:TestIPBlockedMatchesPython） |
 
 ## ⑤ 真实目标对照（xycovo.com，白名单内自有资产，人工验收 2026-10-02 20:14-20:20）
@@ -106,3 +126,24 @@
 （私网全集阻断）**同样正确工作**——这不是数据源时变差异，而是防御语义 parity 的实证；
 预期中的"干净静态博客"画像（软 404 基线 normal、无 API 暴露、仅 /robots.txt 可访问）两版判定一致。
 47.100.49.228 本轮未测（计划不强制）。
+
+## ⑥ 第三轮 all/jsintel/portscan/patchdiff 实跑（macOS arm64，2026-11-18）
+
+环境：go1.24.13 darwin/arm64；Python 3（`python3`）；靶站 = `tests/mock_server.py`
+（127.0.0.1:8811，`/jssite/` 场景自带外链 JS + 内联敏感值 + 第三方域 + 内网 IP 线索）。
+命令两版各跑一遍，产物逐字节比对。
+
+| 模块 | 比对对象 | 结果 |
+|---|---|---|
+| jsintel | `jsintel.json` | ✅ **md5 相同**（`893389ec9ae96cb600b1ab80a9a01163` 两侧同值） |
+| jsintel | `jsintel.txt` | ✅ `diff` 空（含「线索≠漏洞」声明行与打码值） |
+| portscan | `ports.json` / `ports.txt` | ✅ 逐字节一致（`timeout` 字面经 `PyFloat` 修正后 `1.0` 与 Python 同形） |
+| patchdiff | `patchdiff.json` | ✅ 逐字节一致（同一 fixture 仓库 `--limit 3`：3 提交 / 3 hunk / 修复信号同序） |
+| all | `recon-go all -t 127.0.0.1` | ✅ exit 0，10 步全跑通（reverse→icp→fingerprint→api→portscan→jsintel→report），`report.md` 落盘 |
+
+jsintel 实跑摘要（两版同）：端点 4 条（`/api/v1/users`、`/api/v2/login`、`/v3/pay`、
+`/weather/beijing`）／敏感 3 条（全部打码到前 4 位）／第三方域 1／内网 IP 1。
+
+`all` 编排核对：Go 侧步骤序与 `recon.py cmd_all` 一致（域名分支 jsintel→portscan，
+IP 分支 portscan→jsintel），jsintel/portscan 均为非致命步骤——本地靶站端口扫描失败
+也照常进入 report 收尾（desktop-native `TestIntegrationAllDomainBranchRunsNewSteps` 钉住）。

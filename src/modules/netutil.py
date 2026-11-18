@@ -154,7 +154,7 @@ def safe_subdir(out: str, *parts: str) -> str:
     外部可控成分的多级拼接（目录穿越纪律的目录版）。"""
     import os as _os
     import pathlib as _pl
-    base = _pl.Path(_os.path.abspath(safe_outdir(out)))
+    base = _pl.Path(_os.path.abspath(safe_outdir(out))).resolve()
     cur = base
     for p in parts:
         cur = cur / safe_filename(p)
@@ -172,7 +172,7 @@ def safe_write(out: str, name: str, content: str) -> str:
     """
     import os as _os
     import pathlib as _pl
-    base = _pl.Path(_os.path.abspath(safe_outdir(out)))
+    base = _pl.Path(_os.path.abspath(safe_outdir(out))).resolve()
     if not name or _pl.PurePath(name).name != name:
         raise ValueError(f"非法文件名: {name!r}")
     final = base / safe_filename(name)

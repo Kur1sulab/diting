@@ -34,11 +34,22 @@ func TestFindRepoRootProbeEngineGoMarker(t *testing.T) {
 		t.Fatalf("src/recon.py 不应再作为仓库根判据，得 %q", got)
 	}
 	// 正例：engine-go/ 目录标记在 → 判为仓库根
+	// 注意 macOS：/var 是 /private/var 的符号链接，os.Getwd 返回解析后的路径，
+	// 与 t.TempDir() 的原始串不同——两侧都取 EvalSymlinks 再比，避免平台假失败。
 	if err := os.MkdirAll(filepath.Join(stub, "engine-go"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if got := findRepoRoot(); got != stub {
-		t.Fatalf("engine-go/ 标记所在目录应判为仓库根，得 %q", got)
+	got := findRepoRoot()
+	want, err := filepath.EvalSymlinks(stub)
+	if err != nil {
+		want = stub
+	}
+	gotResolved, err := filepath.EvalSymlinks(got)
+	if err != nil {
+		gotResolved = got
+	}
+	if gotResolved != want {
+		t.Fatalf("engine-go/ 标记所在目录应判为仓库根，得 %q（want %q）", got, stub)
 	}
 }
 

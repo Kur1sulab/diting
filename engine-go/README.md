@@ -22,22 +22,23 @@ C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Pyt
 - `go test` 全程零外网：crt.sh/certspotter 打 httptest stub，OneForAll 走
   `testdata/oneforall_fake.py.txt` fixture，subfinder 用注入桩。
 
-## 子命令对照表（14 个，对齐 recon.py:137-212）
+## 子命令对照表（15 个，对齐 recon.py:137-213）
 
 | 子命令 | Python 对应 | Go 版状态 |
 |---|---|---|
 | `subdomain -d <domain> [--verify]` | `modules.subdomain.run_subdomain` | ✅ c1 已实现 |
 | `verify -d <domain> [-w 8]` | `modules.subdomain.run_verify` | ✅ c1 已实现 |
 | `fingerprint -u <url>` | `modules.fingerprint.run_fingerprint` | ✅ c1 已实现 |
-| `all -t <domain\|ip>` | `cmd_all` | ❌ **c3 拍板不实现**（exit 2；一键全流程请用 `python src/recon.py all`，Go 版按模块逐个跑） |
+| `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 recon.py 步骤序一致） |
 | `asset -d` | `modules.asset` | ✅ c2（FOFA/Hunter 原生客户端，key 走环境变量） |
 | `reverse -i <ip>` | `modules.reverse_ip` | ✅ c2（hackertarget；域名正则改写为 RE2 兼容 label 校验） |
 | `icp -d` | `modules.icp` | ✅ c2（apihz；限频假 200 防御） |
 | `api -u` | `modules.api_unauth` | ✅ c2（27 端点清单 + 取证三件套） |
 | `paths -u` | `modules.paths` | ✅ c2（19 条字典 + 软 404 基线 + 复验） |
-| `jsintel -u` | `modules.jsintel` | ⏸ **c3 拍板暂不移植**（exit 2；需要时用 Python 版） |
-| `portscan -t` | `modules.portscan` | ⏸ 同上 |
+| `jsintel -u` | `modules.jsintel` | ✅ 已移植（端点/敏感线索/域名三通道；值只留前 4 位打码；WAF 优雅降级；单测 + parity 24 项矩阵） |
+| `portscan -t` | `modules.portscan` | ✅ 已移植（96 端口常用表 + banner 轻量识别；并发 ≤32 / 超时 1.5s；`--ports 80,443,8000-8100`） |
 | `poc -t -p` | `modules.poc_engine`（YAML 引擎） | ✅ c2（gopkg.in/yaml.v3，仓库唯一第三方依赖） |
+| `patchdiff -r` | `modules.patchdiff` | ✅ 已移植（本地 git 子进程 + 12/8 条信号表 + semgrep 规则骨架；`--commit/--range/--limit/--emit-rule`；零外联） |
 | `llm -d` | ~~`modules.llm_assist`~~ | ❌ **不移植，弃用**（Python 版也已整体移除该模块，两侧行为一致：提示并 exit 2） |
 | `report -t` | `modules.report` | ✅ c2（资产档案 + 证据包 zip） |
 
@@ -64,6 +65,8 @@ engine-go/
 ├── internal/apiunauth/      # c2：API 未授权探测（27 端点 + 取证三件套）
 ├── internal/poc/            # c2：YAML POC 引擎（gopkg.in/yaml.v3）
 ├── internal/report/         # c2：资产档案 render + 证据包 zip
+├── portscan/                # 常用端口扫描（96 端口表 + banner 识别；CLI portscan / all 步骤）
+├── patchdiff/               # 补丁差分 → 变种狩猎（git 子进程 + 信号表 + semgrep 规则骨架）
 ├── internal/mockweb/        # httptest 靶站：与 tests/mock_server.py 逐字节对齐
 ├── internal/parity/         # Python↔Go parity 测试基建 + c1/c2 断言矩阵
 └── testdata/                # OneForAll fixture（.txt 后缀合规）

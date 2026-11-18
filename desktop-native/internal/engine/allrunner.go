@@ -4,13 +4,13 @@ package engine
 // 两分支直调 engine-go 公开函数。
 //
 //	域名分支：subdomain → verify → asset → icp(非致命) → PickBase →
-//	          fingerprint → paths → api → [jsintel/portscan skipped] → report
+//	          fingerprint → paths → api → jsintel → portscan → report
 //	IP 分支： reverse → icp(反查域名≤5 个循环，非致命) → PickBase(反查首域名)
-//	          → fingerprint → api → [portscan/jsintel skipped] → report
+//	          → fingerprint → api → portscan → jsintel → report
 //
 // 步骤事件与 python _run_step（recon.py:46-60）同构：start/done/fail(module)；
 // fatal 步骤失败即中止流水线（pipeline_end fail），非致命步骤降级继续。
-// jsintel/portscan 未随全集成版移植，对应步骤发 skipped 事件（不中断）。
+// jsintel/portscan 第三轮起真跑（fatal=false，与 Python 一致）。
 // 取消传播：每步骤间设 ctx 检查点，引擎调用全部走 *Context 变体
 //（FetchOpt.Ctx 贯穿，Stop 即时生效）。
 
@@ -28,9 +28,6 @@ import (
 	"github.com/Kur1sulab/src-recon-tool/engine-go/reverseip"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/subdomain"
 )
-
-// skippedDetail 退役步骤的 skipped 事件文案（inproc_integration_test 钉住）。
-const skippedDetail = "未随全集成版提供"
 
 // allStep 单步执行（_run_step 同构）：start → fn → done | fail(module, err)。
 // fatal=false 时失败降级为 nil（不阻断主流程，语义同 python fatal=False）。
@@ -107,7 +104,7 @@ func (r *Runner) allDomainBranch(ctx context.Context, id, target, out string) er
 		return err
 	}
 	base := r.pickBase(target)
-	return r.allWebSteps(ctx, id, base, out, true, "jsintel", "portscan")
+	return r.allWebSteps(ctx, id, target, base, out, true, []string{"jsintel", "portscan"})
 }
 
 // allIPBranch IP 分支（recon.py:129-154）：反查域名 → 逐个 ICP（≤5 个，避免
@@ -137,14 +134,15 @@ func (r *Runner) allIPBranch(ctx context.Context, id, target, out string) error 
 		host = doms[0]
 	}
 	base := r.pickBase(host)
-	return r.allWebSteps(ctx, id, base, out, false, "portscan", "jsintel")
+	return r.allWebSteps(ctx, id, target, base, out, false, []string{"portscan", "jsintel"})
 }
 
 // allWebSteps 两分支共用尾段：PickBase 入口 → fingerprint →（域名分支含
-// paths）→ api → 两个退役步骤 skipped。顺序保持 recon.py 各分支原序：
-// 域名分支 fingerprint→paths→api→jsintel→portscan（:166-173），
-// IP 分支 fingerprint→api→portscan→jsintel（:148-154）。
-func (r *Runner) allWebSteps(ctx context.Context, id, base, out string, withPaths bool, skipA, skipB string) error {
+// paths）→ api → jsintel/portscan（真实执行，非致命）。顺序保持 recon.py 各
+// 分支原序：域名分支 fingerprint→paths→api→jsintel→portscan（:166-173），
+// IP 分支 fingerprint→api→portscan→jsintel（:148-154）——顺序由 order 传入。
+// 注意目标差异：jsintel 吃 base（带协议），portscan 吃原始 target（裸域名/IP）。
+func (r *Runner) allWebSteps(ctx context.Context, id, target, base, out string, withPaths bool, order []string) error {
 	if err := r.allStep(ctx, id, "fingerprint", true, func() error {
 		fingerprint.RunFingerprintContext(ctx, base, out)
 		return nil
@@ -165,11 +163,22 @@ func (r *Runner) allWebSteps(ctx context.Context, id, base, out string, withPath
 	}); err != nil {
 		return err
 	}
-	for _, m := range []string{skipA, skipB} {
-		if err := ctx.Err(); err != nil {
+	for _, m := range order {
+		module := m // 闭包捕获：循环变量在 Go 1.22+ 已是每轮新变量，显式复制更稳
+		var err error
+		switch module {
+		case "jsintel":
+			err = r.allStep(ctx, id, "jsintel", false, func() error {
+				return r.runJSIntel(ctx, id, base, nil)
+			})
+		case "portscan":
+			err = r.allStep(ctx, id, "portscan", false, func() error {
+				return r.runPortscan(ctx, id, target, nil)
+			})
+		}
+		if err != nil {
 			return err
 		}
-		r.emit(id, m, "skipped", skippedDetail)
 	}
 	return nil
 }

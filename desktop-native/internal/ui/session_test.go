@@ -122,13 +122,13 @@ func TestModulesEightAndUnique(t *testing.T) {
 			t.Fatalf("模块 %q 缺中文名或说明", m.Key)
 		}
 	}
-	// 全集成轮（2026-10-07）：Modules 表收缩为八模块（jsintel/portscan 随
-	// 全集成退役，不在表内=不可新建、无 tab），结果页 tab 与新建任务页网格随之派生。
-	if len(Modules) != 8 {
-		t.Fatalf("应有 8 个模块，得 %d", len(Modules))
+	// 第三轮升级（2026-11-18）：Modules 表扩回十模块（jsintel/portscan 随
+	// engine-go 移植重新接回），结果页 tab 与新建任务页网格随之派生。
+	if len(Modules) != 10 {
+		t.Fatalf("应有 10 个模块，得 %d", len(Modules))
 	}
-	if seen["jsintel"] || seen["portscan"] {
-		t.Fatal("退役模块不得留在 Modules 表")
+	if !seen["jsintel"] || !seen["portscan"] {
+		t.Fatal("jsintel/portscan 应回到 Modules 表")
 	}
 }
 

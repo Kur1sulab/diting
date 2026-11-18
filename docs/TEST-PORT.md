@@ -17,10 +17,11 @@
 | test_verify_and_evidence.py | 7 | subdomain/apiunauth | ✅ 平移（3 项环境失败改写锚点，见下） |
 | test_progress_file.py | 5 | internal/cli（progress 事件流） | ✅ 全平移（fix1） |
 | test_fix1_parity.py | 3 | — | ◻ 不适用（Python 侧对 Go 行为的反向锚定，Go 即参照实现） |
-| test_jsintel.py | 15 | — | ⏸ 不适用（jsintel 待 c3 拍板是否移植） |
-| test_portscan.py | 8 | — | ⏸ 不适用（portscan 待 c3 拍板是否移植） |
+| test_jsintel.py | 15 | jsintel（包内单测）+ internal/parity（6 纯函数 + 全链路/陷阱站） | ✅ 全平移（见下逐项映射） |
+| test_portscan.py | 8 | portscan（+ cli 接线 1 项） | ✅ 全平移（见下逐项映射） |
+| test_patchdiff.py | 3 | patchdiff（+ cli 接线 6 项） | ✅ 全平移（见下逐项映射） |
 
-Go 侧另有 Python 无对应的自有测试：mockweb 漂移守卫/场景（2）、parity 矩阵（14）、
+Go 侧另有 Python 无对应的自有测试：mockweb 漂移守卫/场景（2）、parity 矩阵（24，含 portscan 3 项 / patchdiff 4 项 / jsintel 3 项）、
 toolrun 适配层（7）、asset（6）、jsonx、redteam_adv2 对抗包（4）、fix2 系列回归等——
 属"Go 侧自证 + 双引擎 parity"新增面，不占平移映射。
 
@@ -103,12 +104,71 @@ toolrun 适配层（7）、asset（6）、jsonx、redteam_adv2 对抗包（4）�
 | （env 回退/recon.py:191） | cli:TestProgressFileEnvFallbackAndNoEventsOnHelp | ✅ 等价改写 |
 | （-h 不发事件） | cli:TestProgressFileEnvFallbackAndNoEventsOnHelp | ✅ |
 
+### test_jsintel.py（15）→ Go jsintel
+
+| Python 方法 | Go 测试 | 状态 |
+|---|---|---|
+| TestNormalizeEndpoint.test_basic_normalize | jsintel:TestNormalizeEndpoint | ✅ |
+| TestNormalizeEndpoint.test_static_and_noise_filtered | jsintel:TestNormalizeEndpoint | ✅ |
+| TestExtractEndpoints.test_call_sites_and_literals | jsintel:TestExtractEndpoints | ✅ |
+| TestExtractEndpoints.test_cap | jsintel:TestExtractEndpointsCap（800 截断 + 有序） | ✅ |
+| TestExtractSensitive.test_value_masked_everywhere | jsintel:TestExtractSensitiveMaskedEverywhere | ✅ |
+| TestExtractSensitive.test_ak_sk_and_blocklist | jsintel:TestExtractSensitiveAkSkAndBlocklist | ✅ |
+| TestExtractSensitive.test_minified_single_line_masked_snippet | jsintel:TestExtractSensitiveMinifiedSingleLine | ✅ |
+| TestExtractDomains.test_classify | jsintel:TestExtractDomainsClassify | ✅ |
+| TestExtractDomains.test_public_version_numbers_not_collected | jsintel:TestExtractDomainsPublicNoiseIgnored | ✅ |
+| TestExtractScripts.test_html_parsing | jsintel:TestExtractScriptsHTMLParsing | ✅ |
+| TestJsintelAgainstMock.test_jssite_endpoints_found_and_static_filtered | jsintel:TestRunJSIntelAgainstMock | ✅ |
+| TestJsintelAgainstMock.test_jssite_json_never_contains_full_secrets | jsintel:TestRunJSIntelAgainstMock（JSON/TXT 双文件断言） | ✅ |
+| TestJsintelAgainstMock.test_jssite_sensitive_locations_and_domains | jsintel:TestRunJSIntelAgainstMock | ✅ |
+| TestJsintelAgainstMock.test_waf_site_degrades_gracefully | jsintel:TestRunJSIntelWAFDegradesGracefully | ✅ |
+| TestJsintelAgainstMock.test_soft404_spa_no_crash | jsintel:TestRunJSIntelSoft404NoCrash | ✅ |
+
+Go 侧补充：TestExtractSensitiveDedupAndCap（同行同键去重/上限/行号）、
+TestRenderTxt（清单格式 + None 渲染）、TestDownloadScriptsOrderLimitAndBinary（保序/
+max_files/二进制跳过）、TestRunJSIntelContextCanceled（取消不落盘）、
+cli:TestJSIntelCLIWiring / TestJSIntelCLIArgErrors（子命令接线）、parity 6 项
+（TestParityJSIntelPure / SensitiveUnicodeBoundary / UnicodeBoundaries /
+SensitiveLineQuirks / FullChain / TrickySite）。
+
+### test_portscan.py（8）→ Go portscan
+
+| Python 方法 | Go 测试 | 状态 |
+|---|---|---|
+| TestParsePorts.test_default_table | portscan:TestCommonPortsTableSane | ✅ |
+| TestParsePorts.test_ranges_and_dedup | portscan:TestParsePortsRangesAndDedup | ✅ |
+| TestParsePorts.test_invalid_ignored | portscan:TestParsePortsInvalidIgnored | ✅ |
+| TestParsePorts.test_huge_range_truncated | portscan:TestParsePortsHugeRangeTruncated | ✅ |
+| TestClassifyBanner.test_known_banners | portscan:TestClassifyKnownBanners | ✅ |
+| TestClassifyBanner.test_fallback_by_port | portscan:TestClassifyFallbackByPort | ✅ |
+| TestPortscanIntegration.test_scan_local_targets | portscan:TestScanLocalTargets + cli:TestPortscanCLIWiring | ✅ 本机靶标对打 |
+| TestPortscanIntegration.test_dns_failure_degrades | portscan:TestDNSFailureDegrades | ✅ 注入桩 |
+
+Go 侧补充：TestScanPortClosed（关闭端口不误报）、TestRenderTxtGolden（render_txt
+逐字符对照）、TestRunPortscanContextCancel（取消语义）、parity 3 项
+（TestParityParsePorts / TestParityClassifyBanner / TestParityPortscanLocalTargets）。
+
+### test_patchdiff.py（3）→ Go patchdiff
+
+| Python 方法 | Go 测试 | 状态 |
+|---|---|---|
+| test_finds_security_hunk | patchdiff:TestRunEndToEnd | ✅ 真 git fixture 仓库 |
+| test_emit_rule | patchdiff:TestEmitRuleExactFormat（逐字节） | ✅ 已平移 |
+| test_not_a_git_repo | patchdiff:TestRunNotGitRepo + cli:TestPatchdiffCLINotGitRepo | ✅ 等价改写（error 化） |
+
+Go 侧补充：TestParseHunks / TestParseHunksQuirks（`---` 跳过、合并提交段）/
+TestParseHunksCRLF、TestClassifyFixSignals + TestClassifyVulnSignals（20 条信号逐条）/
+TestClassifyWordBoundaryPythonSemantics（`\b` 的 Unicode 语义）、
+TestClassifyContextualParamQuery、TestClassifyDedupOrderAndCap、
+TestEmitRuleEmptyFallback / TestEmitRuleCapAndRuneTruncate、
+TestRunCommitRangeAndLimit / TestCommitsDefaultLimit / TestRunEmptyCommitHasMeta /
+TestRunUnknownCommitSkipped / TestRunSummaryFormat / TestMarshalDocIndent1 /
+TestRunContextCanceled、parity 4 项（Classify/EmitRule/Run/Commits）。
+
 ### 不平移文件
 
 | 文件 | 项数 | 理由 |
 |---|---|---|
-| test_jsintel.py | 15 | jsintel 模块 c3 拍板为暂不移植（Go 版无该子命令，README/--help 文案一致）；如后续拍板移植再平移 |
-| test_portscan.py | 8 | 同上（portscan） |
 | test_fix1_parity.py | 3 | Python 侧对 Go 行为的反向锚定（make_outdir 清洗/保留名/crt.sh 控制字符）——Go 即参照实现，无平移对象 |
 
 ## 3 项 Python 环境失败 —— 非平移缺口

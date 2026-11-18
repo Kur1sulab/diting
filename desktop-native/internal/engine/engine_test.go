@@ -20,16 +20,16 @@ import (
 
 // ── 模块白名单 ──
 
-func TestCmdAllowedEightModules(t *testing.T) {
-	allowed := []string{"all", "paths", "api", "fingerprint", "subdomain", "reverse", "icp", "baseline"}
+func TestCmdAllowedTenModules(t *testing.T) {
+	allowed := []string{"all", "paths", "api", "fingerprint", "subdomain", "reverse", "icp", "baseline", "jsintel", "portscan"}
 	for _, c := range allowed {
 		if !CmdAllowed(c) {
-			t.Fatalf("%s 应在八模块白名单内", c)
+			t.Fatalf("%s 应在十模块白名单内", c)
 		}
 	}
-	for _, c := range []string{"jsintel", "portscan", "poc", "verify", "llm"} {
+	for _, c := range []string{"poc", "verify", "llm", "patchdiff"} {
 		if CmdAllowed(c) {
-			t.Fatalf("%s 不在白名单内（jsintel/portscan 已退役，其余从未开放）", c)
+			t.Fatalf("%s 不在白名单内（poc/verify 从未开放；patchdiff 需要本地仓库路径，只走 CLI）", c)
 		}
 	}
 }
@@ -243,13 +243,13 @@ func TestStartDuplicateRejected(t *testing.T) {
 	waitTerminal(t, sink, "t1")
 }
 
-func TestStartRejectsRetiredCmd(t *testing.T) {
+func TestStartRejectsUnlistedCmd(t *testing.T) {
 	r, _ := newTestRunner(t)
-	if err := r.Start("t1", "jsintel", "http://127.0.0.1:8799/real", nil); err == nil {
-		t.Fatal("jsintel 已退役，Start 应拒绝")
+	if err := r.Start("t1", "poc", "http://127.0.0.1:8799/real", nil); err == nil {
+		t.Fatal("poc 不在白名单，Start 应拒绝")
 	}
-	if err := r.Start("t1", "portscan", "47.100.49.228", nil); err == nil {
-		t.Fatal("portscan 已退役，Start 应拒绝")
+	if err := r.Start("t1", "verify", "example.invalid", nil); err == nil {
+		t.Fatal("verify 不在白名单，Start 应拒绝")
 	}
 }
 

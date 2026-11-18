@@ -30,12 +30,13 @@ import (
 	"recon-native/internal/whitelist"
 )
 
-// cmdSet 允许下发的模块白名单（八模块）。jsintel/portscan 随全集成退役
-// （engine-go 未移植该两模块，桌面 all 流程里对应步骤发 skipped 事件）；
-// 历史任务照常展示（ui.moduleLabel 保留退役模块中文映射）。
+// cmdSet 允许下发的模块白名单（十模块）。第三轮升级把 jsintel/portscan
+// 重新接回（engine-go 侧已移植，见 jsintel/ 与 portscan/ 包）；patchdiff
+// 需要本地 git 仓库路径，不是网络目标，仍只走 CLI。
 var cmdSet = map[string]bool{
 	"all": true, "paths": true, "api": true, "fingerprint": true,
 	"subdomain": true, "reverse": true, "icp": true, "baseline": true,
+	"jsintel": true, "portscan": true,
 }
 
 // Sink 引擎向任务库回写状态/进度的通道（session 侧实现，测试侧用假件）。
@@ -90,6 +91,8 @@ func NewRunner(repoRoot string) *Runner {
 		"reverse":     r.runReverse,
 		"icp":         r.runICP,
 		"baseline":    r.runBaseline,
+		"jsintel":     r.runJSIntel,
+		"portscan":    r.runPortscan,
 	}
 	return r
 }

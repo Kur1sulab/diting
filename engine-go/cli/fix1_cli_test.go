@@ -94,9 +94,11 @@ func TestProgressFileFailContract(t *testing.T) {
 	if _, err := os.Stat(pf); err == nil {
 		t.Fatal("未知子命令不得启动事件流（进度文件不应被创建）")
 	}
-	// 占位不实现子命令（jsintel）exit 2 → fail 契约（事件序不变）
-	if code := Run([]string{"--progress-file=" + pf, "jsintel", "-u", "https://x.com"}); code != 2 {
-		t.Fatalf("jsintel 应 exit 2, 得 %d", code)
+	// 失败子命令 exit 2 → fail 契约（事件序不变）。
+	// 第三轮升级后 all/jsintel/portscan/patchdiff 全部落地，"占位不实现"样本改
+	// 用参数缺失的真实失败路径（portscan 缺 -t），语义仍是「非零退出 = fail 事件」。
+	if code := Run([]string{"--progress-file=" + pf, "portscan"}); code != 2 {
+		t.Fatalf("portscan 缺参数应 exit 2, 得 %d", code)
 	}
 	evs := readJSONL(t, pf)
 	var seq []string

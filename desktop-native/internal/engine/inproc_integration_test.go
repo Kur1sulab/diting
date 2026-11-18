@@ -7,7 +7,6 @@ package engine
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -133,9 +132,10 @@ func TestIntegrationBaselineAgainstMockweb(t *testing.T) {
 	}
 }
 
-// TestIntegrationAllDomainBranchSkipsRetiredSteps all 模块（域名分支）在本地
-// 假站上走通：退役步骤（jsintel/portscan）发 skipped 事件而非中断，report 收尾。
-func TestIntegrationAllDomainBranchSkipsRetiredSteps(t *testing.T) {
+// TestIntegrationAllDomainBranchRunsNewSteps all 模块（域名分支）在本地假站上
+// 走通：第三轮升级后 jsintel/portscan 真跑（非致命步骤，失败降级不中断），
+// report 收尾。假站域名不可解析时 portscan 会失败——仍必须走 fail 事件继续。
+func TestIntegrationAllDomainBranchRunsNewSteps(t *testing.T) {
 	srv := mockweb.New()
 	defer srv.Close()
 	repo := t.TempDir()
@@ -151,16 +151,26 @@ func TestIntegrationAllDomainBranchSkipsRetiredSteps(t *testing.T) {
 		t.Fatalf("本地假站上的 all 任务应完成，得 %q；事件=%+v", st, sink.eventsOf("t-all"))
 	}
 	raw := sink.eventsOf("t-all")
-	// skipped 事件：detail=未随全集成版提供
-	skipped := map[string]string{}
+	// 两步骤都真跑：各有 start，且终态只能是 done 或 fail（不再是 skipped）
+	term := map[string]string{}
+	started := map[string]bool{}
 	for _, ev := range raw {
 		if ev.Event == "skipped" {
-			skipped[ev.Module] = ev.Detail
+			t.Fatalf("%s 不应再有 skipped 事件（第三轮已接线）", ev.Module)
+		}
+		if ev.Event == "start" {
+			started[ev.Module] = true
+		}
+		if ev.Event == "done" || ev.Event == "fail" {
+			term[ev.Module] = ev.Event
 		}
 	}
 	for _, m := range []string{"jsintel", "portscan"} {
-		if !strings.Contains(skipped[m], "未随全集成版提供") {
-			t.Fatalf("%s 应有 skipped 事件（detail=未随全集成版提供），得 %q", m, skipped[m])
+		if !started[m] {
+			t.Fatalf("%s 缺 start 事件（全部=%+v）", m, raw)
+		}
+		if term[m] != "done" && term[m] != "fail" {
+			t.Fatalf("%s 终态应为 done/fail，得 %q", m, term[m])
 		}
 	}
 	// 域名分支步骤序列出现：subdomain → verify → … → report

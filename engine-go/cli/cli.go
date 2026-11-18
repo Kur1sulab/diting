@@ -19,6 +19,7 @@ import (
 	"github.com/Kur1sulab/src-recon-tool/engine-go/fingerprint"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/icp"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/netutil"
+	"github.com/Kur1sulab/src-recon-tool/engine-go/patchdiff"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/paths"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/poc"
 	"github.com/Kur1sulab/src-recon-tool/engine-go/report"
@@ -29,19 +30,21 @@ import (
 const helpText = `recon-go — SRC 信息收集自动化工具（Go 引擎，仅限授权测试）
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
-  recon-go all -t example.com             # 一键全流程未实现（exit 2）——请用 python src/recon.py all
+  recon-go all -t example.com             # ✅ 一键全流程（IP/域名自动分支，10 步）
   recon-go subdomain -d example.com [--verify]
   recon-go verify -d example.com [-w 8]
   recon-go asset -d example.com           # ✅ c2（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
   recon-go reverse -i 203.0.113.7         # ✅ c2
   recon-go icp -d example.com             # ✅ c2（APIHZ_ID/APIHZ_KEY 可覆盖）
   recon-go api -u https://example.com     # ✅ c2（含取证模式）
-  recon-go jsintel -u https://example.com # 暂不移植（c3 拍板，exit 2）
-  recon-go portscan -t 203.0.113.7        # 暂不移植（c3 拍板，exit 2）
+  recon-go jsintel -u https://example.com # ✅ 第三轮（外链 JS ≤6 并发/≤2MB，只 GET）
+  recon-go portscan -t 203.0.113.7        # ✅ 第三轮（常用端口表，并发 ≤32）
   recon-go fingerprint -u https://example.com
   recon-go paths -u https://example.com   # ✅ c2
   recon-go baseline -d example.com [--checks secheaders,webfiles]  # ✅ c2（域名暴露面基线 8 检查）
   recon-go poc -t https://example.com -p pocs/example.yaml  # ✅ c2（YAML 引擎）
+  recon-go patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
+                                         # ✅ 补丁差分→变种狩猎（本地 git 仓库，零外联）
   recon-go report -t example.com          # ✅ c2（资产档案+证据包）
 `
 
@@ -52,7 +55,7 @@ const helpText = `recon-go — SRC 信息收集自动化工具（Go 引擎，仅
 var knownCmds = map[string]bool{
 	"all": true, "subdomain": true, "verify": true, "asset": true, "reverse": true,
 	"icp": true, "api": true, "fingerprint": true, "paths": true, "jsintel": true,
-	"portscan": true, "poc": true, "report": true,
+	"portscan": true, "poc": true, "patchdiff": true, "report": true,
 	"baseline": true, // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python recon.py 对齐项）
 }
 
@@ -316,6 +319,41 @@ func dispatch(cmd string, rest []string) int {
 		poc.RunPOC(*target, *pocFile) // recon.py 不以命中与否改变退出码
 		return 0
 
+	case "patchdiff": // recon.py:208-213 / 266-270：-r/--repo 必填，--commit/--range/--limit/--emit-rule
+		fs := newFlagSet()
+		repo := fs.String("r", "", "")
+		repoAlias := fs.String("repo", "", "")
+		commit := fs.String("commit", "", "只看某个提交")
+		rng := fs.String("range", "", "提交区间，如 v1.2..v1.3")
+		limit := fs.Int("limit", patchdiff.DefaultLimit, "最多分析多少个安全相关提交")
+		emitRule := fs.String("emit-rule", "", "生成 semgrep 规则文件名（写入输出目录）")
+		usage := "patchdiff -r <repo> [--commit <sha>] [--range <a..b>] [--limit N] [--emit-rule <file>]"
+		if c := parseOrUsage(fs, rest, cmd, usage); c != -1 {
+			return c
+		}
+		r := pickAliasLastWins(rest, map[string]*string{"-r": repo, "--repo": repoAlias})
+		if r == "" {
+			return missingArgs(cmd, usage)
+		}
+		// 产物目录与 Python 一致：out/patchdiff（recon.py:268 make_outdir("patchdiff")）
+		out, err := MakeOutdir("patchdiff")
+		if err != nil {
+			fmt.Printf("[!] 输出目录创建失败: %v\n", err)
+			return 1
+		}
+		if _, err := patchdiff.Run(patchdiff.Options{
+			Repo: r, Commit: *commit, Range: *rng, Limit: *limit,
+			Emit: *emitRule, Outdir: out,
+			Logf: func(f string, a ...any) { fmt.Printf(f, a...) },
+		}); err != nil {
+			// 与 Python 的偏差（有意）：Python 侧 run_patchdiff 返回 ok=False 但
+			// CLI 不看返回值仍 exit 0；Go 按 fix3 口径 fail 事件 + exit 1，
+			// 免得脚本把「不是 git 仓库」当成功继续往下跑。
+			fmt.Printf("[!] patchdiff: %v\n", err)
+			return 1
+		}
+		return 0
+
 	case "report": // recon.py:204-206：report -t/--target -d/--domain（dest=target）
 		fs := newFlagSet()
 		target := fs.String("t", "", "")
@@ -389,16 +427,27 @@ func dispatch(cmd string, rest []string) int {
 		}
 		return 0
 
-	case "all", "jsintel", "portscan":
-		// c3 拍板（终态）：all/jsintel/portscan 维持不实现——exit 2 防静默走错，
-		// 全流程/JS 情报/端口扫描请用 Python 版（python src/recon.py all 等）。
-		switch cmd {
-		case "all":
-			fmt.Println("[*] recon-go: 子命令 \"all\" 不实现（一键全流程请用 python src/recon.py all）")
-		default:
-			fmt.Printf("[*] recon-go: 子命令 %q 暂不移植（如需该能力请用 python src/recon.py %s）\n", cmd, cmd)
+	case "all": // recon.py:120-178：一键全流程（目标自动识别 IP/域名，两条分支）
+		fs := newFlagSet()
+		target := fs.String("t", "", "")
+		targetAlias := fs.String("target", "", "")
+		domainAlias := fs.String("d", "", "")
+		domainAlias2 := fs.String("domain", "", "")
+		if c := parseOrUsage(fs, rest, cmd, "all -t <target>"); c != -1 {
+			return c
 		}
-		return 2
+		t := pickAliasLastWins(rest, map[string]*string{
+			"-t": target, "--target": targetAlias, "-d": domainAlias, "--domain": domainAlias2,
+		})
+		if t == "" {
+			return missingArgs(cmd, "all -t <target>")
+		}
+		return runAll(t)
+
+	case "jsintel", "portscan":
+		// 第三轮升级：jsintel 门面在 cli/recon_cmds.go，portscan 门面
+		// （dispatchPortscan）同文件，端口步骤接线在 cli/port_step.go。
+		return dispatchRecon(cmd, rest)
 
 	case "help", "-h", "--help":
 		fmt.Print(helpText)

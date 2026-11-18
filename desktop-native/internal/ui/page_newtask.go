@@ -24,14 +24,17 @@ func (a *appUI) pageNewTask(gtx layout.Context) layout.Dimensions {
 	)
 }
 
-// argHint 按所选模块给出可选参数提示（与 engine.moduleFlags 一致；八模块——
-// jsintel/portscan 已随全集成退役）。
+// argHint 按所选模块给出可选参数提示（与 engine.moduleFlags 一致；十模块）。
 func argHint(module string) string {
 	switch module {
 	case "subdomain":
 		return "可选：--verify（对枚举结果做存活验证）"
 	case "baseline":
 		return "可选：--checks secheaders,webfiles（逗号分隔，只跑选中的检查）"
+	case "jsintel":
+		return "可选：--max-files 60 --workers 6（外链 JS 抓取上限与并发）"
+	case "portscan":
+		return "可选：--ports 80,443,8000-8100 --timeout 1.5 --workers 32"
 	default:
 		return "该模块没有可选参数，留空即可"
 	}

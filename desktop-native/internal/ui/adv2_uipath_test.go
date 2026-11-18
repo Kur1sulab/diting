@@ -216,10 +216,10 @@ func TestAdv2CreateTaskArgsPoison(t *testing.T) {
 			t.Fatalf("[%s] 入库参数=%q, 期望 %q", c.name, got.Args, c.args)
 		}
 	}
-	// 退役模块（jsintel/portscan）在 CmdAllowed 层就地拒绝，参数内容不再参与
-	for _, cmd := range []string{"jsintel", "portscan"} {
+	// 未开放模块（poc/verify）在 CmdAllowed 层就地拒绝，参数内容不再参与
+	for _, cmd := range []string{"poc", "verify"} {
 		if _, err := s.CreateTask("xycovo.com", cmd, ""); err == nil {
-			t.Fatalf("退役模块 %s 应拒绝", cmd)
+			t.Fatalf("未开放模块 %s 应拒绝", cmd)
 		}
 	}
 }

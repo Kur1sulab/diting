@@ -51,14 +51,22 @@ func TestValidateExtraArgs(t *testing.T) {
 
 // 退役契约：jsintel/portscan 不在表内 → ValidateExtraArgs 放行（nil），
 // 但 CmdAllowed=false → Start 就地拒绝。两层职责以此测试钉住。
-func TestValidateExtraArgsRetiredModulesPassThrough(t *testing.T) {
-	if err := ValidateExtraArgs("jsintel", []string{"--max-files", "5"}); err != nil {
-		t.Fatalf("表外子命令应放行交 cmdSet 把关: %v", err)
+func TestValidateExtraArgsNewModules(t *testing.T) {
+	// 第三轮升级接回的模块：旗标走白名单（--max-files/--workers/--ports/--timeout）
+	if err := ValidateExtraArgs("jsintel", []string{"--max-files", "5", "--workers", "3"}); err != nil {
+		t.Fatalf("jsintel 合法旗标应放行: %v", err)
+	}
+	if err := ValidateExtraArgs("portscan", []string{"--ports=80,443", "--timeout", "1.5"}); err != nil {
+		t.Fatalf("portscan 合法旗标应放行: %v", err)
 	}
 	if err := ValidateExtraArgs("portscan", nil); err != nil {
-		t.Fatalf("表外子命令应放行交 cmdSet 把关: %v", err)
+		t.Fatalf("portscan 空参数应放行: %v", err)
 	}
-	if CmdAllowed("jsintel") || CmdAllowed("portscan") {
-		t.Fatal("退役模块不得仍在 cmdSet")
+	// 跨模块旗标仍须拒绝（jsintel 不吃 --ports）
+	if err := ValidateExtraArgs("jsintel", []string{"--ports", "80"}); err == nil {
+		t.Fatal("跨模块旗标应拒绝")
+	}
+	if !CmdAllowed("jsintel") || !CmdAllowed("portscan") {
+		t.Fatal("第三轮升级后 jsintel/portscan 应在 cmdSet")
 	}
 }

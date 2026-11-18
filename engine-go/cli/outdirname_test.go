@@ -20,9 +20,9 @@ func TestOutdirName(t *testing.T) {
 		{"https://example.com/a?b=1", "https_example.com_a_b_1"}, // :// / ? = 全清洗
 		{"http://1.2.3.4:8080/x", "http_1.2.3.4_8080_x"},         // "://" 整段先于 ":" "/" 命中 → 单个 _
 		{"example.com", "example.com"},
-		{"", "unknown"},   // 空 → unknown
-		{"..", "unknown"}, // 纯穿越锚 → unknown
-		{"CON", "CON_"},   // Windows 保留设备名主干补 _
+		{"", "unknown"},      // 空 → unknown
+		{"..", "unknown"},    // 纯穿越锚 → unknown
+		{"CON", "CON_"},      // Windows 保留设备名主干补 _
 		{`..\..\x`, "_.._x"}, // \ 换 _ 后 Trim 首尾点：不以 .. 开头，不逃逸
 	}
 	for _, c := range cases {

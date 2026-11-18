@@ -60,11 +60,10 @@ C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（pyth
 # ...其余子命令见 ./recon-go.exe（无参数打印对照 help）
 ```
 
-**已实现（✅）**：subdomain / verify / fingerprint / asset / reverse / icp / api /
-paths / poc / report。**未实现**：`all`（一键全流程，exit 2 并提示——全流程请用
-Python 版 `python src/recon.py all`）；jsintel / portscan 暂不移植（拍板留档，
-exit 2 防静默走错）。**llm 弃用**：两侧同步（Python 侧 llm_assist.py 已整体移除、
-recon.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
+**已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
+api / paths / jsintel / portscan / poc / patchdiff / report（jsintel 见
+`engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
+侧 llm_assist.py 已整体移除、recon.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
 
 ## 用法
 

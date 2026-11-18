@@ -28,11 +28,18 @@ var moduleFlags = map[string]map[string]bool{
 	"icp":         {},
 	"subdomain":   {"--verify": true},
 	"baseline":    {"--checks": true},
+	// 第三轮升级接回的两模块（旗标与 engine-go cli 的 jsintel/portscan 子命令同名）
+	"jsintel":  {"--max-files": true, "--workers": true},
+	"portscan": {"--ports": true, "--timeout": true, "--workers": true},
 }
 
 // valueFlags 需要取值的旗标（store_true 类除外）；值 token 不允许以 "-" 开头。
 var valueFlags = map[string]bool{
-	"--checks": true,
+	"--checks":    true,
+	"--max-files": true,
+	"--workers":   true,
+	"--ports":     true,
+	"--timeout":   true,
 }
 
 // ValidateExtraArgs 校验用户附加参数（fix1 P0 纵深层）。规则：

@@ -1,0 +1,7 @@
+[patchdiff] 仓库 <repo>｜提交 1 个｜安全相关 hunk 2 个
+  07019f79aa 2026-11-18 fix: sql injection in q() + xss in index.php → 2 hunk
+  · 07019f79aa app.py
+    修复信号: 整数化, 参数化查询｜漏洞痕迹: SQL 拼接
+  · 07019f79aa index.php
+    修复信号: XSS 转义｜漏洞痕迹: PHP 输入源, 文件包含
+[patchdiff] 结果: out/patchdiff/patchdiff.json｜规则: out/patchdiff/variants.yaml

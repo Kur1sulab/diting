@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -491,5 +492,8 @@ func readZip(t *testing.T, path string) ([]string, map[string]string) {
 		rc.Close()
 		content[f.Name] = string(b)
 	}
+	// 排序后返回：zip 成员顺序取决于两侧各自的目录遍历顺序（Python os.walk 与
+	// Go filepath.WalkDir 不保证一致），arcname 只应作为集合比对，顺序不参与断言。
+	sort.Strings(names)
 	return names, content
 }

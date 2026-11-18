@@ -191,7 +191,7 @@ func flagName(tk string) string {
 // 尾巴保留自原始串：尾巴只属于已过闸的名单内主机，不影响白名单等价性
 // （mock 靶站 http://127.0.0.1:8799/real 的 /real 必须活着）。
 func normalizeTarget(cmd, key, raw string) (string, error) {
-	isURLCmd := cmd == "api" || cmd == "paths" || cmd == "fingerprint"
+	isURLCmd := cmd == "api" || cmd == "paths" || cmd == "fingerprint" || cmd == "jsintel"
 	lower := strings.ToLower(raw)
 	switch {
 	case isURLCmd:
