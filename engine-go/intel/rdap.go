@@ -94,15 +94,24 @@ func Whois(ctx context.Context, target string, o Options) *WhoisInfo {
 	}
 	base, ok := boot[strings.ToLower(tld)]
 	if !ok {
-		info.Error = fmt.Sprintf("该 TLD(.%s) 不在 RDAP bootstrap 表内", tld)
-		return info
+		// RDAP 不覆盖该 TLD（实测 .cn 从未进入 bootstrap 表）→ 直接走 43 端口兜底
+		fb := WhoisFallback(ctx, target, o)
+		if fb.Error == "" {
+			return fb
+		}
+		fb.Error = fmt.Sprintf("RDAP 无该 TLD 端点；43 端口兜底也失败：%s", fb.Error)
+		return fb
 	}
 	info.Provider = base
 	u := strings.TrimRight(base, "/") + "/domain/" + url.PathEscape(target)
 	body, _, err := fetchJSON(ctx, o, u, nil, nil, "GET")
 	if err != nil {
-		info.Error = err.Error()
-		return info
+		fb := WhoisFallback(ctx, target, o)
+		if fb.Error == "" {
+			return fb
+		}
+		fb.Error = fmt.Sprintf("RDAP 请求失败（%s）；43 端口兜底也失败：%s", err, fb.Error)
+		return fb
 	}
 	var data map[string]any
 	if err := json.Unmarshal([]byte(body), &data); err != nil {

@@ -36,7 +36,7 @@ IP 归属/ASN 走 ip-api。**没有一把 key 也能跑**——需要凭据的�
 | **providers** | **数据源与凭据自检**：列出全部源的凭据变量、是否已配置、脱敏值（`FOFA_KEY=abcd****`）。排障第一站 |
 | **reverse** | **IP 反查域名**（hackertarget + RapidDNS 双源合并去重，均免 key；裸 IP 侦察的第一步）；`--legacy` 用旧单源 |
 | **icp** | **ICP 备案查询（三段链）**：apihz（`APIHZ_ID/APIHZ_KEY`，未配置时 `--demo` 可用官方公开示例凭据）→ 工信部官方接口 → beianx 兜底；命中「请 N 秒后再试」按提示退避重试一次。域名 → 备案号/主办单位/类型/审核日期，并留档「试过哪些通道、各自为何失败」，把**限频**和**未备案**分开写 |
-| **whois** | **域名注册信息（RDAP）**：IANA bootstrap 自动定位该 TLD 的 RDAP 端点，取注册商/注册/到期/更新时间/状态/NS/注册人。免 key，不依赖 43 端口 |
+| **whois** | **域名注册信息**：RDAP 优先（IANA bootstrap 自动定位该 TLD 的端点，取注册商/注册/到期/更新时间/状态/NS/注册人）；**RDAP 不覆盖的 TLD（实测 IANA 表里 1203 个 TLD 完全没有 `cn`）自动落到 43 端口 whois**（`whois.cnnic.cn` 等，跟一跳 referral）。免 key |
 | **ipinfo** | **IP 归属情报**：国家/省市、ISP、组织、ASN、反向 DNS（ip-api 批量接口，免 key，按 100 一批 + 1.5s 节流） |
 | fingerprint | 内置常用指纹规则（ThinkPHP/Shiro/Spring/WordPress/Nginx/Tomcat/Actuator/Nacos/Jenkins/Grafana/Elasticsearch 等，headers+body 双通道） |
 | paths | 敏感路径探测（.git/.env/swagger/actuator/druid 等；**软 404 基线过滤 + 存活复验**，SPA/WAF 站点不再满屏假存活） |
