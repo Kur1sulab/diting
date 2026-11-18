@@ -1,6 +1,7 @@
-# 阿特菈 Atlas · アトラス
+# 阿卡夏 Atlas · アカシャ
 
-> **星图少女 阿特菈** —— 把看不见的暴露面，一颗一颗点上星图。
+> 借自《Fate》《魔法禁书目录》的 **「阿卡夏记录」**——记录世间一切信息的档案。
+> 把看不见的暴露面，一页一页记进册子。
 
 
 ![tests](https://github.com/Kur1sulab/atlas/actions/workflows/tests.yml/badge.svg)
