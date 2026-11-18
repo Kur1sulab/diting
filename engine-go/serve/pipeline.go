@@ -103,6 +103,7 @@ func (srv *Server) start(target string) (*Job, error) {
 			{Key: "subdomain", Name: "子域枚举", Status: StatusPending},
 			{Key: "verify", Name: "存活验证", Status: StatusPending},
 			{Key: "ports", Name: "端口扫描", Status: StatusPending},
+			{Key: "probe", Name: "入口探测", Status: StatusPending},
 			{Key: "finger", Name: "指纹识别", Status: StatusPending},
 			{Key: "paths", Name: "敏感路径", Status: StatusPending},
 			{Key: "api", Name: "API 未授权", Status: StatusPending},
@@ -110,6 +111,7 @@ func (srv *Server) start(target string) (*Job, error) {
 	} else {
 		j.Steps = []*Step{
 			{Key: "ports", Name: "端口扫描", Status: StatusPending},
+			{Key: "probe", Name: "入口探测", Status: StatusPending},
 			{Key: "finger", Name: "指纹识别", Status: StatusPending},
 			{Key: "paths", Name: "敏感路径", Status: StatusPending},
 			{Key: "api", Name: "API 未授权", Status: StatusPending},
@@ -208,8 +210,13 @@ func (srv *Server) run(ctx context.Context, j *Job) {
 	}
 
 	// ── 4-6. 需要一个可用的 HTTP 入口 ──────────────────────────
+	j.setStep("probe", StatusRunning, "https → http 逐跳探测", -1, -1)
+	j.logf("info", "探测站点入口（先 https 再 http，单协议最多 10s）")
+	probeStart := time.Now()
 	base := cli.PickBase(host)
+	probeMs := time.Since(probeStart).Milliseconds()
 	if base == "" {
+		j.setStep("probe", StatusFailed, "无可用的 HTTP 入口", 0, probeMs)
 		for _, k := range []string{"finger", "paths", "api"} {
 			j.setStep(k, StatusSkipped, "目标无可用的 HTTP 入口", 0, 0)
 		}
@@ -218,6 +225,7 @@ func (srv *Server) run(ctx context.Context, j *Job) {
 		j.finish(res, started)
 		return
 	}
+	j.setStep("probe", StatusDone, base, 1, probeMs)
 	res.Base = base
 	j.logf("info", "站点入口 %s", base)
 
