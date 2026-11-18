@@ -111,6 +111,23 @@ atlas serve --addr 127.0.0.1:9788 --open     # 换端口并自动开浏览器
 - 资产明细：端口 · 路径 · API · 子域 四个视图 + 过滤；长 banner/token 截断、悬停看全文
 - 导出：`导出报告` 直接下载 `report.md`——内容全部来自落盘产物，不掺推演
 
+### 配色主题
+
+左下角三个色块切换，选择记在 `localStorage['atlas-theme']`，刷新不闪色：
+
+| 主题 | 底色 | 强调色 | 场景 |
+|------|------|--------|------|
+| 石墨蓝 `slate`（默认） | `#0e1013` | `#5aa9ff` / 填充 `#0b6bd6` | 深色环境、长时间盯屏 |
+| 暖金 `gold` | `#17140f` | `#e9b949` | 投影、录屏演示 |
+| 纸白 `light` | `#f4f6f8` | `#0066cc` | 白天、明亮办公室 |
+
+三套共用同一套结构 token（面板半透明 + 真实 blur + 1px 内高光，圆角 16），
+只换颜色变量，不换布局。所有文字色都过 WCAG AA 4.5:1，用活 DOM 实测（含 10px 小标签），
+不是靠肉眼估的——改配色请重跑 `design-review/scripts/contrast-live.js`。
+
+![暖金主题](docs/images/web-console-gold.png)
+![纸白主题](docs/images/web-console-light.png)
+
 离线自测（不打任何外部目标）：
 
 ```bash

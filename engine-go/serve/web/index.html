@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Atlas · 资产测绘控制台</title>
+<script>
+  // 首帧前定主题，避免闪一下默认色板
+  try{ document.documentElement.dataset.theme = localStorage.getItem('atlas-theme') || 'slate'; }catch(e){}
+</script>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -33,6 +37,18 @@
       <div class="joblist" id="joblist"></div>
     </div>
 
+    <div class="theme-switch" id="themeswitch">
+      <button class="sw" type="button" data-theme-set="slate" title="石墨蓝 · 系统深色">
+        <i style="background:#5aa9ff"></i>蓝
+      </button>
+      <button class="sw" type="button" data-theme-set="gold" title="暖金 · 炭黑底">
+        <i style="background:#e9b949"></i>金
+      </button>
+      <button class="sw" type="button" data-theme-set="light" title="纸白 · 浅色">
+        <i style="background:#0066cc"></i>白
+      </button>
+    </div>
+
     <div class="rail-foot">
       <span class="dot" id="aidot"></span>
       <span id="aistate">AI 检查中…</span>
@@ -45,7 +61,7 @@
       <form id="scanform" class="scanbar" autocomplete="off">
         <svg class="scan-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
         <input id="target" placeholder="目标域名或 IP —— example.com / 10.0.0.1" spellcheck="false">
-        <button id="gobtn" class="btn-mint" type="submit">开始测绘</button>
+        <button id="gobtn" class="btn-primary" type="submit">开始测绘</button>
         <button id="stopbtn" class="btn-stop" type="button" hidden>停止</button>
       </form>
       <div class="topmeta"><span id="topmeta">就绪</span></div>

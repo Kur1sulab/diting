@@ -445,5 +445,21 @@
     });
   });
 
+  // ── 主题切换：三套色板，localStorage 记忆 ──────────────────────
+  const THEMES = ['slate', 'gold', 'light'];
+  function applyTheme(id) {
+    if (!THEMES.includes(id)) id = 'slate';
+    document.documentElement.dataset.theme = id;
+    try { localStorage.setItem('atlas-theme', id); } catch (e) {}
+    document.querySelectorAll('[data-theme-set]').forEach((b) => {
+      b.classList.toggle('on', b.dataset.themeSet === id);
+    });
+  }
+  $('themeswitch').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-theme-set]');
+    if (b) applyTheme(b.dataset.themeSet);
+  });
+  applyTheme(document.documentElement.dataset.theme || 'slate');
+
   boot();
 })();
