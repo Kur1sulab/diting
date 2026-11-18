@@ -11,12 +11,16 @@
 package cli
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/Kur1sulab/yata/engine-go/apiunauth"
-	"github.com/Kur1sulab/yata/engine-go/asset"
 	"github.com/Kur1sulab/yata/engine-go/fingerprint"
 	"github.com/Kur1sulab/yata/engine-go/icp"
+	"github.com/Kur1sulab/yata/engine-go/intel"
+	"github.com/Kur1sulab/yata/engine-go/netutil"
 	"github.com/Kur1sulab/yata/engine-go/paths"
 	"github.com/Kur1sulab/yata/engine-go/report"
 	"github.com/Kur1sulab/yata/engine-go/reverseip"
@@ -59,8 +63,21 @@ func runAllIP(target, out string) int {
 	// reverse 是 fatal 步骤：拿不到反查结果整个流水线没有意义，与 Python 一致。
 	var revErr error
 	if err := step("reverse", true, func() error {
-		doms = reverseip.RunReverse(target, out)
-		return nil
+		// 多源反查（hackertarget + rapiddns）；两源都空时退回旧单源实现再试一次。
+		recs, _ := intel.ReverseIP(context.Background(), target, intel.Options{Ctx: context.Background(), Limit: 500})
+		for _, r := range recs {
+			doms = append(doms, r.Host)
+		}
+		if len(doms) == 0 {
+			doms = reverseip.RunReverse(target, out)
+			return nil
+		}
+		var sb strings.Builder
+		for _, r := range recs {
+			sb.WriteString(r.Host + "\n")
+		}
+		_, err := netutil.SafeWrite(out, "reverse.txt", sb.String())
+		return err
 	}); err != nil {
 		revErr = err
 	}
@@ -81,10 +98,29 @@ func runAllIP(target, out string) int {
 						fmt.Printf("[!] %s 备案查询失败: %v\n", d, r)
 					}
 				}()
-				icp.RunICP(d, out)
+				icp.RunICPChain(context.Background(), d, out, icp.ChainOptions{})
 			}()
 		}
 		return nil
+	})
+
+	// IP 归属（geo/ISP/ASN，免 key）——非致命，失败只警告。
+	_ = step("ipinfo", false, func() error {
+		info := intel.LookupIP(context.Background(), target, intel.Options{})
+		if info.Status != "success" {
+			msg := info.Error
+			if msg == "" {
+				msg = "查询失败"
+			}
+			return fmt.Errorf("%s", msg)
+		}
+		b, err := json.MarshalIndent(info, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = netutil.SafeWrite(out, "ipinfo_"+target+".json", string(b))
+		fmt.Printf("[+] IP 归属: %s\n", intel.FormatIPInfo(info))
+		return err
 	})
 
 	// 裸 IP 常被按域名路由的站点返回 404，优先用反查出的域名探测（yata.py:139-143）。
@@ -135,16 +171,33 @@ func runAllDomain(target, out string) int {
 	})
 
 	if err := step("asset", true, func() error {
-		asset.RunAsset(target, out)
-		return nil
+		// 多源资产测绘（空间测绘 + 免 key 被动源）。未配置 key 的源自动跳过，
+		// 免 key 源仍会给结果；写盘失败才算这一步失败。
+		_, err := intel.Run(target, out, intel.Options{Ctx: context.Background()})
+		return err
 	}); err != nil {
 		fmt.Printf("[!] asset: %v\n", err)
 		return 1
 	}
 
+	// 备案走三段链（apihz → 工信部官方 → beianx），限制频也要在报告里可辨。
 	_ = step("icp", false, func() error {
-		icp.RunICP(target, out)
+		icp.RunICPChain(context.Background(), target, out, icp.ChainOptions{})
 		return nil
+	})
+
+	// 域名注册信息（RDAP，免 key）——失败不阻断。
+	_ = step("whois", false, func() error {
+		info := intel.Whois(context.Background(), target, intel.Options{})
+		if info.Error != "" {
+			return fmt.Errorf("%s", info.Error)
+		}
+		b, err := json.MarshalIndent(info, "", "  ")
+		if err != nil {
+			return err
+		}
+		_, err = netutil.SafeWrite(out, "whois_"+target+".json", string(b))
+		return err
 	})
 
 	base := PickBase(target)

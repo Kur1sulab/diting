@@ -15,16 +15,13 @@ import (
 	"time"
 
 	"github.com/Kur1sulab/yata/engine-go/apiunauth"
-	"github.com/Kur1sulab/yata/engine-go/asset"
 	"github.com/Kur1sulab/yata/engine-go/baseline"
 	"github.com/Kur1sulab/yata/engine-go/fingerprint"
-	"github.com/Kur1sulab/yata/engine-go/icp"
 	"github.com/Kur1sulab/yata/engine-go/netutil"
 	"github.com/Kur1sulab/yata/engine-go/patchdiff"
 	"github.com/Kur1sulab/yata/engine-go/paths"
 	"github.com/Kur1sulab/yata/engine-go/poc"
 	"github.com/Kur1sulab/yata/engine-go/report"
-	"github.com/Kur1sulab/yata/engine-go/reverseip"
 	"github.com/Kur1sulab/yata/engine-go/subdomain"
 )
 
@@ -32,11 +29,15 @@ const helpText = `yata — 资产测绘引擎（Go 单文件内核，仅限授�
 
 用法（DOMAIN 或 IP 都吃，工具自动识别）:
   yata all -t example.com             # 一键全流程（IP/域名自动分支，10 步）
+  yata intel -d example.com           # 多源情报总入口（空间测绘+被动源+备案+WHOIS）
   yata subdomain -d example.com [--verify]
   yata verify -d example.com [-w 8]
-  yata asset -d example.com           # 资产测绘（key 走 FOFA_EMAIL/FOFA_KEY、HUNTER_KEY）
-  yata reverse -i 203.0.113.7         # IP 反查域名
-  yata icp -d example.com             # ICP 备案（APIHZ_ID/APIHZ_KEY 可覆盖）
+  yata asset -d example.com           # 资产测绘（多源，见 yata providers）
+  yata providers                      # 列出全部数据源与凭据状态
+  yata reverse -i 203.0.113.7         # IP 反查域名（hackertarget + rapiddns）
+  yata icp -d example.com             # ICP 备案（apihz → 工信部 → beianx 多源链）
+  yata whois -d example.com           # 域名注册信息（RDAP，免 key）
+  yata ipinfo -i 1.1.1.1              # IP 归属 / ISP / ASN
   yata api -u https://example.com     # API 文档暴露/未授权（含取证模式）
   yata jsintel -u https://example.com # 外链 JS 情报（≤6 并发/≤2MB，只 GET）
   yata portscan -t 203.0.113.7        # 端口扫描（常用端口表，并发 ≤32）
@@ -49,6 +50,13 @@ const helpText = `yata — 资产测绘引擎（Go 单文件内核，仅限授�
   yata report -t example.com          # 资产档案 + 证据包
   yata version                        # 版本与构建平台自省（不发请求/不写产物）
   yata -v | --version                 # 同上，全局形态（等价 version 子命令）
+
+数据源（yata providers 看实时状态；凭据走环境变量或 ~/.yata/keys.env）:
+  需 key : fofa(FOFA_KEY) hunter(HUNTER_KEY) quake(QUAKE_TOKEN) zoomeye(ZOOMEYE_KEY)
+           shodan(SHODAN_KEY) censys(CENSYS_TOKEN) netlas(NETLAS_KEY) zerozone(ZEROZONE_KEY)
+  免 key : crtsh certspotter hackertarget rapiddns urlscan subdomaincenter（默认启用）
+  备案   : apihz(APIHZ_ID/APIHZ_KEY，或 icp --demo 用官方公开示例凭据) / 工信部官方 / beianx
+  归属   : ip-api.com（免 key，45 次/分）；注册信息走 RDAP（免 key）
 
 全局参数: --progress-file <path> | -h/--help | -v/--version（须位于子命令之前）
 `
@@ -75,8 +83,9 @@ var knownCmds = map[string]bool{
 	"all": true, "subdomain": true, "verify": true, "asset": true, "reverse": true,
 	"icp": true, "api": true, "fingerprint": true, "paths": true, "jsintel": true,
 	"portscan": true, "poc": true, "patchdiff": true, "report": true,
-	"baseline": true, // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python yata.py 对齐项）
-	"version":  true, // 版本自省（Go 侧独有，Python yata.py 无对应子命令）
+	"baseline": true,                                                   // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python yata.py 对齐项）
+	"intel":    true, "providers": true, "whois": true, "ipinfo": true, // 多源情报面（cli/intel_cmds.go）
+	"version": true, // 版本自省（Go 侧独有，Python yata.py 无对应子命令）
 }
 
 // Run 处理全局参数与子命令（args 不含程序名），返回进程退出码。
@@ -206,75 +215,14 @@ func dispatch(cmd string, rest []string) int {
 		fingerprint.RunFingerprint(url, out)
 		return 0
 
-	case "asset": // yata.py:177-178：asset -d/--domain
-		fs := newFlagSet()
-		domain := fs.String("d", "", "")
-		domainAlias := fs.String("domain", "", "")
-		if c := parseOrUsage(fs, rest, cmd, "asset -d <domain>"); c != -1 {
-			return c
-		}
-		d := pickAliasLastWins(rest, map[string]*string{"-d": domain, "--domain": domainAlias})
-		if d == "" {
-			return missingArgs(cmd, "asset -d <domain>")
-		}
-		out, err := MakeOutdir(d)
-		if err != nil {
-			fmt.Printf("[!] 输出目录创建失败: %v\n", err)
-			return 1
-		}
-		asset.RunAsset(d, out)
-		return 0
+	case "asset": // 多源资产测绘（FOFA/Hunter/Quake/ZoomEye/Shodan/Censys/Netlas/0.zone + 免 key 被动源）
+		return runAssetMulti(rest)
 
-	case "reverse": // yata.py:179-180：reverse -i/--ip
-		fs := newFlagSet()
-		ip := fs.String("i", "", "")
-		ipAlias := fs.String("ip", "", "")
-		if c := parseOrUsage(fs, rest, cmd, "reverse -i <ip>"); c != -1 {
-			return c
-		}
-		target := pickAliasLastWins(rest, map[string]*string{"-i": ip, "--ip": ipAlias})
-		if target == "" {
-			return missingArgs(cmd, "reverse -i <ip>")
-		}
-		// fix2 P3：严格 IP 校验——`reverse -i '8.8.8.8&x=1'` 这类注入形态参数
-		// 在入口拒绝（对抗实测曾照单全收拼进数据源 URL）。Go 侧 fail-closed，
-		// Python 侧维持原行为，差异记入 README 已知微差。
-		if net.ParseIP(target) == nil {
-			fmt.Printf("[!] 非法 IP: %q（reverse -i 需要合法 IPv4/IPv6 地址）\n", target)
-			return 2
-		}
-		out, err := MakeOutdir(target)
-		if err != nil {
-			fmt.Printf("[!] 输出目录创建失败: %v\n", err)
-			return 1
-		}
-		reverseip.RunReverse(target, out)
-		return 0
+	case "reverse": // IP 反查域名（多源：hackertarget + rapiddns；--legacy 用旧单源）
+		return runReverseMulti(rest)
 
-	case "icp": // yata.py:182-183：icp -d/--domain
-		fs := newFlagSet()
-		domain := fs.String("d", "", "")
-		domainAlias := fs.String("domain", "", "")
-		if c := parseOrUsage(fs, rest, cmd, "icp -d <domain>"); c != -1 {
-			return c
-		}
-		d := pickAliasLastWins(rest, map[string]*string{"-d": domain, "--domain": domainAlias})
-		if d == "" {
-			return missingArgs(cmd, "icp -d <domain>")
-		}
-		// fix2 P3：域名形状校验（与 subdomain 入口污点闸同规则），注入/路径
-		// 形态在入口拒绝，不进任何第三方查询。
-		if bad, why := invalidDomainShape(d); bad {
-			fmt.Printf("[!] 非法域名（%s）: %q\n", why, d)
-			return 2
-		}
-		out, err := MakeOutdir(d)
-		if err != nil {
-			fmt.Printf("[!] 输出目录创建失败: %v\n", err)
-			return 1
-		}
-		icp.RunICP(d, out)
-		return 0
+	case "icp": // ICP 备案（多源链：apihz → 工信部官方 → beianx 兜底）
+		return runICPChain(rest)
 
 	case "api": // yata.py:185-186：api -u/--url（含取证模式）
 		fs := newFlagSet()
@@ -472,6 +420,11 @@ func dispatch(cmd string, rest []string) int {
 		// 第三轮升级：jsintel 门面在 cli/recon_cmds.go，portscan 门面
 		// （dispatchPortscan）同文件，端口步骤接线在 cli/port_step.go。
 		return dispatchRecon(cmd, rest)
+
+	case "intel", "providers", "whois", "ipinfo":
+		// 多源情报面：intel（全源聚合）/ providers（源与凭据状态）/
+		// whois（RDAP 注册信息）/ ipinfo（归属 ASN）。实现在 cli/intel_cmds.go。
+		return dispatchIntel(cmd, rest)
 
 	case "help", "-h", "--help":
 		fmt.Print(helpText)

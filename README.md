@@ -8,9 +8,15 @@
 ![release](https://img.shields.io/github/v/release/Kur1sulab/yata)
 ![license](https://img.shields.io/github/license/Kur1sulab/yata)
 
-资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、资产测绘、指纹识别、敏感路径探测、
-API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
+资产测绘引擎。把目标的外部暴露面画成一张图——子域枚举、多源资产测绘、指纹识别、
+敏感路径探测、API 未授权探测与 YAML 化 POC 验证编排成一条流水线，单次全流程约 30 分钟。
 Python 编排层 + Go 单文件内核（`yata`，零第三方依赖）。
+
+**v3.1 起是「多源」而不是「两源」**：资产测绘面接入 FOFA / 奇安信 Hunter / 360 Quake /
+ZoomEye / Shodan / Censys / Netlas / 0.zone 八家空间测绘引擎，外加 crt.sh、Cert Spotter、
+hackertarget、RapidDNS、urlscan.io、subdomain.center 六家免 key 被动源；
+备案查询走 apihz → 工信部官方 → beianx 的三段链；域名注册信息走 RDAP（免 key）；
+IP 归属/ASN 走 ip-api。**没有一把 key 也能跑**——需要凭据的源自动跳过，免 key 源默认全开。
 
 > ⚠️ 仅限授权范围内的安全测试使用。禁止用于未授权目标。
 
@@ -25,9 +31,13 @@ Python 编排层 + Go 单文件内核（`yata`，零第三方依赖）。
 | 模块 | 说明 |
 |---|---|
 | subdomain | OneForAll 子域枚举（未配置时自动降级证书日志查询：crt.sh → certspotter 兜底，均无需 key）；`--verify` 可做 **DNS 解析 + HTTP 探活**，把失效域名滤掉 |
-| asset | FOFA / Hunter 资产测绘（API key 走环境变量，未配置自动跳过） |
-| **reverse** | **IP 反查域名**（hackertarget 免 key；裸 IP 侦察的第一步） |
-| **icp** | **ICP 备案查询**（域名 → 备案号 / 主办单位 / 类型 / 审核日期；apihz 接口，可用 APIHZ_ID/APIHZ_KEY 覆盖 demo 额度） |
+| **intel** | **多源情报总入口**（`intel -d <domain>`）：一次并行跑「空间测绘 + 免 key 被动源 + 备案 + RDAP + IP 归属」，产物 `assets.json` / `assets.txt` / `intel.md` / `icp_<域名>.json` / `whois_<域名>.json`。给 IP 时自动切反查分支 |
+| asset | 多源资产测绘（`--sources fofa,quake,…` 选源，默认跑全部已配置源 + 免 key 源）；`--legacy` 回退到旧的两源（FOFA+Hunter）行为 |
+| **providers** | **数据源与凭据自检**：列出全部源的凭据变量、是否已配置、脱敏值（`FOFA_KEY=abcd****`）。排障第一站 |
+| **reverse** | **IP 反查域名**（hackertarget + RapidDNS 双源合并去重，均免 key；裸 IP 侦察的第一步）；`--legacy` 用旧单源 |
+| **icp** | **ICP 备案查询（三段链）**：apihz（`APIHZ_ID/APIHZ_KEY`，未配置时 `--demo` 可用官方公开示例凭据）→ 工信部官方接口 → beianx 兜底；命中「请 N 秒后再试」按提示退避重试一次。域名 → 备案号/主办单位/类型/审核日期，并留档「试过哪些通道、各自为何失败」，把**限频**和**未备案**分开写 |
+| **whois** | **域名注册信息（RDAP）**：IANA bootstrap 自动定位该 TLD 的 RDAP 端点，取注册商/注册/到期/更新时间/状态/NS/注册人。免 key，不依赖 43 端口 |
+| **ipinfo** | **IP 归属情报**：国家/省市、ISP、组织、ASN、反向 DNS（ip-api 批量接口，免 key，按 100 一批 + 1.5s 节流） |
 | fingerprint | 内置常用指纹规则（ThinkPHP/Shiro/Spring/WordPress/Nginx/Tomcat/Actuator/Nacos/Jenkins/Grafana/Elasticsearch 等，headers+body 双通道） |
 | paths | 敏感路径探测（.git/.env/swagger/actuator/druid 等；**软 404 基线过滤 + 存活复验**，SPA/WAF 站点不再满屏假存活） |
 | **api** | **API 文档暴露 / 未授权探测**（27 个候选端点：Swagger/OpenAPI、Actuator、Druid、GraphQL、Eureka/Nacos/Consul、pprof、heapdump…**软 404 基线过滤 + 命中后存活复验**；存活命中自动进入**取证模式**：落盘响应片段 + 可直接复跑的 curl 复现稿） |
@@ -42,11 +52,80 @@ Python 编排层 + Go 单文件内核（`yata`，零第三方依赖）。
 ## 架构
 
 ```
-target → yata.py → subdomain / asset / fingerprint / paths / jsintel / portscan → out/<target>/
+target → yata.py / yata → subdomain · intel(多源) · fingerprint · paths · jsintel · portscan → out/<target>/
+                                    │
+                                    ├── 空间测绘: fofa / hunter / quake / zoomeye / shodan / censys / netlas / 0.zone
+                                    ├── 被动源  : crtsh / certspotter / hackertarget / rapiddns / urlscan / subdomaincenter
+                                    ├── 备案    : apihz → miit(工信部) → beianx
+                                    ├── 注册信息: RDAP（IANA bootstrap）
+                                    └── 归属    : ip-api（geo / ISP / ASN）
                                               ↓
                                        poc_engine（YAML 模板）
                                               ↓
+                                       report（资产档案 + 证据包）
 ```
+
+## 数据源与凭据
+
+一条命令看全部源和凭据状态：
+
+```bash
+yata providers
+```
+
+```
+源              类型      凭据                     状态
+────────────────────────────────────────────────────────────
+fofa            space     FOFA_KEY                 未配置（跳过）
+quake           space     QUAKE_TOKEN              未配置（跳过）
+...
+crtsh           passive   -                        免 key（默认启用）
+```
+
+凭据两种给法，**源码里没有任何凭据字面量**：
+
+```bash
+# ① 环境变量（优先）
+export FOFA_KEY=...  QUAKE_TOKEN=...  HUNTER_KEY=...
+
+# ② 凭据文件（推荐，一次写好长期用）
+mkdir -p ~/.yata && chmod 700 ~/.yata
+cat > ~/.yata/keys.env <<'EOF'
+# 空间测绘引擎
+FOFA_KEY=your-fofa-key
+HUNTER_KEY=your-hunter-key
+QUAKE_TOKEN=your-quake-token
+ZOOMEYE_KEY=your-zoomeye-key
+SHODAN_KEY=your-shodan-key
+CENSYS_TOKEN=your-censys-token
+NETLAS_KEY=your-netlas-key
+ZEROZONE_KEY=your-0zone-key
+# 备案
+APIHZ_ID=your-apihz-id
+APIHZ_KEY=your-apihz-key
+EOF
+chmod 600 ~/.yata/keys.env
+```
+
+| 源 | 类型 | 凭据变量 | 说明 |
+|---|---|---|---|
+| fofa | 空间测绘 | `FOFA_KEY`（老账号另需 `FOFA_EMAIL`） | 按 `fields` 位置解析；`--fields host,ip,port,protocol,title,server,domain,icp` 可自定义列 |
+| hunter | 空间测绘 | `HUNTER_KEY` | 奇安信鹰图；查询串走 base64url，自动带近 30 天时间窗 |
+| quake | 空间测绘 | `QUAKE_TOKEN` | 360 Quake；**必须 POST**、`include` 白名单极严（不传）、限频 `q3005` 自动提示 |
+| zoomeye | 空间测绘 | `ZOOMEYE_KEY` | 必须走 `api.zoomeye.org`（`.ai` 域对国内出口 403） |
+| shodan | 空间测绘 | `SHODAN_KEY` | `hostname:` 检索 |
+| censys | 空间测绘 | `CENSYS_TOKEN`（或 `CENSYS_API_ID`+`CENSYS_API_SECRET`） | Legacy Search 2026-09-30 已下线，只走 platform v3 |
+| netlas | 空间测绘 | `NETLAS_KEY` | `domain:` 检索 |
+| zerozone | 空间测绘 | `ZEROZONE_KEY` | 0.zone，`query_type=domain` |
+| crtsh | 被动 | 免 key | 证书透明日志；响应慢（15~25s），单请求超时放到 40s |
+| certspotter | 被动 | 免 key | 证书日志，返回 dns_names |
+| hackertarget | 被动 | 免 key | 被动 DNS（host,ip CSV），有日额度 |
+| rapiddns | 被动 | 免 key | HTML 表格解析（`<th>` 序号 + 3 个 `<td>`） |
+| urlscan | 被动 | 免 key | 公开扫描记录（`page.domain:`） |
+| subdomaincenter | 被动 | 免 key | 聚合子域；国内直连偶发空返回，可挂 `HTTPS_PROXY` |
+
+> 代理：引擎遵循 `HTTP_PROXY` / `HTTPS_PROXY` 环境变量（`http.ProxyFromEnvironment`），
+> 出海源（subdomain.center / urlscan / crt.sh）不稳时挂上代理即可。
 
 ## 安装
 
@@ -98,7 +177,9 @@ C:/Go/go/bin/go.exe test ./...        # 全部单测 + Python↔Go parity（pyth
 ```
 
 **已实现（✅）**：all / subdomain / verify / fingerprint / asset / reverse / icp /
-api / paths / jsintel / portscan / poc / patchdiff / report / **serve**（jsintel 见
+api / paths / jsintel / portscan / poc / patchdiff / report /
+**intel / providers / whois / ipinfo**（多源情报面，Go 内核独有）/
+**serve**（jsintel 见
 `engine-go/jsintel`，含单测与 Python↔Go parity）。**llm 弃用**：两侧同步（Python
 侧 llm_assist.py 已整体移除、yata.py 仅留弃用提示；Go 侧同行为——提示后 exit 2）。
 **AI 只以 Web 控制台的可选研判形式存在**（见下节），默认关闭，不发任何请求。
@@ -179,7 +260,7 @@ HTTP 接口（给脚本用）：`GET /api/env`、`POST /api/jobs`、`GET /api/jo
 ## 用法
 
 ```bash
-export FOFA_EMAIL=... FOFA_KEY=... HUNTER_KEY=...   # Windows: setx
+export FOFA_EMAIL=... FOFA_KEY=... HUNTER_KEY=...   # Windows: setx；或写 ~/.yata/keys.env
 python src/yata.py all -d example.com        # 域名全流程
 python src/yata.py all -t 47.100.49.228      # IP 全流程：反查域名 → ICP → 指纹 → API 探测
 python src/yata.py subdomain -d example.com  # 仅子域
@@ -198,13 +279,32 @@ python src/yata.py poc -t https://example.com -p pocs/example-http-detect.yaml
 python src/yata.py report -t example.com     # 按已有产出重新生成资产档案 + 证据包
 ```
 
+Go 内核（推荐，单文件零依赖）——多源面只在这里：
+
+```bash
+yata providers                       # 数据源与凭据状态（排障第一站）
+yata intel -d example.com            # 全源聚合：空间测绘 + 被动源 + 备案 + RDAP
+yata intel -d example.com --sources fofa,quake,hunter --limit 200 \
+           --query 'cert="example.com"' --fields host,ip,port,protocol,title,server,domain,icp
+yata intel -d example.com --no-icp --no-whois      # 只要资产面
+yata icp -d example.com              # 备案（三段链；无 key 时加 --demo）
+yata icp -d cqcst.edu.cn --demo      # 用 apihz 官方公开示例凭据（限频会按提示退避重试）
+yata icp --file domains.txt          # 批量查备案
+yata whois -d example.com [--json]   # RDAP：注册商/注册/到期/NS
+yata ipinfo -i 1.1.1.1,8.8.8.8       # 归属 / ISP / ASN
+yata reverse -i 203.0.113.7          # IP 反查（hackertarget + rapiddns）
+yata asset -d example.com --legacy   # 回退旧的 FOFA+Hunter 两源行为
+```
+
 `all` 跑完会自动生成 `out/<目标>/report.md`（资产档案）与 `out/<目标>/evidence-<目标>-<时间>.zip`（证据包，仅在有过存活取证时）。
 
 `all` 的 `-t/--target` 同时接受**域名或 IP**（自动识别）：给 IP 时走
 `反查域名 → 逐个 ICP 备案 → 用反查到的域名做指纹/API 探测`（裸 IP 直连常被按域名路由的站点返回 404）。
 
-无任何 API key 时，`all` 全流程仍可跑通：子域走 crt.sh（挂掉自动切 certspotter）、
-备案走 apihz 公开接口，其余模块自动降级跳过。
+无任何 API key 时流程照样可跑：子域走 crt.sh（挂掉自动切 certspotter）、
+资产面走 hackertarget / RapidDNS / urlscan / subdomain.center / certspotter、
+备案走 apihz 公开示例凭据（`--demo`）或直接看「未取得确定结果」的原因留档，
+注册信息走 RDAP、IP 归属走 ip-api——其余需要 key 的源自动降级跳过。
 
 `all` 已接入 jsintel 与 portscan（同样**优雅降级**，失败只打 `[!]` 警告不阻断主流程）：
 域名目标在 API 探测后自动做 **JS 情报提取**（以探测 base 为入口）与**常用端口扫描**；

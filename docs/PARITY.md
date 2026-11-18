@@ -147,3 +147,19 @@ jsintel 实跑摘要（两版同）：端点 4 条（`/api/v1/users`、`/api/v2/
 `all` 编排核对：Go 侧步骤序与 `yata.py cmd_all` 一致（域名分支 jsintel→portscan，
 IP 分支 portscan→jsintel），jsintel/portscan 均为非致命步骤——本地靶站端口扫描失败
 也照常进入 report 收尾（desktop-native `TestIntegrationAllDomainBranchRunsNewSteps` 钉住）。
+
+## ⑦ 多源情报层（2026-11-18 · v3.1）
+
+新增 `intel` / `providers` / `whois` / `ipinfo` 四个子命令，以及 `asset`/`reverse`/`icp`
+的多源化。**这一层是 Go 内核独有，Python 侧不跟进**，因此不进 parity 断言矩阵——
+它不改动任何既有模块的可观测行为：`asset --legacy` / `reverse --legacy` 走的正是
+Python 侧的两源/单源实现，`icp` 的旧 `RunICP`（apihz 单源）原样保留并被 `chain` 复用。
+
+口径：
+
+- `assets.txt` 仍是 `host|ip|port|protocol` 四段——report 模块按行读取的契约不变；
+  新增结构化 `assets.json`（带 `source` 可溯源）与 `intel.md`（人读摘要）。
+- `icp_<domain>.json` 字段是旧 schema 的**超集**（多 `provider` / `tried`），旧读取方不受影响。
+- 免 key 源（crt.sh / certspotter / hackertarget / RapidDNS / urlscan / subdomain.center）
+  默认参与，因此 `all` 的 asset 步骤在无任何 key 时也能产出真实记录；有 key 的源
+  自动叠加，未配置的源在选源阶段即被剔除，不会发出半截请求。

@@ -3,6 +3,10 @@
 把 Python 引擎（`src/yata.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
 产出**单文件** `yata.exe`，CLI 子命令与 `python src/yata.py` 一一对齐。
 
+在 parity 之外，Go 内核多承担一层**多源情报面**（Python 侧没有）：
+`intel` / `providers` / `whois` / `ipinfo` 四个子命令 + `asset`/`reverse`/`icp` 的多源化。
+理由很实际——单源一挂就整块失明，而测绘本来就是个「多问几家」的活。
+
 **移植边界（铁律）**：只有引擎自身的编排逻辑被重写（HTTP 数据源 / 软 404 基线 /
 存活验证 / 指纹匹配 / 输出解析 / 去重合并 / 安全落盘）；外部工具一律保持子进程
 调用、不重写——OneForAll（Python）仍是子域枚举主通道，subfinder（Go 二进制）
@@ -30,9 +34,13 @@ C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Pyt
 | `verify -d <domain> [-w 8]` | `modules.subdomain.run_verify` | ✅ c1 已实现 |
 | `fingerprint -u <url>` | `modules.fingerprint.run_fingerprint` | ✅ c1 已实现 |
 | `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 yata.py 步骤序一致） |
-| `asset -d` | `modules.asset` | ✅ c2（FOFA/Hunter 原生客户端，key 走环境变量） |
-| `reverse -i <ip>` | `modules.reverse_ip` | ✅ c2（hackertarget；域名正则改写为 RE2 兼容 label 校验） |
-| `icp -d` | `modules.icp` | ✅ c2（apihz；限频假 200 防御） |
+| `asset -d` | `modules.asset` | ✅ 多源（`--sources fofa,quake,zoomeye,shodan,censys,netlas,zerozone` + 6 免 key 被动源）；`--legacy` 回退旧两源 |
+| `reverse -i <ip>` | `modules.reverse_ip` | ✅ 多源（hackertarget + RapidDNS）；`--legacy` 回退单源 |
+| `icp -d` | `modules.icp` | ✅ 三段链（apihz → 工信部官方 → beianx），限频按提示退避；`--demo` 用 apihz 官方公开示例凭据；`--file` 批量 |
+| `intel -d` | —（Go 侧独有） | ✅ 全源聚合：空间测绘 + 被动源 + 备案 + RDAP + 归属，产 `assets.json/txt` + `intel.md` |
+| `providers` | —（Go 侧独有） | ✅ 数据源与凭据状态表（脱敏显示，排障第一站） |
+| `whois -d` | —（Go 侧独有） | ✅ RDAP over HTTPS（IANA bootstrap 定位端点，免 key） |
+| `ipinfo -i` | —（Go 侧独有） | ✅ geo/ISP/ASN（ip-api 批量，免 key，1.5s 节流） |
 | `api -u` | `modules.api_unauth` | ✅ c2（27 端点清单 + 取证三件套） |
 | `paths -u` | `modules.paths` | ✅ c2（19 条字典 + 软 404 基线 + 复验） |
 | `jsintel -u` | `modules.jsintel` | ✅ 已移植（端点/敏感线索/域名三通道；值只留前 4 位打码；WAF 优雅降级；单测 + parity 24 项矩阵） |
@@ -70,6 +78,52 @@ engine-go/
 ├── internal/mockweb/        # httptest 靶站：与 tests/mock_server.py 逐字节对齐
 ├── internal/parity/         # Python↔Go parity 测试基建 + c1/c2 断言矩阵
 └── testdata/                # OneForAll fixture（.txt 后缀合规）
+```
+
+## 多源情报层（`intel` 包）
+
+```
+intel/
+├── intel.go     Record 归一化 + Options + Run（并发跑源、去重、落盘 assets.json/txt/intel.md）
+├── registry.go  Provider 注册表 + 选源逻辑 + providers 状态表
+├── keys.go      凭据解析：环境变量 > ~/.yata/keys.env（YATA_KEYS_FILE 可覆盖）
+├── space.go     八家空间测绘引擎（fofa/hunter/quake/zoomeye/shodan/censys/netlas/zerozone）
+├── free.go      六家免 key 被动源（crtsh/certspotter/hackertarget/rapiddns/urlscan/subdomaincenter）
+├── rdap.go      域名注册信息（IANA bootstrap → 该 TLD 的 RDAP 端点）
+├── geo.go       IP 归属/ISP/ASN（ip-api 批量，100 一批 + 1.5s 节流）
+└── reverse.go   IP 反查域名（hackertarget + rapiddns 双源合并）
+```
+
+设计约束：
+
+1. **一个 Provider 一个函数**：签名固定 `func(ctx, target, Options) ([]Record, error)`，
+   `panic` 被 `safeQuery` 兜住转 error——第三方返回结构漂移不能炸掉整条流水线。
+2. **能力探测先于调用**：`Configured(p)` 看凭据；未配置的源在选源阶段就被剔除，
+   不会发出半截请求，也不会在报告里装成「0 条」。
+3. **失败要能区分**：`SourceStat.Status` 只有 `ok / error`，`Message` 原样带第三方错误文本；
+   `RunICPChain` 更细，把三条通道各自「命中/未命中/为什么」全留档——**限频 ≠ 未备案**。
+4. **凭据零字面量**：`keys.go` 是唯一读凭据的地方，脱敏 `Mask()` 只留前 4 位；
+   `providers` 子命令展示的也是脱敏值。
+5. **测试零外网**：每个源都有 httptest stub 用例（`intel_test.go`），端点经
+   `Options.Endpoints` 注入，不能连真实 API。
+
+新增一个源的最小改动：
+
+```go
+// 1) 写查询函数（放 space.go 或 free.go）
+func queryNewEngine(ctx context.Context, target string, o Options) ([]Record, error) {
+    key := Env("NEWENGINE_KEY")           // 免 key 源跳过这行
+    if key == "" { return nil, fmt.Errorf("未配置 NEWENGINE_KEY") }
+    base := o.endpoint("newengine", "https://api.example.com/search")
+    body, _, err := fetchJSON(ctx, o, base+"?q="+url.QueryEscape(target), nil, nil, "GET")
+    ...
+    return []Record{{Source: "newengine", Host: ...}}, nil
+}
+
+// 2) 注册（顺序即输出顺序）
+{Name: "newengine", Kind: "space", Env: []string{"NEWENGINE_KEY"}, Doc: "...", Query: queryNewEngine},
+
+// 3) 补一条 httptest 用例，并在 README 的源表 + keys.env 示例里加一行
 ```
 
 ## 关键语义（与 Python 逐字段对齐，parity 测试钉死）
