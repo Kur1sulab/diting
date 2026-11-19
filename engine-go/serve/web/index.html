@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>谛听 · 资产测绘控制台</title>
 <script>
-  // 首帧前定主题，避免闪一下默认色板
-  try{ document.documentElement.dataset.theme = localStorage.getItem('diting-theme') || 'slate'; }catch(e){ document.documentElement.dataset.theme = 'slate'; }
+  // 首帧前定主题，避免闪一下默认色板。只留 light/slate 两套，默认纸白（浅色）。
+  // diting-theme.v2 是一次性迁移标记：老用户 localStorage 里存的 slate 是旧默认，不是主动选择，
+  // 用标记把他们迁到新的浅色默认；迁过一次之后完全尊重用户自己点选。
+  try{
+    var t = localStorage.getItem('diting-theme');
+    if (localStorage.getItem('diting-theme.v2') !== '1') { localStorage.setItem('diting-theme.v2', '1'); t = null; }
+    document.documentElement.dataset.theme = (t === 'light' || t === 'slate') ? t : 'light';
+  }catch(e){ document.documentElement.dataset.theme = 'light'; }
 </script>
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -28,6 +34,7 @@
 
     <nav class="nav">
       <button class="nav-item active" data-jump="stats">总览</button>
+      <button class="nav-item" data-jump="coverage">覆盖矩阵</button>
       <button class="nav-item" data-jump="assets">资产明细</button>
       <button class="nav-item" data-jump="ai">AI 研判</button>
     </nav>
@@ -38,14 +45,11 @@
     </div>
 
     <div class="theme-switch" id="themeswitch" role="group" aria-label="主题切换">
-      <button class="sw" type="button" data-theme-set="slate" title="石墨蓝 · 系统深色" aria-label="石墨蓝主题">
-        <i style="background:#5aa9ff"></i><span class="sw-t">蓝</span>
+      <button class="sw" type="button" data-theme-set="slate" title="石墨 · 深色" aria-label="石墨深色主题">
+        <i style="background:#0e1013;border:1px solid #3a4657"></i><span class="sw-t">石墨</span>
       </button>
-      <button class="sw" type="button" data-theme-set="gold" title="暖金 · 炭黑" aria-label="暖金主题">
-        <i style="background:#e9b949"></i><span class="sw-t">金</span>
-      </button>
-      <button class="sw" type="button" data-theme-set="light" title="纸白 · 浅色" aria-label="纸白主题">
-        <i style="background:#0b6bd6"></i><span class="sw-t">白</span>
+      <button class="sw" type="button" data-theme-set="light" title="纸白 · 浅色" aria-label="纸白浅色主题">
+        <i style="background:#f4f6f8;border:1px solid #c9ced6"></i><span class="sw-t">纸白</span>
       </button>
     </div>
 
@@ -73,6 +77,24 @@
       <div class="stat"><div class="stat-k">敏感路径</div><div class="stat-v" id="c-paths">0</div><div class="stat-s" id="s-paths">待探测</div></div>
       <div class="stat"><div class="stat-k">API 命中</div><div class="stat-v" id="c-apis">0</div><div class="stat-s" id="s-apis">待探测</div></div>
       <div class="stat"><div class="stat-k">指纹</div><div class="stat-v" id="c-finger">0</div><div class="stat-s" id="s-finger">待识别</div></div>
+    </section>
+
+    <!-- 覆盖矩阵：目标 × 检查类型，回答「这块资产测了没有」；未跑 = 盲区，最醒目 -->
+    <section class="panel cov-panel" id="coverage" aria-label="覆盖矩阵">
+      <div class="panel-h">
+        <h2>覆盖矩阵</h2>
+        <span class="chip" id="cov-sum" title="读 out/ 产物汇总，不触发扫描">—</span>
+        <button class="btn-ghost" id="cov-refresh" type="button">刷新</button>
+      </div>
+      <div class="cov-legend">
+        <span class="cov-lg"><i class="cov-sw missing"></i>未跑 · 盲区</span>
+        <span class="cov-lg"><i class="cov-sw empty"></i>已跑无命中</span>
+        <span class="cov-lg"><i class="cov-sw hits"></i>命中 N</span>
+        <span class="cov-lg cov-lg-note">基线列 k/8 · 琥珀点 = 基线还有项未跑</span>
+      </div>
+      <div class="cov-wrap" id="covwrap">
+        <div class="table-empty">加载覆盖数据…</div>
+      </div>
     </section>
 
     <div class="grid">

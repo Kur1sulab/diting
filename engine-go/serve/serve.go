@@ -142,6 +142,7 @@ func buildMux(srv *Server) http.Handler {
 	mux.HandleFunc("GET /api/jobs/{id}", srv.hDetail)
 	mux.HandleFunc("POST /api/jobs/{id}/stop", srv.hStop)
 	mux.HandleFunc("GET /api/jobs/{id}/events", srv.hEvents)
+	mux.HandleFunc("GET /api/coverage", srv.handleCoverage)
 	mux.HandleFunc("POST /api/ai/analyze", srv.hAnalyze)
 	mux.HandleFunc("POST /api/ai/ask", srv.hAsk)
 	mux.HandleFunc("GET /api/jobs/{id}/report.md", srv.hReport)

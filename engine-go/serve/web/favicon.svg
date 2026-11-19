@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="diting">
+  <rect x="0.5" y="0.5" width="23" height="23" rx="5" fill="#101828"/>
+  <g transform="translate(4.080 4.080) scale(0.660)">
+    <path d="M 17.142 18.128 A 8 8 0 1 1 18.928 8.0" stroke="#F2F4F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M 18.928 8.0 A 4.5 4.5 0 0 1 10.531 10.25" stroke="#F2F4F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>

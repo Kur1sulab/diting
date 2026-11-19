@@ -131,6 +131,8 @@
       $('topmeta').textContent = '后端未连接';
     }
     await refreshJobs();
+    await loadCoverage();
+    syncStatsIdle();
   }
 
   async function refreshJobs() {
@@ -188,6 +190,7 @@
         renderAll(true);
         if (['done', 'failed', 'stopped'].includes(e.job.status)) {
           refreshJobs();
+          loadCoverage();
           setTimeout(() => { if (state.es === es) { es.close(); state.es = null; } }, 600);
         }
       } else if (e.type === 'ai' && e.ai && state.cur) {
@@ -271,6 +274,14 @@
     set('finger', c.finger, c.finger ? (j.result && j.result.finger || []).map((f) => f.name).join(' / ') : '未命中');
     document.querySelectorAll('.stat').forEach((el) => el.classList.remove('hot'));
     if (c.ports) document.querySelectorAll('.stat')[1].classList.add('hot');
+    syncStatsIdle();
+  }
+
+  // 空态紧凑条：五卡全 0/— 时收成单行；出现真实计数立即恢复大数字卡。
+  function syncStatsIdle() {
+    const vs = [...document.querySelectorAll('.stat-v')];
+    const idle = vs.length > 0 && vs.every((el) => ['0', '—', ''].includes(el.textContent.trim()));
+    $('stats').classList.toggle('idle', idle);
   }
 
   function appendLog(l) {
@@ -359,6 +370,70 @@
     box.scrollTop = 0;
   }
 
+  // ── 覆盖矩阵：目标 × 检查类型（只读 /api/coverage，不触发扫描）──
+  // 三态：missing 未跑（盲区，最醒目）/ empty 已跑无命中 / hits 命中 N。
+  let covData = null;
+  async function loadCoverage() {
+    try {
+      covData = await api('/api/coverage');
+      renderCoverage();
+    } catch (e) {
+      $('covwrap').innerHTML = `<div class="table-empty">覆盖数据加载失败：${esc(e.message)}</div>`;
+    }
+  }
+  function renderCoverage() {
+    if (!covData) return;
+    const s = covData.summary || {};
+    const sum = $('cov-sum');
+    sum.textContent = `${s.targets || 0} 目标 · 盲区 ${s.missing || 0}`;
+    sum.className = 'chip ' + ((s.missing || 0) > 0 ? 'failed' : 'done');
+    sum.title = `共 ${s.cells || 0} 格：未跑 ${s.missing || 0} · 已跑无命中 ${s.empty || 0} · 命中 ${s.hits || 0}`;
+    const wrap = $('covwrap');
+    const targets = covData.targets || [];
+    if (!targets.length) {
+      wrap.innerHTML = '<div class="table-empty">还没有测绘产物。发起一次测绘，或把 CLI 的 out/ 目录放到服务工作目录下。</div>';
+      return;
+    }
+    const checks = covData.checks || [];
+    let html = '<table class="cov"><caption class="cov-cap">覆盖矩阵：每行一个目标，每列一类检查；未跑的格子是盲区</caption><thead><tr><th class="cov-th-target" scope="col">目标</th>';
+    checks.forEach((c) => { html += `<th scope="col">${esc(c.name)}</th>`; });
+    html += '</tr></thead><tbody>';
+    targets.forEach((t) => {
+      const cells = t.cells || {};
+      const linked = !!t.job_id;
+      const nameTag = linked ? 'button' : 'div';
+      html += `<tr><th class="cov-target" scope="row"><${nameTag} class="cov-t-btn${linked ? '' : ' static'}"${linked ? ` type="button" data-job="${esc(t.job_id)}" title="查看任务 ${esc(t.job_id)}"` : ''}>`;
+      html += `<span class="cov-t-name">${esc(t.target)}</span><span class="cov-t-meta">`;
+      html += `<span class="tag">${t.kind === 'ip' ? 'IP' : '域名'}</span>`;
+      if (t.job_status === 'running' || t.job_status === 'queued') {
+        html += `<span class="dot ${esc(t.job_status)}"></span><span>${t.job_status === 'running' ? '在跑' : '排队'}</span>`;
+      }
+      html += t.missing > 0
+        ? `<span class="cov-blind">盲区 ${t.missing}</span>`
+        : '<span class="cov-full"><i class="cov-okdot"></i>全覆盖</span>';
+      html += `</span></${nameTag}></th>`;
+      checks.forEach((c) => {
+        const cell = cells[c.key] || { state: 'missing', text: '未跑', detail: '' };
+        const tip = esc(cell.detail || cell.text);
+        html += `<td class="cov-cell ${esc(cell.state)}" title="${tip}" aria-label="${esc(t.target)} · ${esc(c.name)}：${tip}"><span class="cov-box">`;
+        if (cell.state === 'missing') html += '<i class="cov-dot"></i>';
+        html += `<span>${esc(cell.text)}</span>`;
+        if (cell.partial) html += '<i class="cov-partial"></i>';
+        html += '</span></td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.cov-t-btn[data-job]').forEach((b) => {
+      b.addEventListener('click', () => {
+        selectJob(b.dataset.job);
+        const panel = document.querySelector('.console-panel');
+        if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
   // ── 事件绑定 ───────────────────────────────────────────────
   $('scanform').addEventListener('submit', async (ev) => {
     ev.preventDefault();
@@ -434,6 +509,8 @@
     renderTable();
   });
 
+  $('cov-refresh').addEventListener('click', loadCoverage);
+
   $('reportbtn').addEventListener('click', () => {
     if (!state.cur) return;
     window.open('/api/jobs/' + encodeURIComponent(state.cur.id) + '/report.md', '_blank');
@@ -447,8 +524,8 @@
     });
   });
 
-  // ── 主题切换：三套色板，localStorage 记忆（默认纸白）───────────
-  const THEMES = ['light', 'slate', 'gold'];
+  // ── 主题切换：两套色板（纸白 / 石墨），localStorage 记忆（默认纸白）──
+  const THEMES = ['light', 'slate'];
   const DEFAULT_THEME = 'light';
   function applyTheme(id) {
     if (!THEMES.includes(id)) id = DEFAULT_THEME;
