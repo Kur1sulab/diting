@@ -111,6 +111,8 @@ func parseIntelFlags(rest []string, cmd, usage string) (*intelFlags, int) {
 //
 // 一次把「空间测绘 + 被动源 + 备案 + WHOIS + IP 归属」全跑一遍，落 assets.json /
 // assets.txt / intel.md / icp_<domain>.json / whois_<domain>.json。
+// IP 目标走反查双源（hackertarget-reverse + rapiddns-sameip），同样落
+// assets.json / assets.txt / intel.md（无 icp/whois——备案/注册信息只对域名有意义）。
 func runIntel(rest []string) int {
 	fs := newFlagSet()
 	sources := fs.String("sources", "", "")
@@ -156,9 +158,22 @@ func runIntel(rest []string) int {
 	var rep *intel.Report
 	if isIP {
 		// IP：不做子域/证书类被动源（它们按域名索引），改走反查 + 归属。
+		// 产物契约与域名分支一致：此前只打印不落盘，out/ 空目录却报
+		// 「采集完成 -> out」，下游 report.Collect 读 assets.txt 静默丢情报。
+		start := time.Now()
 		recs, stats := intel.ReverseIP(ctx, target, opt)
 		fmt.Print(intel.FormatReverse(target, recs, stats))
-		rep = &intel.Report{Target: target, Records: recs, Sources: stats}
+		rep = &intel.Report{
+			Target:    target,
+			StartedAt: start.Format("2006-01-02T15:04:05Z07:00"),
+			ElapsedMS: time.Since(start).Milliseconds(),
+			Records:   recs,
+			Sources:   stats,
+		}
+		if err := intel.WriteOutputs(out, rep); err != nil {
+			fmt.Printf("[!] 采集写盘失败: %v\n", err)
+			return 1
+		}
 	} else {
 		rep, err = intel.Run(target, out, opt)
 		if err != nil {

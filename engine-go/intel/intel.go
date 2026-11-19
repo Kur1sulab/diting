@@ -253,7 +253,7 @@ func Run(target, out string, opt Options) (*Report, error) {
 	}
 	rep.ElapsedMS = time.Since(start).Milliseconds()
 
-	if err := writeOutputs(out, rep); err != nil {
+	if err := WriteOutputs(out, rep); err != nil {
 		return rep, err
 	}
 	return rep, nil
@@ -270,38 +270,51 @@ func safeQuery(ctx context.Context, p Provider, target string, o Options) (recs 
 	return p.Query(qctx, target, o)
 }
 
-func writeOutputs(out string, rep *Report) error {
+// WriteOutputs 把一次采集结果落成标准产物集：assets.json（全量结构化）/
+// assets.txt（host|ip|port|protocol 旧契约）/ intel.md（人读摘要），并回填
+// rep.Files。域名分支（Run）与 IP 反查分支（cli.runIntel）共用同一写盘契约：
+// intel 无论目标是域名还是 IP，out/ 里都必须有产物——report.Collect 依赖
+// assets.txt（report.go），缺写会让下游报告静默丢掉情报段。
+// rep.Files 为 nil 时自动初始化（IP 分支构造的 Report 不带 Files map）。
+func WriteOutputs(out string, rep *Report) error {
 	if out == "" {
 		return nil
+	}
+	if rep.Files == nil {
+		rep.Files = map[string]string{}
 	}
 	if err := os.MkdirAll(out, 0o755); err != nil {
 		return err
 	}
+	// 产物清单先登记再序列化：assets.json 落盘时 files 段必须非空。
+	// 旧实现在写盘后才回填内存 map，盘上 JSON 的 files 永远是 {}。
+	// 路径是确定性的（out/固定文件名），写失败会整体返回 error，不留半成品清单。
+	jp := filepath.Join(out, "assets.json")
+	tp := filepath.Join(out, "assets.txt")
+	mp := filepath.Join(out, "intel.md")
+	rep.Files["assets.json"] = jp
+	rep.Files["assets.txt"] = tp
+	rep.Files["intel.md"] = mp
+
 	js, err := json.MarshalIndent(rep, "", "  ")
 	if err != nil {
 		return err
 	}
-	jp := filepath.Join(out, "assets.json")
 	if err := os.WriteFile(jp, append(js, '\n'), 0o644); err != nil {
 		return err
 	}
-	rep.Files["assets.json"] = jp
 
 	var sb strings.Builder
 	for _, r := range rep.Records {
 		sb.WriteString(r.LegacyLine() + "\n")
 	}
-	tp := filepath.Join(out, "assets.txt")
 	if err := os.WriteFile(tp, []byte(sb.String()), 0o644); err != nil {
 		return err
 	}
-	rep.Files["assets.txt"] = tp
 
-	mp := filepath.Join(out, "intel.md")
 	if err := os.WriteFile(mp, []byte(renderMarkdown(rep)), 0o644); err != nil {
 		return err
 	}
-	rep.Files["intel.md"] = mp
 	return nil
 }
 
