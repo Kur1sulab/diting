@@ -9,8 +9,8 @@ import (
 
 // 凭据来源优先级（高→低）：
 //  1. 进程环境变量（export FOFA_KEY=...）
-//  2. keys.env 文件（默认 ~/.yata/keys.env，可用 YATA_KEYS_FILE 覆盖；
-//     兼容 ~/.config/yata/keys.env）
+//  2. keys.env 文件（默认 ~/.diting/keys.env，可用 DITING_KEYS_FILE 覆盖；
+//     兼容 ~/.config/diting/keys.env）
 //
 // 文件格式：每行 KEY=VALUE，# 开头为注释；允许引号；允许空行。
 // 纪律：本包不写任何真实凭据字面量，文件权限建议 chmod 600。
@@ -29,11 +29,15 @@ func KeysFile() string {
 func loadKeys() {
 	keysMap = map[string]string{}
 	cands := []string{}
-	if p := strings.TrimSpace(os.Getenv("YATA_KEYS_FILE")); p != "" {
+	if p := strings.TrimSpace(os.Getenv("DITING_KEYS_FILE")); p != "" {
 		cands = append(cands, p)
 	}
 	if home, err := os.UserHomeDir(); err == nil {
 		cands = append(cands,
+			filepath.Join(home, ".diting", "keys.env"),
+			filepath.Join(home, ".config", "diting", "keys.env"),
+			// 改名前的目录：老机器上凭据还躺在这里。读不到的后果是"静默无凭据"，
+			// 排查代价远高于多留一条兜底路径。
 			filepath.Join(home, ".yata", "keys.env"),
 			filepath.Join(home, ".config", "yata", "keys.env"),
 		)

@@ -1,1 +1,1 @@
-[+] 指纹识别完成（0 个命中: 无）-> C:\<user>\yata\engine-go\out\http_127.0.0.1_18081_r302\fingerprint.json
+[+] 指纹识别完成（0 个命中: 无）-> C:\<user>\diting\engine-go\out\http_127.0.0.1_18081_r302\fingerprint.json

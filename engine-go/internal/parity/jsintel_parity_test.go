@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/yata/engine-go/jsintel"
-	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/diting/engine-go/jsintel"
+	"github.com/Kur1sulab/diting/engine-go/mockweb"
 )
 
 // fakePw 全流程 parity 使用的假口令：分段拼接，源码不出现完整凭据字面量。

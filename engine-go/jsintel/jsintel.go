@@ -29,8 +29,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/Kur1sulab/yata/engine-go/jsonx"
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/jsonx"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // 常量逐项对照 jsintel.py:31-34。

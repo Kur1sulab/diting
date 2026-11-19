@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // ── settings.json 持久化 ──

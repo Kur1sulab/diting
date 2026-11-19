@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/cli"
-	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/diting/engine-go/cli"
+	"github.com/Kur1sulab/diting/engine-go/mockweb"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // waitTerminalFor 等指定任务落终态（集成测试用长一点的上限：真引擎跑网络循环）。

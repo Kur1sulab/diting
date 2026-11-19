@@ -1,4 +1,4 @@
-module github.com/Kur1sulab/yata/engine-go
+module github.com/Kur1sulab/diting/engine-go
 
 go 1.24
 

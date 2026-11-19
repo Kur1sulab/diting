@@ -2,7 +2,7 @@ package cli
 
 // outdirname_test.go — 第一步 C 项验收：OutdirName 纯函数拆出。
 // 桌面直调需要「目标 → 产物目录名」的清洗规则（不含 mkdir），
-// 维持 Python yata.py make_outdir / engine-go MakeOutdir / desktop
+// 维持 Python diting.py make_outdir / engine-go MakeOutdir / desktop
 // evidence.go outDirFor 三方同名契约——本测试钉住清洗结果与 MakeOutdir
 // 实际落盘目录名严格一致。
 

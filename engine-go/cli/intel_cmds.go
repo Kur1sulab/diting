@@ -14,11 +14,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/asset"
-	"github.com/Kur1sulab/yata/engine-go/icp"
-	"github.com/Kur1sulab/yata/engine-go/intel"
-	"github.com/Kur1sulab/yata/engine-go/netutil"
-	"github.com/Kur1sulab/yata/engine-go/reverseip"
+	"github.com/Kur1sulab/diting/engine-go/asset"
+	"github.com/Kur1sulab/diting/engine-go/icp"
+	"github.com/Kur1sulab/diting/engine-go/intel"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/reverseip"
 )
 
 // splitList 拆 "a,b,c" 形式的源列表。
@@ -49,7 +49,7 @@ func dispatchIntel(cmd string, rest []string) int {
 	return 2
 }
 
-// runProviders `yata providers [--json]` —— 列数据源与凭据状态。
+// runProviders `diting providers [--json]` —— 列数据源与凭据状态。
 func runProviders(rest []string) int {
 	fs := newFlagSet()
 	asJSON := fs.Bool("json", false, "")
@@ -77,7 +77,7 @@ func runProviders(rest []string) int {
 		return 0
 	}
 	fmt.Print(intel.StatusTable(intel.Options{}))
-	fmt.Println("\n配置方式：环境变量，或 ~/.yata/keys.env（chmod 600）中的 KEY=VALUE")
+	fmt.Println("\n配置方式：环境变量，或 ~/.diting/keys.env（chmod 600）中的 KEY=VALUE")
 	fmt.Println("免 key 源无需任何配置即可用：crtsh / certspotter / hackertarget / rapiddns / urlscan / subdomaincenter")
 	return 0
 }
@@ -107,7 +107,7 @@ func parseIntelFlags(rest []string, cmd, usage string) (*intelFlags, int) {
 	return f, -1
 }
 
-// runIntel `yata intel -d <domain> [--sources a,b] [--limit N] [--query '…'] [--no-icp] [--no-whois]`
+// runIntel `diting intel -d <domain> [--sources a,b] [--limit N] [--query '…'] [--no-icp] [--no-whois]`
 //
 // 一次把「空间测绘 + 被动源 + 备案 + WHOIS + IP 归属」全跑一遍，落 assets.json /
 // assets.txt / intel.md / icp_<domain>.json / whois_<domain>.json。
@@ -211,7 +211,7 @@ func dashStr(s string) string {
 	return s
 }
 
-// runAsset `yata asset -d <domain> [--sources …] [--limit N] [--query …] [--legacy]`
+// runAsset `diting asset -d <domain> [--sources …] [--limit N] [--query …] [--legacy]`
 //
 // 默认走多源（intel）；--legacy 保留旧的两源（FOFA+Hunter）行为，便于与旧脚本对齐。
 func runAssetMulti(rest []string) int {
@@ -261,7 +261,7 @@ func runAssetMulti(rest []string) int {
 	return 0
 }
 
-// runICPChain `yata icp -d <domain> [-d2 …] [--demo]`
+// runICPChain `diting icp -d <domain> [-d2 …] [--demo]`
 func runICPChain(rest []string) int {
 	fs := newFlagSet()
 	d := fs.String("d", "", "")
@@ -314,7 +314,7 @@ func runICPChain(rest []string) int {
 	return code
 }
 
-// runReverseMulti `yata reverse -i <ip> [--legacy]`
+// runReverseMulti `diting reverse -i <ip> [--legacy]`
 func runReverseMulti(rest []string) int {
 	fs := newFlagSet()
 	ip := fs.String("i", "", "")
@@ -361,7 +361,7 @@ func runReverseMulti(rest []string) int {
 	return 0
 }
 
-// runWhois `yata whois -d <domain>`
+// runWhois `diting whois -d <domain>`
 func runWhois(rest []string) int {
 	fs := newFlagSet()
 	d := fs.String("d", "", "")
@@ -400,7 +400,7 @@ func runWhois(rest []string) int {
 	return 0
 }
 
-// runIPInfo `yata ipinfo -i 1.1.1.1[,8.8.8.8] [--file ips.txt]`
+// runIPInfo `diting ipinfo -i 1.1.1.1[,8.8.8.8] [--file ips.txt]`
 func runIPInfo(rest []string) int {
 	fs := newFlagSet()
 	ips := fs.String("i", "", "")

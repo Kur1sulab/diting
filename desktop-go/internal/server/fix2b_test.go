@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"yata-desktop/internal/store"
+	"diting-desktop/internal/store"
 )
 
 func TestStopCreatedTask(t *testing.T) {

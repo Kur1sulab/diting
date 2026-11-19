@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // baselineCheckMeta 一个检查的展示元数据（顺序 = 引擎 checksOrder，§5.1-5.8）。

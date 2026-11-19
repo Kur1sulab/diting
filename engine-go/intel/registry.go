@@ -143,7 +143,7 @@ func StatusTable(o Options) string {
 	if f := KeysFile(); f != "" {
 		fmt.Fprintf(&sb, "\n凭据文件：%s\n", f)
 	} else {
-		sb.WriteString("\n凭据文件：未找到（~/.yata/keys.env）\n")
+		sb.WriteString("\n凭据文件：未找到（~/.diting/keys.env）\n")
 	}
 	return sb.String()
 }

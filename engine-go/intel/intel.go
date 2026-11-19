@@ -5,7 +5,7 @@
 //
 // 三条纪律（与产品铁律一致）：
 //  1. 只读：所有 Provider 只做 GET/POST 查询，没有写原语、没有 exploit 链；
-//  2. 凭据只走环境变量或 ~/.yata/keys.env，源码零字面量；未配置的源跳过不报错；
+//  2. 凭据只走环境变量或 ~/.diting/keys.env，源码零字面量；未配置的源跳过不报错；
 //  3. 免 key 源默认开启（crt.sh / certspotter / hackertarget / rapiddns /
 //     urlscan / subdomain.center），有 key 的源自动增强，缺 key 不阻断。
 //
@@ -37,7 +37,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // Record 是一条归一化后的资产记录。字段全部来自实测，不做推演填充。

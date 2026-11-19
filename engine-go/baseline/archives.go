@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/netutil"
-	"github.com/Kur1sulab/yata/engine-go/paths"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/paths"
 )
 
 // CDXBase Wayback CDX 接口（可注入换靶）。

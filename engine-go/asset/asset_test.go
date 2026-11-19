@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 func withCheckAllow(t *testing.T) {

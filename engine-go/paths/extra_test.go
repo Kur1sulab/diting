@@ -6,7 +6,7 @@ package paths
 import (
 	"testing"
 
-	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/diting/engine-go/mockweb"
 )
 
 func TestMergeExtra(t *testing.T) {

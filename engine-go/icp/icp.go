@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/jsonx"
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/jsonx"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // APIHZURL 可注入（测试打 httptest stub）。

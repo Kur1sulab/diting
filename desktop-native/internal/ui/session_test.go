@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // newTestSession 造一个可用测试会话：八模块全注入阻塞桩（阻塞到 Stop 取消，

@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // 备案号与主办单位名（beianx 兜底解析用）。备案号形如：粤B2-20090059-5 / 渝ICP备06004549号-3

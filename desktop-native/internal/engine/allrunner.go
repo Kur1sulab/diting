@@ -1,6 +1,6 @@
 package engine
 
-// allrunner.go — all 模块的进程内编排器：按 src/yata.py cmd_all（:123-171）
+// allrunner.go — all 模块的进程内编排器：按 src/diting.py cmd_all（:123-171）
 // 两分支直调 engine-go 公开函数。
 //
 //	域名分支：subdomain → verify → asset → icp(非致命) → PickBase →
@@ -8,7 +8,7 @@ package engine
 //	IP 分支： reverse → icp(反查域名≤5 个循环，非致命) → PickBase(反查首域名)
 //	          → fingerprint → api → portscan → jsintel → report
 //
-// 步骤事件与 python _run_step（yata.py:46-60）同构：start/done/fail(module)；
+// 步骤事件与 python _run_step（diting.py:46-60）同构：start/done/fail(module)；
 // fatal 步骤失败即中止流水线（pipeline_end fail），非致命步骤降级继续。
 // jsintel/portscan 第三轮起真跑（fatal=false，与 Python 一致）。
 // 取消传播：每步骤间设 ctx 检查点，引擎调用全部走 *Context 变体
@@ -18,15 +18,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Kur1sulab/yata/engine-go/apiunauth"
-	"github.com/Kur1sulab/yata/engine-go/asset"
-	"github.com/Kur1sulab/yata/engine-go/cli"
-	"github.com/Kur1sulab/yata/engine-go/fingerprint"
-	"github.com/Kur1sulab/yata/engine-go/icp"
-	"github.com/Kur1sulab/yata/engine-go/paths"
-	"github.com/Kur1sulab/yata/engine-go/report"
-	"github.com/Kur1sulab/yata/engine-go/reverseip"
-	"github.com/Kur1sulab/yata/engine-go/subdomain"
+	"github.com/Kur1sulab/diting/engine-go/apiunauth"
+	"github.com/Kur1sulab/diting/engine-go/asset"
+	"github.com/Kur1sulab/diting/engine-go/cli"
+	"github.com/Kur1sulab/diting/engine-go/fingerprint"
+	"github.com/Kur1sulab/diting/engine-go/icp"
+	"github.com/Kur1sulab/diting/engine-go/paths"
+	"github.com/Kur1sulab/diting/engine-go/report"
+	"github.com/Kur1sulab/diting/engine-go/reverseip"
+	"github.com/Kur1sulab/diting/engine-go/subdomain"
 )
 
 // allStep 单步执行（_run_step 同构）：start → fn → done | fail(module, err)。
@@ -76,7 +76,7 @@ func (r *Runner) runAllModule(ctx context.Context, id, target string, extra []st
 	})
 }
 
-// allDomainBranch 域名分支（yata.py:158-173）。
+// allDomainBranch 域名分支（diting.py:158-173）。
 func (r *Runner) allDomainBranch(ctx context.Context, id, target, out string) error {
 	if err := r.allStep(ctx, id, "subdomain", true, func() error {
 		_, err := subdomain.RunContext(ctx, target, out)
@@ -84,7 +84,7 @@ func (r *Runner) allDomainBranch(ctx context.Context, id, target, out string) er
 	}); err != nil {
 		return err
 	}
-	// 审计补充（yata.py:162）：证书日志含大量失效域名，必须验证存活
+	// 审计补充（diting.py:162）：证书日志含大量失效域名，必须验证存活
 	if err := r.allStep(ctx, id, "verify", true, func() error {
 		subdomain.RunVerifyContext(ctx, out, 8, true)
 		return nil
@@ -107,9 +107,9 @@ func (r *Runner) allDomainBranch(ctx context.Context, id, target, out string) er
 	return r.allWebSteps(ctx, id, target, base, out, true, []string{"jsintel", "portscan"})
 }
 
-// allIPBranch IP 分支（yata.py:129-154）：反查域名 → 逐个 ICP（≤5 个，避免
+// allIPBranch IP 分支（diting.py:129-154）：反查域名 → 逐个 ICP（≤5 个，避免
 // 限频）→ 指纹/API。裸 IP 常被按域名路由的站点返回 404，优先用反查出的
-// 首个域名作为探测入口（yata.py:143-145 同策略）。
+// 首个域名作为探测入口（diting.py:143-145 同策略）。
 func (r *Runner) allIPBranch(ctx context.Context, id, target, out string) error {
 	var doms []string
 	if err := r.allStep(ctx, id, "reverse", true, func() error {
@@ -138,7 +138,7 @@ func (r *Runner) allIPBranch(ctx context.Context, id, target, out string) error 
 }
 
 // allWebSteps 两分支共用尾段：PickBase 入口 → fingerprint →（域名分支含
-// paths）→ api → jsintel/portscan（真实执行，非致命）。顺序保持 yata.py 各
+// paths）→ api → jsintel/portscan（真实执行，非致命）。顺序保持 diting.py 各
 // 分支原序：域名分支 fingerprint→paths→api→jsintel→portscan（:166-173），
 // IP 分支 fingerprint→api→portscan→jsintel（:148-154）——顺序由 order 传入。
 // 注意目标差异：jsintel 吃 base（带协议），portscan 吃原始 target（裸域名/IP）。

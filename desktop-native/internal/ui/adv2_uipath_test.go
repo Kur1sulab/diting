@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // ── 1. 恶意目标 × UI 输入路径（CreateTask）──

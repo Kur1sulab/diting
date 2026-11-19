@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/jsonx"
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/jsonx"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // ── 共用：严格逐跳策略（模拟「公网入口」语义：拒绝一切私网/环回落点）──

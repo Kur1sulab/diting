@@ -9,7 +9,7 @@ package ui
 import (
 	"testing"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 func TestTaskStoreSignature(t *testing.T) {

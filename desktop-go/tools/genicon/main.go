@@ -19,7 +19,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"yata-desktop/internal/ico"
+	"diting-desktop/internal/ico"
 )
 
 // iconSizes 图标尺寸档（16 起步、256 上限，覆盖资源管理器/任务栏/Alt-Tab 各档）。

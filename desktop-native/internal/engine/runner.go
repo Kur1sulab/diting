@@ -17,17 +17,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/apiunauth"
-	"github.com/Kur1sulab/yata/engine-go/baseline"
-	"github.com/Kur1sulab/yata/engine-go/cli"
-	"github.com/Kur1sulab/yata/engine-go/fingerprint"
-	"github.com/Kur1sulab/yata/engine-go/icp"
-	"github.com/Kur1sulab/yata/engine-go/paths"
-	"github.com/Kur1sulab/yata/engine-go/reverseip"
-	"github.com/Kur1sulab/yata/engine-go/subdomain"
+	"github.com/Kur1sulab/diting/engine-go/apiunauth"
+	"github.com/Kur1sulab/diting/engine-go/baseline"
+	"github.com/Kur1sulab/diting/engine-go/cli"
+	"github.com/Kur1sulab/diting/engine-go/fingerprint"
+	"github.com/Kur1sulab/diting/engine-go/icp"
+	"github.com/Kur1sulab/diting/engine-go/paths"
+	"github.com/Kur1sulab/diting/engine-go/reverseip"
+	"github.com/Kur1sulab/diting/engine-go/subdomain"
 
-	"yata-native/internal/store"
-	"yata-native/internal/whitelist"
+	"diting-native/internal/store"
+	"diting-native/internal/whitelist"
 )
 
 // cmdSet 允许下发的模块白名单（十模块）。第三轮升级把 jsintel/portscan
@@ -213,7 +213,7 @@ func (r *Runner) Start(id, cmd, target string, extra []string) error {
 
 // execTask 单任务调度：发 pipeline_start → start(cmd) → 模块执行（含引擎
 // 内层事件）→ done|fail(cmd) → pipeline_end(done|fail)。all 无模块级
-// start/done（yata.py:250-256 / cli.go:98 契约），步骤级事件由 allrunner 发。
+// start/done（diting.py:250-256 / cli.go:98 契约），步骤级事件由 allrunner 发。
 func (r *Runner) execTask(ctx context.Context, id, cmd, target string, extra []string) error {
 	r.emit(id, "pipeline", "pipeline_start", cmd)
 	if cmd != "all" {

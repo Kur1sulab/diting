@@ -1,4 +1,4 @@
-module yata-desktop
+module diting-desktop
 
 go 1.24
 

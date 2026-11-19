@@ -11,12 +11,12 @@
 
 ## 0. 计划正本说明（重要前置）
 
-任务给定的计划文档路径 `yata/docs/GOAL-20261002-engine-go.md` **不存在**
-（`yata/docs/` 仅有 `audit-20260924.md`，复核员 `find` 全仓与 home 目录实证）。
+任务给定的计划文档路径 `diting/docs/GOAL-20261002-engine-go.md` **不存在**
+（`diting/docs/` 仅有 `audit-20260924.md`，复核员 `find` 全仓与 home 目录实证）。
 全盘检索发现同名文件位于本机用户目录下另一项目（路径已脱敏）`pentest/vulnscan-platform/docs/GOAL-20261002-engine-go.md`，
 但其内容描述的是**另一个项目**（vulnscan-platform 的 autoscanner Go 重写：
 gate/runner/writers/fidhash 架构、autoscanner-go.exe），与本仓库 engine-go
-（yata：netutil/subdomain/fingerprint/mockweb/toolrun/parity/cli）结构完全不同，
+（diting：netutil/subdomain/fingerprint/mockweb/toolrun/parity/cli）结构完全不同，
 **不能**作为本仓库计划正本（详见 D3）。
 
 本轮以仓库内权威替身作为计划对照：
@@ -33,8 +33,8 @@ gate/runner/writers/fidhash 架构、autoscanner-go.exe），与本仓库 engine
 
 | 命令 | 结果 |
 |---|---|
-| `go build -o yata.exe ./cmd/yata` | **rc=0** |
-| `go build -o yata.exe .`（根兼容入口） | **rc=0** |
+| `go build -o diting.exe ./cmd/diting` | **rc=0** |
+| `go build -o diting.exe .`（根兼容入口） | **rc=0** |
 | `go vet ./...` | **rc=0，零告警** |
 | `go test -count=1 ./...` | **7 包全 ok，63 PASS / 0 FAIL / 1 SKIP**（cli 0.288s / fingerprint 0.445s / mockweb 1.966s / netutil 1.172s / **parity 15.767s** / subdomain 0.856s / toolrun 0.752s） |
 
@@ -53,7 +53,7 @@ gate/runner/writers/fidhash 架构、autoscanner-go.exe），与本仓库 engine
 | 文件 | 承诺出处 | 核对结果 | 判定 |
 |---|---|---|---|
 | `go.mod` | README:20「零第三方依赖」 | module+go1.24，无 require 段 | ✅ |
-| `main.go`(13 行) / `cmd/yata/main.go`(13 行) | c76962d「双薄壳入口行为等价」 | 均仅 `os.Exit(cli.Run(os.Args[1:]))`；两者各自 build rc=0 | ✅ |
+| `main.go`(13 行) / `cmd/diting/main.go`(13 行) | c76962d「双薄壳入口行为等价」 | 均仅 `os.Exit(cli.Run(os.Args[1:]))`；两者各自 build rc=0 | ✅ |
 | `internal/cli/cli.go` | 3c76fa0「14 子命令 CLI」+ README:25-45 对照表 | 14 命令全注册（knownCmds）；真实现 subdomain/verify/fingerprint；llm 与 10 个占位实测 **exit 2**（见 §4-M3/M4）；`help`/无参数/未知子命令实测 rc=0/1/2 与 README:44 一致 | ✅ |
 | `internal/cli/progress.go` | fix1 审计 medium#4 | `--progress-file`/`--progress-file=`/`RECON_PROGRESS_FILE` 兜底、help/未知全局不发事件——单测 3 件套全绿 + CLI 实测；**错误路径事件数与 Python 漂移**（发现 D1） | ✅（附发现） |
 | `internal/jsonx/jsonx.go` | jsonx 底座（2726c7a） | SetEscapeHTML(false)+SetIndent(2)+去尾换行 = `ensure_ascii=False, indent=2` 语义 | ✅ |
@@ -125,7 +125,7 @@ Go 侧另用临时探针（复核员自建自删目录，未触碰生产代码�
   Go 4 条——**漂移，见 D1**。
 - 缺必填参数（`subdomain` 无 -d）：Python **0 条**（argparse 阶段退出），Go **4 条**。
 - 成功路径（单测 `TestProgressFileDoneContract` 钉死 4 事件键序）与 Python
-  `yata.py:34-43/209-272` 契约一致；退出码契约（rc=1/2）双引擎实测一致。
+  `diting.py:34-43/209-272` 契约一致；退出码契约（rc=1/2）双引擎实测一致。
 
 ## 4. 审计与对抗修复抽查（对照 audit-20260924 与 SECURITY-ADVISORIES）
 
@@ -144,21 +144,21 @@ Go 侧另用临时探针（复核员自建自删目录，未触碰生产代码�
 | 对抗 INFO：crt.sh 控制字符清洗 | `TestCollectNamesStripsControlChars` PASS；Python 侧同位清洗在 `subdomain.py:69-72`（staged 工作树）亲读确认，剔除时机注释双侧同位 | ✅ |
 | SECURITY-ADVISORIES 消毒节点 2/3/4（OneForAll domain/out/home 纪律） | 复核员自建对抗探针实测：`a/b`、`../evil`（domain）→ 拦截；`../../escaped`（out）→ 拦截且目录不存在；home 含 `..` → 拦截；5 场景零逃逸产物 | ✅ |
 | 消毒节点 5：无 shell 子进程 | 生产代码 `grep -rn "exec\.Command\(|cmd /c|COMSPEC|sh -c|bash -c" internal/ cmd/ main.go`（剔测试）仅命中 `parity.go:38`（测试基建，`python -c` 参数数组）——**零 shell** | ✅ |
-| advisory 计数 5→3 与 seal | `~/.mimosa/security-scans/project-c29f…/seal.json` digest=**sha256:cacf864c…** 与 advisory 头一致；扫描史 21-44-52/21-53-40 两轮 **5 条** → 22-03-36/22-06-47 **3 条**；最终 3 条（main.go:13 / cmd/yata/main.go:12 高、subdomain.go:159 中）与 advisory A/B 逐条对上 | ✅ |
+| advisory 计数 5→3 与 seal | `~/.mimosa/security-scans/project-c29f…/seal.json` digest=**sha256:cacf864c…** 与 advisory 头一致；扫描史 21-44-52/21-53-40 两轮 **5 条** → 22-03-36/22-06-47 **3 条**；最终 3 条（main.go:13 / cmd/diting/main.go:12 高、subdomain.go:159 中）与 advisory A/B 逐条对上 | ✅ |
 | SHA-1→SHA-256（CWE-327） | digest.go staged diff + §3-M1 双引擎 digest 全等 | ✅ |
 
 ## 5. 发现（均非阻断）
 
 - **D1（低·语义漂移未备案）进度事件错误路径契约**：Python 对「已知子命令缺必填参数」
   在 argparse 阶段 exit 2、**0 条事件**（实测）；对 `llm` 经 `sys.exit(2)`→
-  `except SystemExit: raise`（yata.py:262-263）跳过收尾、**仅 2 条**。
+  `except SystemExit: raise`（diting.py:262-263）跳过收尾、**仅 2 条**。
   Go 对两场景一律 **4 条**（pipeline_start→start→fail→pipeline_end，实测）。
   退出码一致（rc=2）、成功路径一致；但 progress.go:10-13 与 README「事件序对齐
-  yata.py:195-257 逐项一致」的表述在错误路径不成立。对桌面壳消费者 Go 行为反而
+  diting.py:195-257 逐项一致」的表述在错误路径不成立。对桌面壳消费者 Go 行为反而
   更完整（有终态事件），建议 c2 轮定案：对齐 Python 豁免或双侧备案为有意差异。
 - **D2（信息·环境）**：`-race` 因本机无 gcc 不可执行；P0 竞态修复以 10 倍压测 +
   代码审读为替代证据。建议有 C 工具链的环境补一次 `go test -race ./...`。
-- **D3（信息·流程）**：请求的 GOAL 文档在 `yata/docs/` 缺失；
+- **D3（信息·流程）**：请求的 GOAL 文档在 `diting/docs/` 缺失；
   `pentest/vulnscan-platform/docs/` 下同名文件属另一项目（autoscanner-go），
   已核对不能混用。建议本仓库补立 GOAL 迭代日志（姊妹项目已有先例）。
 - **D4（信息·流程）**：fix1 全部修复（engine-go 18 文件 + Python 3 文件）当前

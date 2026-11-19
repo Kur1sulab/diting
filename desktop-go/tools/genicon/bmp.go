@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"image"
 
-	"yata-desktop/internal/ico"
+	"diting-desktop/internal/ico"
 )
 
 // encodeBMPFrame 把 NRGBA 图编码成 ICO 里的 32bpp BMP(DIB) 帧：

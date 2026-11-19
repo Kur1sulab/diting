@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/internal/parity"
+	"github.com/Kur1sulab/diting/engine-go/internal/parity"
 )
 
 // ── fetch ──

@@ -28,8 +28,8 @@ import (
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 
-	"yata-native/internal/store"
-	"yata-native/internal/whitelist"
+	"diting-native/internal/store"
+	"diting-native/internal/whitelist"
 )
 
 // normalizedBaselineTarget 当前输入目标的归一化结果（与 CreateTask 同一条
@@ -111,7 +111,7 @@ func (a *appUI) pollBaseline() {
 		a.baseStates = LoadBaselineProducts(a.sess.RepoRoot, key)
 		return
 	}
-	// 任务终态呈现：引擎秒退（yata.exe 损坏等）或被 Esc 停止时，8 张卡
+	// 任务终态呈现：引擎秒退（diting.exe 损坏等）或被 Esc 停止时，8 张卡
 	// 全停在「未运行」，页面此前无任何反馈、「已开始」横条常驻误导——
 	// 终态横条写一次（按任务 id 去重，400ms 节拍不重刷），并清掉「已开始」。
 	if a.baseOK != "" {

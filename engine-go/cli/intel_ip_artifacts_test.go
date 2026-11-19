@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Kur1sulab/yata/engine-go/intel"
-	"github.com/Kur1sulab/yata/engine-go/report"
+	"github.com/Kur1sulab/diting/engine-go/intel"
+	"github.com/Kur1sulab/diting/engine-go/report"
 )
 
 // chdirTemp 把 cwd 切到临时目录（MakeOutdir 相对 cwd 建 out/），结束还原。

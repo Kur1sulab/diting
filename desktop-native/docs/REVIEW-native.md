@@ -2,7 +2,7 @@
 
 - 复核人：独立复核员-原生轮（未参与施工，冷复核）
 - 日期：2026-10-05
-- 对象：`C:/Users/18270/yata/desktop-native/`
+- 对象：`C:/Users/18270/diting/desktop-native/`
 - 参照：验收指令 5 项 + `desktop-visual-acceptance` 清单 + 对照库 `desktop-go/internal/whitelist`
 - 结论：**5 项核对全部通过**（其中视觉验收 4 个子项未跑/部分跑，见问题表）；发现 7 个 low/cosmetic 打磨项，无 high/medium。
 
@@ -13,7 +13,7 @@
 **go.mod 无 wails/webview**（`desktop-native/go.mod` 全文）：
 
 ```
-module yata-native
+module diting-native
 go 1.24.0
 toolchain go1.24.1
 require (
@@ -57,7 +57,7 @@ SHOT shot-01-dashboard.png rect=(266,266)-(2058,1462) size=1792x1196   （150% �
 - 全树 grep（实跑）：
 
 ```
-$ grep -rn "侦察工具" C:/Users/18270/yata/desktop-native
+$ grep -rn "侦察工具" C:/Users/18270/diting/desktop-native
 （零命中，exit=1）
 ```
 
@@ -98,7 +98,7 @@ $ diff fix1_whitelist_test.go → 完全一致（BYTE-IDENTICAL）
 
 ### 3.3 应用层零 Python 运行时依赖（引擎子进程除外）
 
-- `os/exec` 全树仅 `internal/engine/runner.go`：`python src/yata.py --progress-file ... <子命令>` 子进程（`runner.go:230-231`）与 `taskkill /T /F` 树杀（`:431`）。
+- `os/exec` 全树仅 `internal/engine/runner.go`：`python src/diting.py --progress-file ... <子命令>` 子进程（`runner.go:230-231`）与 `taskkill /T /F` 树杀（`:431`）。
 - 应用层（main/ui/store/whitelist）无任何解释器嵌入、无 `python -c`、无 pip 依赖；`net/http` 仅 3.1 所述 mock 探测一处。
 - UI 不依赖 Python 即可启动渲染：Python 仅在后台 goroutine 自检（`app.go:147-151`），找不到时界面照常出「未找到可用 Python」提示（shot-04 依赖卡、`page_settings.go:78-79`）。
 - 引擎子进程随壳消亡：Windows Job Object `KILL_ON_JOB_CLOSE`（`job_windows.go:39`），壳被硬杀不留孤儿扫描。
@@ -110,21 +110,21 @@ $ go build ./... && echo "=== GO BUILD EXIT 0 ==="
 === GO BUILD EXIT 0 ===
 
 $ go test ./...
-?   	yata-native	[no test files]
-ok  	yata-native/internal/engine	19.722s
-ok  	yata-native/internal/store	(cached)
-ok  	yata-native/internal/ui	3.654s
-ok  	yata-native/internal/whitelist	0.271s
+?   	diting-native	[no test files]
+ok  	diting-native/internal/engine	19.722s
+ok  	diting-native/internal/store	(cached)
+ok  	diting-native/internal/ui	3.654s
+ok  	diting-native/internal/whitelist	0.271s
 
 $ go test -count=1 ./...          ← 强制全量非缓存
-?   	yata-native	[no test files]
-ok  	yata-native/internal/engine	26.229s
-ok  	yata-native/internal/store	4.930s
-ok  	yata-native/internal/ui	3.955s
-ok  	yata-native/internal/whitelist	0.259s
+?   	diting-native	[no test files]
+ok  	diting-native/internal/engine	26.229s
+ok  	diting-native/internal/store	4.930s
+ok  	diting-native/internal/ui	3.955s
+ok  	diting-native/internal/whitelist	0.259s
 ```
 
-4 个包全部 `ok`，零失败。另用 `go build -o yata-native.exe .` 重建了验收用 exe（18,066,944 字节，仅构建产物，未动任何源码）。
+4 个包全部 `ok`，零失败。另用 `go build -o diting-native.exe .` 重建了验收用 exe（18,066,944 字节，仅构建产物，未动任何源码）。
 
 ## 5. 真窗口视觉验收（desktop-visual-acceptance 清单走查）✅（含 4 个 not-run 子项）
 
@@ -161,7 +161,7 @@ ok  	yata-native/internal/whitelist	0.259s
 一条**经真窗口 UI 发起的全流水线任务**（xycovo.com / 全部模块）从列表→选中（▶ 选中）→详情（开始 02:44:45 / 结束 02:47:12 / **退出码 0 / 已完成**）→22 条过程记录（流水线→子域枚举→verify→asset→ICP 备案→指纹识别→…→report→pipeline_end done）→**导出证据包成功**：
 
 ```
-EVIDENCE C:\Users\18270\AppData\Local\yata-native\evidence\20261005-024445-b8dbb647.zip 6998bytes
+EVIDENCE C:\Users\18270\AppData\Local\diting-native\evidence\20261005-024445-b8dbb647.zip 6998bytes
 回执：「已导出 ...20261005-024445-b8dbb647.zip（现打聚合包）：打包 13 条，跳过 0 条」  （shot-18）
 ```
 
@@ -197,7 +197,7 @@ EVIDENCE C:\Users\18270\AppData\Local\yata-native\evidence\20261005-024445-b8dbb
 ## 清理核验（验收后实跑）
 
 ```
-tasklist | grep -i yata-native   → 零残留（exit=1）
+tasklist | grep -i diting-native   → 零残留（exit=1）
 netstat -ano | grep ":8799"       → mock 靶站已停，端口释放（exit=1）
 ```
 

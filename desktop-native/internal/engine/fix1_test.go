@@ -9,7 +9,7 @@ import (
 	"errors"
 	"testing"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 func TestStopAfterCompletionIsIdempotent(t *testing.T) {

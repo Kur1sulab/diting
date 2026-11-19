@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/diting/engine-go/mockweb"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 // TestEndToEndMockTarget 新建任务页按钮背后那条链路的自动化验证：

@@ -292,7 +292,7 @@ func TestKeysFileFallback(t *testing.T) {
 	if err := os.WriteFile(path, []byte("# comment\nexport FOFA_KEY=\"filekey\"\nQUAKE_TOKEN = tok123\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("YATA_KEYS_FILE", path)
+	t.Setenv("DITING_KEYS_FILE", path)
 	t.Setenv("FOFA_KEY", "")
 	t.Setenv("QUAKE_TOKEN", "")
 	resetKeysCache()

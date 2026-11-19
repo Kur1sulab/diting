@@ -66,15 +66,15 @@ func saveWindow(dataDir string, w, h uint) {
 	_ = os.Rename(tmp, p)
 }
 
-// dataDirPath 数据目录：%LOCALAPPDATA%/yata-desktop（无该环境变量时退 UserConfigDir）。
+// dataDirPath 数据目录：%LOCALAPPDATA%/diting-desktop（无该环境变量时退 UserConfigDir）。
 func dataDirPath() string {
 	if base := os.Getenv("LOCALAPPDATA"); base != "" {
-		return filepath.Join(base, "yata-desktop")
+		return filepath.Join(base, "diting-desktop")
 	}
 	if base, err := os.UserConfigDir(); err == nil {
-		return filepath.Join(base, "yata-desktop")
+		return filepath.Join(base, "diting-desktop")
 	}
-	return ".yata-desktop"
+	return ".diting-desktop"
 }
 
 // ── user32 / kernel32 ──
@@ -160,7 +160,7 @@ func windowSize(hwnd unsafe.Pointer) (uint, uint, bool) {
 
 // acquireSingleInstance 命名互斥量防重复开壳。创建互斥量本身失败时放行（不因小沙误伤可用性）。
 func acquireSingleInstance() bool {
-	name, err := syscall.UTF16PtrFromString(`Local\yata-desktop-singleton`)
+	name, err := syscall.UTF16PtrFromString(`Local\diting-desktop-singleton`)
 	if err != nil {
 		return true
 	}

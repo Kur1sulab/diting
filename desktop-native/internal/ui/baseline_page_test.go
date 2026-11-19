@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"gioui.org/widget"
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 func TestSixPageRouting(t *testing.T) {

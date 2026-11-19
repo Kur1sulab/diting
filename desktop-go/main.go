@@ -1,14 +1,14 @@
-// yata-desktop —— yata 桌面壳（go-webview2）。
+// diting-desktop —— diting 桌面壳（go-webview2）。
 //
 // 形态：纯工具。Go 起 127.0.0.1 本地服务（六接口 + 内嵌前端），
 // WebView2 窗口加载该地址；扫描引擎是既有 Python 流水线，
-// 由 internal/engine 以子进程方式管理（python src/yata.py <子命令>）。
+// 由 internal/engine 以子进程方式管理（python src/diting.py <子命令>）。
 //
 // 用法：
 //
-//	yata-desktop.exe            # 桌面壳
-//	yata-desktop.exe --dev      # 不起壳，只起本地服务并打印地址（联调/对抗测试用）
-//	yata-desktop.exe --port 8123
+//	diting-desktop.exe            # 桌面壳
+//	diting-desktop.exe --dev      # 不起壳，只起本地服务并打印地址（联调/对抗测试用）
+//	diting-desktop.exe --port 8123
 package main
 
 import (
@@ -26,9 +26,9 @@ import (
 	"time"
 
 	webview2 "github.com/jchv/go-webview2"
-	"yata-desktop/internal/engine"
-	"yata-desktop/internal/server"
-	"yata-desktop/internal/store"
+	"diting-desktop/internal/engine"
+	"diting-desktop/internal/server"
+	"diting-desktop/internal/store"
 )
 
 // 不带 all: 前缀：. 与 _ 开头的目录/文件（.mimosa 等工具内部产物）不进 exe，
@@ -114,7 +114,7 @@ func main() {
 		AutoFocus: true,
 		DataPath:  filepath.Join(dataDir, "webview"),
 		WindowOptions: webview2.WindowOptions{
-			Title:  "信息收集工具 · yata",
+			Title:  "信息收集工具 · diting",
 			Width:  wcfg.W,
 			Height: wcfg.H,
 			Center: true,
@@ -164,7 +164,7 @@ func main() {
 	shutdown()
 }
 
-// findRepoRoot 从 exe 目录与 cwd 向上找 src/yata.py（≤4 层），找不到回 "."。
+// findRepoRoot 从 exe 目录与 cwd 向上找 src/diting.py（≤4 层），找不到回 "."。
 func findRepoRoot() string {
 	var candidates []string
 	if exe, err := os.Executable(); err == nil {
@@ -181,7 +181,7 @@ func findRepoRoot() string {
 		}
 	}
 	for _, c := range candidates {
-		if _, err := os.Stat(filepath.Join(c, "src", "yata.py")); err == nil {
+		if _, err := os.Stat(filepath.Join(c, "src", "diting.py")); err == nil {
 			return c
 		}
 	}

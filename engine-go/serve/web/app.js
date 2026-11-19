@@ -1,4 +1,4 @@
-/* Yata 控制台前端 —— 纯原生 JS，无外部依赖。
+/* Diting 控制台前端 —— 纯原生 JS，无外部依赖。
    数据全部来自后端实测结果；AI 输出单独标注，不与实测混排。 */
 (() => {
   'use strict';
@@ -110,7 +110,7 @@
       const v = $('ver');
       if (state.env.version) {
         v.textContent = state.env.version;
-        v.title = `yata ${state.env.version} · ${state.env.platform} · ${state.env.go}`;
+        v.title = `diting ${state.env.version} · ${state.env.platform} · ${state.env.go}`;
         v.hidden = false;
       }
       const ai = state.env.ai || {};
@@ -126,7 +126,7 @@
         $('aibtn').disabled = true;
         $('askq').disabled = true;
       }
-      $('topmeta').textContent = `${state.env.platform} · yata ${state.env.version || ''}`;
+      $('topmeta').textContent = `${state.env.platform} · diting ${state.env.version || ''}`;
     } catch (e) {
       $('topmeta').textContent = '后端未连接';
     }
@@ -451,7 +451,7 @@
   function applyTheme(id) {
     if (!THEMES.includes(id)) id = DEFAULT_THEME;
     document.documentElement.dataset.theme = id;
-    try { localStorage.setItem('yata-theme', id); } catch (e) {}
+    try { localStorage.setItem('diting-theme', id); } catch (e) {}
     document.querySelectorAll('[data-theme-set]').forEach((b) => {
       b.classList.toggle('on', b.dataset.themeSet === id);
     });

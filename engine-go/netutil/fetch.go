@@ -24,7 +24,7 @@ import (
 )
 
 // DefaultUA 对齐 netutil._UA。
-const DefaultUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) yata/1.0"
+const DefaultUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) diting/1.0"
 
 // FetchOpt 对齐 netutil.fetch 的参数；零值字段取 Python 默认值。
 type FetchOpt struct {

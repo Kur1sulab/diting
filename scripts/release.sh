@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/release.sh —— yata 四平台打包 + GitHub Release 一键发布。
+# scripts/release.sh —— diting 四平台打包 + GitHub Release 一键发布。
 #
 # 用法：
 #   scripts/release.sh v3.1.2                    # 打包 + 打 tag + 推送 + 发 Release
@@ -48,15 +48,15 @@ echo "==> 1/5 交叉编译四平台（${VERSION}）"
 PLATFORMS=("darwin/arm64" "darwin/amd64" "linux/amd64" "linux/arm64")
 for t in "${PLATFORMS[@]}"; do
   os="${t%/*}"; arch="${t#*/}"
-  out="${DIST}/yata-$os-$arch"
+  out="${DIST}/diting-$os-$arch"
   ( cd engine-go && CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" \
-      go build -trimpath -buildvcs=false -ldflags "-s -w -X github.com/Kur1sulab/yata/engine-go/cli.Version=${VERSION}" \
-      -o "$out" ./cmd/yata )
-  printf "    %-26s %s bytes\n" "yata-$os-$arch" "$(wc -c < "$out" | tr -d ' ')"
+      go build -trimpath -buildvcs=false -ldflags "-s -w -X github.com/Kur1sulab/diting/engine-go/cli.Version=${VERSION}" \
+      -o "$out" ./cmd/diting )
+  printf "    %-26s %s bytes\n" "diting-$os-$arch" "$(wc -c < "$out" | tr -d ' ')"
 done
 
 echo "==> 2/5 生成 SHA256SUMS.txt"
-( cd "${DIST}" && shasum -a 256 yata-* > SHA256SUMS.txt || sha256sum yata-* > SHA256SUMS.txt )
+( cd "${DIST}" && shasum -a 256 diting-* > SHA256SUMS.txt || sha256sum diting-* > SHA256SUMS.txt )
 cat "${DIST}/SHA256SUMS.txt"
 
 echo "==> 3/5 二进制自检（本机可执行的架构直接跑 version）"
@@ -64,7 +64,7 @@ HOST_OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 HOST_ARCH="$(uname -m)"
 [[ "$HOST_ARCH" == "x86_64" ]] && HOST_ARCH="amd64"
 [[ "$HOST_ARCH" == "aarch64" ]] && HOST_ARCH="arm64"
-LOCAL_BIN="${DIST}/yata-$HOST_OS-$HOST_ARCH"
+LOCAL_BIN="${DIST}/diting-$HOST_OS-$HOST_ARCH"
 if [[ -x "$LOCAL_BIN" ]]; then
   GOT="$("$LOCAL_BIN" version)"
   echo "    $GOT"
@@ -91,24 +91,24 @@ if [[ -n "$(git status --porcelain)" ]]; then
   git status --short >&2
   exit 1
 fi
-git tag -a "${VERSION}" -m "yata ${VERSION}"
+git tag -a "${VERSION}" -m "diting ${VERSION}"
 git push origin HEAD
 git push origin "${VERSION}"
 
 echo "==> 5/5 创建 GitHub Release 并上传资产"
-TITLE="yata ${VERSION}"
+TITLE="diting ${VERSION}"
 if [[ -n "$NOTES_FILE" ]]; then
   gh release create "${VERSION}" --title "$TITLE" --notes-file "$NOTES_FILE" \
-    "${DIST}"/yata-darwin-arm64 "${DIST}"/yata-darwin-amd64 \
-    "${DIST}"/yata-linux-amd64 "${DIST}"/yata-linux-arm64 "${DIST}"/SHA256SUMS.txt
+    "${DIST}"/diting-darwin-arm64 "${DIST}"/diting-darwin-amd64 \
+    "${DIST}"/diting-linux-amd64 "${DIST}"/diting-linux-arm64 "${DIST}"/SHA256SUMS.txt
 else
   gh release create "${VERSION}" --title "$TITLE" --generate-notes \
-    "${DIST}"/yata-darwin-arm64 "${DIST}"/yata-darwin-amd64 \
-    "${DIST}"/yata-linux-amd64 "${DIST}"/yata-linux-arm64 "${DIST}"/SHA256SUMS.txt
+    "${DIST}"/diting-darwin-arm64 "${DIST}"/diting-darwin-amd64 \
+    "${DIST}"/diting-linux-amd64 "${DIST}"/diting-linux-arm64 "${DIST}"/SHA256SUMS.txt
 fi
 
 echo "==> 复核：逐个资产确认 state=uploaded 且字节数符合"
-EXPECT=$(cd "${DIST}" && ls yata-darwin-arm64 yata-darwin-amd64 yata-linux-amd64 yata-linux-arm64 SHA256SUMS.txt)
+EXPECT=$(cd "${DIST}" && ls diting-darwin-arm64 diting-darwin-amd64 diting-linux-amd64 diting-linux-arm64 SHA256SUMS.txt)
 FAIL=0
 for name in $EXPECT; do
   want=$(wc -c < "${DIST}/$name" | tr -d ' ')
@@ -123,4 +123,4 @@ if [[ "$FAIL" != "0" ]]; then
   echo "[!] 有资产未上传成功或字节数不符——不要对外宣传这次发版" >&2
   exit 1
 fi
-echo "[+] 发布完成：https://github.com/Kur1sulab/yata/releases/tag/${VERSION}"
+echo "[+] 发布完成：https://github.com/Kur1sulab/diting/releases/tag/${VERSION}"

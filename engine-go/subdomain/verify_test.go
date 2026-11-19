@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/mockweb"
+	"github.com/Kur1sulab/diting/engine-go/mockweb"
 )
 
 // portOf 从 httptest 服务地址取端口。

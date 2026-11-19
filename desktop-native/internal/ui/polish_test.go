@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 func TestEnvInfoMockLifecycle(t *testing.T) {

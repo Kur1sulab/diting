@@ -1,7 +1,7 @@
-# yata 内核 —— Go 引擎（零第三方依赖，单文件）
+# diting 内核 —— Go 引擎（零第三方依赖，单文件）
 
-把 Python 引擎（`src/yata.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
-产出**单文件** `yata.exe`，CLI 子命令与 `python src/yata.py` 一一对齐。
+把 Python 引擎（`src/diting.py` + `src/modules/`）按「语义忠实优先」移植到纯 Go，
+产出**单文件** `diting.exe`，CLI 子命令与 `python src/diting.py` 一一对齐。
 
 在 parity 之外，Go 内核多承担一层**多源情报面**（Python 侧没有）：
 `intel` / `providers` / `whois` / `ipinfo` 四个子命令 + `asset`/`reverse`/`icp` 的多源化。
@@ -16,24 +16,24 @@
 
 ```bash
 cd engine-go
-C:/Go/go/bin/go.exe build -o yata.exe ./cmd/yata   # 标准布局入口（推荐）
-C:/Go/go/bin/go.exe build -o yata.exe .                # 根目录兼容入口，二进制等价
+C:/Go/go/bin/go.exe build -o diting.exe ./cmd/diting   # 标准布局入口（推荐）
+C:/Go/go/bin/go.exe build -o diting.exe .                # 根目录兼容入口，二进制等价
 C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Python↔Go parity
 ```
 
 - Go 1.24+；本仓库零第三方依赖，无需联网拉模块。
-- 入口逻辑在 `internal/cli`，`cmd/yata/main.go` 与根 `main.go` 是两个等价薄壳。
+- 入口逻辑在 `internal/cli`，`cmd/diting/main.go` 与根 `main.go` 是两个等价薄壳。
 - `go test` 全程零外网：crt.sh/certspotter 打 httptest stub，OneForAll 走
   `testdata/oneforall_fake.py.txt` fixture，subfinder 用注入桩。
 
-## 子命令对照表（15 个，对齐 yata.py:137-213）
+## 子命令对照表（15 个，对齐 diting.py:137-213）
 
 | 子命令 | Python 对应 | Go 版状态 |
 |---|---|---|
 | `subdomain -d <domain> [--verify]` | `modules.subdomain.run_subdomain` | ✅ c1 已实现 |
 | `verify -d <domain> [-w 8]` | `modules.subdomain.run_verify` | ✅ c1 已实现 |
 | `fingerprint -u <url>` | `modules.fingerprint.run_fingerprint` | ✅ c1 已实现 |
-| `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 yata.py 步骤序一致） |
+| `all -t <domain\|ip>` | `cmd_all` | ✅ 第三轮已实现（10 步编排，IP/域名两分支自动识别；jsintel/portscan 以非致命步骤接入，与 diting.py 步骤序一致） |
 | `asset -d` | `modules.asset` | ✅ 多源（`--sources fofa,quake,zoomeye,shodan,censys,netlas,zerozone` + 6 免 key 被动源）；`--legacy` 回退旧两源 |
 | `reverse -i <ip>` | `modules.reverse_ip` | ✅ 多源（hackertarget + RapidDNS）；`--legacy` 回退单源 |
 | `icp -d` | `modules.icp` | ✅ 三段链（apihz → 工信部官方 → beianx），限频按提示退避；`--demo` 用 apihz 官方公开示例凭据；`--file` 批量 |
@@ -58,7 +58,7 @@ C:/Go/go/bin/go.exe test ./...                              # 全部单测 + Pyt
 ```
 engine-go/
 ├── main.go                  # 根兼容入口（薄壳）
-├── cmd/yata/main.go     # 标准布局入口（薄壳）；CLI 逻辑在 internal/cli
+├── cmd/diting/main.go     # 标准布局入口（薄壳）；CLI 逻辑在 internal/cli
 ├── internal/cli/            # 14 子命令分发表 + 进度事件流
 ├── internal/netutil/        # fetch（HTTP 底座）/ urlcheck（SSRF 边界）/
 │                            # safeio（安全落盘）/ baseline（软404/存活复验）
@@ -86,7 +86,7 @@ engine-go/
 intel/
 ├── intel.go     Record 归一化 + Options + Run（并发跑源、去重、落盘 assets.json/txt/intel.md）
 ├── registry.go  Provider 注册表 + 选源逻辑 + providers 状态表
-├── keys.go      凭据解析：环境变量 > ~/.yata/keys.env（YATA_KEYS_FILE 可覆盖）
+├── keys.go      凭据解析：环境变量 > ~/.diting/keys.env（DITING_KEYS_FILE 可覆盖）
 ├── space.go     八家空间测绘引擎（fofa/hunter/quake/zoomeye/shodan/censys/netlas/zerozone）
 ├── free.go      六家免 key 被动源（crtsh/certspotter/hackertarget/rapiddns/urlscan/subdomaincenter）
 ├── rdap.go      域名注册信息（IANA bootstrap → 该 TLD 的 RDAP 端点）
@@ -153,10 +153,10 @@ func queryNewEngine(ctx context.Context, target string, o Options) ([]Record, er
 - **输出目录（make_outdir）**：`://` `/` `\` `:` `?` `&` `=` `"` `<` `>` `|` `*`
   全部换 `_`，再剥首尾点/空格；空与 `..` 回 `unknown`；目录创建失败上抛（CLI
   exit 1，对齐 Python makedirs 抛 OSError 未捕获）。三处实现（Go cli / Python
-  yata.py / desktop-go outDirFor）逐字符同规则，两引擎产物目录同名。
-- **--progress-file 全局参数（fix1 补齐）**：`yata --progress-file <path>
+  diting.py / desktop-go outDirFor）逐字符同规则，两引擎产物目录同名。
+- **--progress-file 全局参数（fix1 补齐）**：`diting --progress-file <path>
   <子命令> ...`（或 `--progress-file=` 形态、环境变量 `RECON_PROGRESS_FILE` 兜底），
-  事件 JSONL 键序 `{ts,event,module,detail}` 与 `yata.py:31-62` 契约一致：
+  事件 JSONL 键序 `{ts,event,module,detail}` 与 `diting.py:31-62` 契约一致：
   `pipeline_start → start → done|fail → pipeline_end`（all 无模块级事件；
   help/无子命令/未知子命令不发事件）。桌面壳 Runner 靠它驱动任务状态机。
 - **verify 证据包形态（fix1 对齐）**：`subdomains_live.json` 死亡行 `ips:[]`、
@@ -239,7 +239,7 @@ curl -L -o tools/bin/subfinder.zip \
 
 ## serve 包（Web 控制台后端）
 
-`yata serve` 的实现在 `serve/`：把 subdomain / portscan / fingerprint / paths /
+`diting serve` 的实现在 `serve/`：把 subdomain / portscan / fingerprint / paths /
 apiunauth 编排成可观测任务，用 HTTP + SSE 暴露给 `serve/web/`（`go:embed` 进二进制，
 零外部前端依赖）。
 
@@ -259,11 +259,11 @@ apiunauth 编排成可观测任务，用 HTTP + SSE 暴露给 `serve/web/`（`go
 增强、依赖外部 LLM 接口，与"纯 Go 单文件、零外网依赖"的引擎定位冲突。Python
 版已同步移除该模块（`modules/llm_assist.py` 已删除）——该功能需要向第三方服务
 发送扫描数据，与数据不出本机的红线冲突，两侧都不再提供。终修轮起 Go CLI 的
-`llm` 弃用占位槽位一并删除（公开面不保留 AI 词汇）：`yata llm` 按未知
+`llm` 弃用占位槽位一并删除（公开面不保留 AI 词汇）：`diting llm` 按未知
 子命令处理（exit 2，无事件流）。
 
-**AI 的现行位置**：只存在于 `yata serve` 的 `AI 研判`（`serve/ai.go`），
-默认关闭、显式配置 `YATA_AI_BASE/KEY/MODEL` 才启用，只发压缩后的实测摘要
+**AI 的现行位置**：只存在于 `diting serve` 的 `AI 研判`（`serve/ai.go`），
+默认关闭、显式配置 `DITING_AI_BASE/KEY/MODEL` 才启用，只发压缩后的实测摘要
 （不含原始响应体与凭据值），可指向本地推理端点以保证数据不出本机。CLI 侧
 仍然没有、也不会加 `llm` 子命令。
 

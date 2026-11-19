@@ -33,7 +33,7 @@ func RepoRoot() string {
 // "could not be found"，会把本应 Skip 的 parity 变成 FAIL，破坏「python
 // 缺席不阻塞纯 Go 测试」这条铁律。因此一律用实跑探针验证。
 //
-// 优先级：YATA_PYTHON → SHINRA_PYTHON（旧名）→ PYTHON → python3 → python。
+// 优先级：DITING_PYTHON → SHINRA_PYTHON（旧名）→ PYTHON → python3 → python。
 // 探针结果用 sync.Once 缓存，避免每个 parity 用例都 fork 一次进程。
 var (
 	pythonOnce sync.Once
@@ -43,7 +43,7 @@ var (
 func PythonBin() string {
 	pythonOnce.Do(func() {
 		for _, cand := range []string{
-			strings.TrimSpace(os.Getenv("YATA_PYTHON")),
+			strings.TrimSpace(os.Getenv("DITING_PYTHON")),
 			strings.TrimSpace(os.Getenv("SHINRA_PYTHON")),
 			strings.TrimSpace(os.Getenv("PYTHON")),
 			"python3",
@@ -79,7 +79,7 @@ func RequiresPython(t *testing.T) {
 		t.Skip("python 不在 PATH，跳过 parity 测试（纯 Go 测试不受影响）")
 	}
 	if PythonBin() == "" {
-		t.Skip("未找到可执行的 Python 3（可用 YATA_PYTHON / PYTHON 指定），跳过 parity 测试（纯 Go 测试不受影响）")
+		t.Skip("未找到可执行的 Python 3（可用 DITING_PYTHON / PYTHON 指定），跳过 parity 测试（纯 Go 测试不受影响）")
 	}
 }
 

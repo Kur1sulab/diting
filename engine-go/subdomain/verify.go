@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Kur1sulab/yata/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/netutil"
 )
 
 // DNSLookup 解析域名 → 去重排序的 IP 列表；失败返回空列表（对齐 subdomain.py:121-138）。

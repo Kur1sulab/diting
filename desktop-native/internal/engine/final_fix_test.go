@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"yata-native/internal/store"
+	"diting-native/internal/store"
 )
 
 func TestModulePanicContained(t *testing.T) {

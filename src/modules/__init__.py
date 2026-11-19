@@ -1,1 +1,1 @@
-"""yata modules"""
+"""diting modules"""
