@@ -656,8 +656,14 @@ func TestAdvWhoisHostileRDAP(t *testing.T) {
 }
 
 func TestAdvWhoisReferralLoop(t *testing.T) {
-	oldQ := whoisQuery
-	t.Cleanup(func() { whoisQuery = oldQ })
+	oldQ, oldR := whoisQuery, rdapFetch
+	t.Cleanup(func() { whoisQuery, rdapFetch = oldQ, oldR })
+	// 本用例打的是 43 端口回退链，必须先把 RDAP 这条路封死——否则
+	// RunWhois 会先去打真 RDAP（whoisTimeoutRDAP=20s），网络一慢就先撞
+	// 本用例 15s 的看门狗，失败信息还会误报成「referral 环死循环」。
+	rdapFetch = func(string, time.Duration) (map[string]any, error) {
+		return nil, errors.New("rdap disabled in test")
+	}
 	whoisQuery = func(server, query string, timeout time.Duration) (string, error) {
 		switch {
 		case strings.Contains(server, "iana"):

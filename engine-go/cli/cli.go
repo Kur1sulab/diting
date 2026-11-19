@@ -44,6 +44,8 @@ const helpText = `diting — 资产测绘引擎（Go 单文件内核，仅限授
   diting fingerprint -u https://example.com
   diting paths -u https://example.com   # 敏感路径探测（软 404 基线过滤）
   diting baseline -d example.com [--checks secheaders,webfiles]  # 暴露面基线 8 检查
+  diting mailauth -d example.com        # 邮件认证体检：DMARC/SPF include 链+lookup 计数/
+                                         # DKIM 常见选择器/BIMI（纯 DNS TXT，只读）
   diting poc -t https://example.com -p pocs/example.yaml  # YAML POC 引擎
   diting patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
                                          # 补丁差分 → 变种狩猎（本地 git 仓库，零外联）
@@ -87,6 +89,7 @@ var knownCmds = map[string]bool{
 	"portscan": true, "poc": true, "patchdiff": true, "report": true,
 	"baseline":  true,                                                   // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python diting.py 对齐项）
 	"typosquat": true,                                                   // 域名汇洞（cli/typosquat_cmd.go；品牌仿冒域监控，Go 侧独有）
+	"mailauth":  true,                                                   // 邮件认证体检（cli/mailauth_cmd.go；DMARC/SPF/DKIM/BIMI，纯 DNS）
 	"intel":     true, "providers": true, "whois": true, "ipinfo": true, // 多源情报面（cli/intel_cmds.go）
 	"version": true, // 版本自省（Go 侧独有，Python diting.py 无对应子命令）
 }
@@ -459,6 +462,11 @@ func dispatch(cmd string, rest []string) int {
 		// 域名汇洞：品牌仿冒域监控（cli/typosquat_cmd.go）。
 		// 引擎与测试都在 typosquat 包，CLI 只做参数与输出。
 		return dispatchTyposquat(rest)
+
+	case "mailauth":
+		// 邮件认证体检：DMARC / SPF include 链 + RFC 7208 lookup 计数 /
+		// DKIM 常见选择器 / BIMI（cli/mailauth_cmd.go）。纯 DNS TXT，只读。
+		return runMailauth(rest)
 
 	case "help", "-h", "--help":
 		fmt.Print(helpText)
