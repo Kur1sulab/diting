@@ -1,0 +1,1356 @@
+{
+  "3example.com": {
+    "result": {
+      "domain": "3example.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601432+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.095956+08:00"
+  },
+  "4example.com": {
+    "result": {
+      "domain": "4example.com",
+      "resolved": true,
+      "ips": [
+        "13.248.169.48",
+        "76.223.54.146"
+      ],
+      "has_mx": false,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:22:11.124424+08:00"
+    },
+    "expires_at": "2026-11-20T18:22:11.625183+08:00"
+  },
+  "e3xample.com": {
+    "result": {
+      "domain": "e3xample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601438+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.20073+08:00"
+  },
+  "e4xample.com": {
+    "result": {
+      "domain": "e4xample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601437+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.144386+08:00"
+  },
+  "ecxample.com": {
+    "result": {
+      "domain": "ecxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601341+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:52.816037+08:00"
+  },
+  "edxample.com": {
+    "result": {
+      "domain": "edxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601325+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:52.646676+08:00"
+  },
+  "eexample.com": {
+    "result": {
+      "domain": "eexample.com",
+      "resolved": true,
+      "ips": [
+        "96.38.240.54"
+      ],
+      "mx": [
+        "mail.onlineearth.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:52.601329+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.833532+08:00"
+  },
+  "efxample.com": {
+    "result": {
+      "domain": "efxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.601426+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.041841+08:00"
+  },
+  "erxample.com": {
+    "result": {
+      "domain": "erxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:52.646679+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.442958+08:00"
+  },
+  "esample.com": {
+    "result": {
+      "domain": "esample.com",
+      "resolved": true,
+      "ips": [
+        "172.67.153.222",
+        "104.21.56.168",
+        "2606:4700:3034::ac43:99de",
+        "2606:4700:3033::6815:38a8"
+      ],
+      "mx": [
+        "_dc-mx.78dbd7644930.esample.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:52.816041+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.356598+08:00"
+  },
+  "esxample.com": {
+    "result": {
+      "domain": "esxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.041851+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.593554+08:00"
+  },
+  "ewxample.com": {
+    "result": {
+      "domain": "ewxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.09597+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.695513+08:00"
+  },
+  "ex4mple.com": {
+    "result": {
+      "domain": "ex4mple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.144398+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.882472+08:00"
+  },
+  "exaample.com": {
+    "result": {
+      "domain": "exaample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.200737+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.176096+08:00"
+  },
+  "exajmple.com": {
+    "result": {
+      "domain": "exajmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.442961+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:53.947244+08:00"
+  },
+  "exajple.com": {
+    "result": {
+      "domain": "exajple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.593557+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.150885+08:00"
+  },
+  "exakmple.com": {
+    "result": {
+      "domain": "exakmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.695523+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.196198+08:00"
+  },
+  "exakple.com": {
+    "result": {
+      "domain": "exakple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.833542+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.357202+08:00"
+  },
+  "exam0le.com": {
+    "result": {
+      "domain": "exam0le.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.873546+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.497482+08:00"
+  },
+  "exam0ple.com": {
+    "result": {
+      "domain": "exam0ple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:53.947249+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.455932+08:00"
+  },
+  "examjple.com": {
+    "result": {
+      "domain": "examjple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.043447+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.44477+08:00"
+  },
+  "examkple.com": {
+    "result": {
+      "domain": "examkple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.106413+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.49139+08:00"
+  },
+  "examnple.com": {
+    "result": {
+      "domain": "examnple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.196219+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.690802+08:00"
+  },
+  "examole.com": {
+    "result": {
+      "domain": "examole.com",
+      "resolved": true,
+      "ips": [
+        "162.4.84.215"
+      ],
+      "mx": [
+        "mx156.hostedmxserver.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:54.218866+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.542707+08:00"
+  },
+  "examople.com": {
+    "result": {
+      "domain": "examople.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.35668+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.792706+08:00"
+  },
+  "examp0le.com": {
+    "result": {
+      "domain": "examp0le.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.357217+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:54.882481+08:00"
+  },
+  "examp1e.com": {
+    "result": {
+      "domain": "examp1e.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.444784+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.146338+08:00"
+  },
+  "exampe.com": {
+    "result": {
+      "domain": "exampe.com",
+      "resolved": true,
+      "ips": [
+        "162.4.84.215"
+      ],
+      "mx": [
+        "mx156.hostedmxserver.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:54.491395+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.801836+08:00"
+  },
+  "exampel.com": {
+    "result": {
+      "domain": "exampel.com",
+      "resolved": true,
+      "ips": [
+        "192.64.151.235"
+      ],
+      "mx": [
+        "mail.computer.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:54.690811+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.830449+08:00"
+  },
+  "exampie.com": {
+    "result": {
+      "domain": "exampie.com",
+      "resolved": true,
+      "ips": [
+        "103.224.182.245"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:54.792711+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.812293+08:00"
+  },
+  "exampkle.com": {
+    "result": {
+      "domain": "exampkle.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:54.882482+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.312203+08:00"
+  },
+  "exampl3.com": {
+    "result": {
+      "domain": "exampl3.com",
+      "resolved": true,
+      "ips": [
+        "200.69.18.139"
+      ],
+      "mx": [
+        "mail.exampl3.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:55.146342+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.245368+08:00"
+  },
+  "exampl3e.com": {
+    "result": {
+      "domain": "exampl3e.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.174998+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.494318+08:00"
+  },
+  "exampl4.com": {
+    "result": {
+      "domain": "exampl4.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.31221+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.690433+08:00"
+  },
+  "exampl4e.com": {
+    "result": {
+      "domain": "exampl4e.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.319355+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.746+08:00"
+  },
+  "exampld.com": {
+    "result": {
+      "domain": "exampld.com",
+      "resolved": true,
+      "ips": [
+        "207.207.210.23",
+        "207.207.210.36",
+        "207.207.210.50"
+      ],
+      "mx": [
+        "fwd1.porkbun.com.",
+        "fwd2.porkbun.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:55.413365+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.97965+08:00"
+  },
+  "examplde.com": {
+    "result": {
+      "domain": "examplde.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.455937+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.846564+08:00"
+  },
+  "example-login.com": {
+    "result": {
+      "domain": "example-login.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.497485+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:55.990282+08:00"
+  },
+  "example-official.com": {
+    "result": {
+      "domain": "example-official.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.652713+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.152881+08:00"
+  },
+  "example-online.com": {
+    "result": {
+      "domain": "example-online.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.690436+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.241128+08:00"
+  },
+  "example-pay.com": {
+    "result": {
+      "domain": "example-pay.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.746004+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.293197+08:00"
+  },
+  "example-security.com": {
+    "result": {
+      "domain": "example-security.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.801844+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.342848+08:00"
+  },
+  "example-shop.com": {
+    "result": {
+      "domain": "example-shop.com",
+      "resolved": true,
+      "ips": [
+        "172.104.251.198",
+        "172.104.149.86",
+        "139.162.174.209",
+        "172.104.203.186",
+        "139.162.181.76",
+        "2a01:7e01::f03c:95ff:fe91:5d91",
+        "2a01:7e01::f03c:95ff:fe00:2692",
+        "2a01:7e01::f03c:95ff:feed:783e",
+        "2a01:7e01::f03c:95ff:feeb:9d4b",
+        "2a01:7e01::2000:dff:fec1:5cdb"
+      ],
+      "mx": [
+        "mail.mailerhost.net."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:55.812301+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.554594+08:00"
+  },
+  "example-sso.com": {
+    "result": {
+      "domain": "example-sso.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.830461+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.486855+08:00"
+  },
+  "example-vip.com": {
+    "result": {
+      "domain": "example-vip.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.846572+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.491477+08:00"
+  },
+  "example.app": {
+    "result": {
+      "domain": "example.app",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.852447+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.670982+08:00"
+  },
+  "example.biz": {
+    "result": {
+      "domain": "example.biz",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:55.901902+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.592486+08:00"
+  },
+  "example.cc": {
+    "result": {
+      "domain": "example.cc",
+      "resolved": true,
+      "ips": [
+        "172.67.191.8",
+        "104.21.89.190",
+        "2606:4700:3036::ac43:bf08",
+        "2606:4700:3035::6815:59be"
+      ],
+      "mx": [
+        "smtp.google.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:55.990284+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.739185+08:00"
+  },
+  "example.club": {
+    "result": {
+      "domain": "example.club",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.08527+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:56.737279+08:00"
+  },
+  "example.co": {
+    "result": {
+      "domain": "example.co",
+      "resolved": true,
+      "ips": [
+        "3.33.243.145",
+        "15.197.204.56"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:56.241133+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.134977+08:00"
+  },
+  "example.com.cn": {
+    "result": {
+      "domain": "example.com.cn",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.245375+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.015009+08:00"
+  },
+  "example.info": {
+    "result": {
+      "domain": "example.info",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.293202+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.173307+08:00"
+  },
+  "example.io": {
+    "result": {
+      "domain": "example.io",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.342853+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.243624+08:00"
+  },
+  "example.me": {
+    "result": {
+      "domain": "example.me",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.373919+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.267981+08:00"
+  },
+  "example.net": {
+    "result": {
+      "domain": "example.net",
+      "resolved": true,
+      "ips": [
+        "104.20.21.8",
+        "172.66.175.59",
+        "2606:4700:10::6814:1508",
+        "2606:4700:10::ac42:af3b"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:56.486862+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.025886+08:00"
+  },
+  "example.online": {
+    "result": {
+      "domain": "example.online",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.491479+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.415751+08:00"
+  },
+  "example.org": {
+    "result": {
+      "domain": "example.org",
+      "resolved": true,
+      "ips": [
+        "172.66.157.237",
+        "104.20.26.136",
+        "2606:4700:10::ac42:9ded",
+        "2606:4700:10::6814:1a88"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:56.592488+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.025905+08:00"
+  },
+  "example.shop": {
+    "result": {
+      "domain": "example.shop",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.670991+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.403239+08:00"
+  },
+  "example.site": {
+    "result": {
+      "domain": "example.site",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.737287+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.623405+08:00"
+  },
+  "example.top": {
+    "result": {
+      "domain": "example.top",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:56.873912+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.553843+08:00"
+  },
+  "example.tv": {
+    "result": {
+      "domain": "example.tv",
+      "resolved": true,
+      "ips": [
+        "76.223.54.146",
+        "13.248.169.48"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:56.979656+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.571917+08:00"
+  },
+  "example.vip": {
+    "result": {
+      "domain": "example.vip",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:57.015013+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.290559+08:00"
+  },
+  "example.xyz": {
+    "result": {
+      "domain": "example.xyz",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:57.029891+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:57.846376+08:00"
+  },
+  "exampleapp.com": {
+    "result": {
+      "domain": "exampleapp.com",
+      "resolved": true,
+      "ips": [
+        "13.248.213.45",
+        "76.223.67.189"
+      ],
+      "mx": [
+        "smtp.secureserver.net.",
+        "mailstore1.secureserver.net."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:57.267984+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.860333+08:00"
+  },
+  "exampled.com": {
+    "result": {
+      "domain": "exampled.com",
+      "resolved": true,
+      "ips": [
+        "64.190.63.222"
+      ],
+      "mx": [
+        "localhost."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:57.403243+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.104833+08:00"
+  },
+  "examplef.com": {
+    "result": {
+      "domain": "examplef.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:57.553844+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.216688+08:00"
+  },
+  "examplelogin.com": {
+    "result": {
+      "domain": "examplelogin.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:57.554597+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.200702+08:00"
+  },
+  "exampleofficial.com": {
+    "result": {
+      "domain": "exampleofficial.com",
+      "resolved": true,
+      "ips": [
+        "202.254.234.145"
+      ],
+      "mx": [
+        "exampleofficial.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:57.739199+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.074031+08:00"
+  },
+  "exampleonline.com": {
+    "result": {
+      "domain": "exampleonline.com",
+      "resolved": true,
+      "ips": [
+        "76.223.54.146",
+        "13.248.169.48"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:57.846379+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.260331+08:00"
+  },
+  "examplepay.com": {
+    "result": {
+      "domain": "examplepay.com",
+      "resolved": true,
+      "ips": [
+        "172.67.187.131",
+        "104.21.7.60",
+        "2606:4700:3035::ac43:bb83",
+        "2606:4700:3031::6815:73c"
+      ],
+      "mx": [
+        "mx1.feishu.cn.",
+        "mx2.feishu.cn.",
+        "mx3.feishu.cn."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:58.025888+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.408604+08:00"
+  },
+  "examples.com": {
+    "result": {
+      "domain": "examples.com",
+      "resolved": true,
+      "ips": [
+        "34.54.3.56"
+      ],
+      "mx": [
+        "aspmx.l.google.com.",
+        "alt2.aspmx.l.google.com.",
+        "alt1.aspmx.l.google.com.",
+        "alt3.aspmx.l.google.com.",
+        "alt4.aspmx.l.google.com.",
+        "inbound-smtp.us-east-1.amazonaws.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:58.13498+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.59891+08:00"
+  },
+  "examplesecurity.com": {
+    "result": {
+      "domain": "examplesecurity.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.200709+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:58.792525+08:00"
+  },
+  "examplesso.com": {
+    "result": {
+      "domain": "examplesso.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.571923+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.122788+08:00"
+  },
+  "examplevip.com": {
+    "result": {
+      "domain": "examplevip.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.667502+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.144937+08:00"
+  },
+  "examplew.com": {
+    "result": {
+      "domain": "examplew.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.710052+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.243006+08:00"
+  },
+  "examplf.com": {
+    "result": {
+      "domain": "examplf.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.792534+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.297277+08:00"
+  },
+  "examplfe.com": {
+    "result": {
+      "domain": "examplfe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.807628+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.339431+08:00"
+  },
+  "examplke.com": {
+    "result": {
+      "domain": "examplke.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:58.860354+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.390972+08:00"
+  },
+  "examploe.com": {
+    "result": {
+      "domain": "examploe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.104843+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.64492+08:00"
+  },
+  "examplpe.com": {
+    "result": {
+      "domain": "examplpe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.122795+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.694555+08:00"
+  },
+  "examplr.com": {
+    "result": {
+      "domain": "examplr.com",
+      "resolved": true,
+      "ips": [
+        "103.224.182.244"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:59.144946+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.663344+08:00"
+  },
+  "examplre.com": {
+    "result": {
+      "domain": "examplre.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.150198+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.791933+08:00"
+  },
+  "examplw.com": {
+    "result": {
+      "domain": "examplw.com",
+      "resolved": true,
+      "ips": [
+        "103.224.182.244"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:59.243015+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.731686+08:00"
+  },
+  "examplwe.com": {
+    "result": {
+      "domain": "examplwe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.260341+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.890457+08:00"
+  },
+  "exampoe.com": {
+    "result": {
+      "domain": "exampoe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.290568+08:00"
+    },
+    "expires_at": "2026-11-20T18:13:59.940844+08:00"
+  },
+  "examppe.com": {
+    "result": {
+      "domain": "examppe.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.339436+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.040938+08:00"
+  },
+  "examqle.com": {
+    "result": {
+      "domain": "examqle.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.408611+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.154491+08:00"
+  },
+  "exanmple.com": {
+    "result": {
+      "domain": "exanmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.598915+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.193834+08:00"
+  },
+  "exanple.com": {
+    "result": {
+      "domain": "exanple.com",
+      "resolved": true,
+      "ips": [
+        "76.223.54.146",
+        "13.248.169.48"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:59.644922+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.100566+08:00"
+  },
+  "exapmle.com": {
+    "result": {
+      "domain": "exapmle.com",
+      "resolved": true,
+      "ips": [
+        "103.224.182.243"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:13:59.79194+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.25276+08:00"
+  },
+  "exaqmple.com": {
+    "result": {
+      "domain": "exaqmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.890461+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.439434+08:00"
+  },
+  "exasmple.com": {
+    "result": {
+      "domain": "exasmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:13:59.940851+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.559271+08:00"
+  },
+  "exawmple.com": {
+    "result": {
+      "domain": "exawmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.040943+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.706968+08:00"
+  },
+  "exaxmple.com": {
+    "result": {
+      "domain": "exaxmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.154493+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.70895+08:00"
+  },
+  "exazmple.com": {
+    "result": {
+      "domain": "exazmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.193838+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:00.746217+08:00"
+  },
+  "excample.com": {
+    "result": {
+      "domain": "excample.com",
+      "resolved": true,
+      "ips": [
+        "103.224.182.241"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:00.420022+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.911735+08:00"
+  },
+  "exdample.com": {
+    "result": {
+      "domain": "exdample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.439437+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.049093+08:00"
+  },
+  "exmaple.com": {
+    "result": {
+      "domain": "exmaple.com",
+      "resolved": true,
+      "ips": [
+        "104.18.74.230",
+        "104.18.75.230",
+        "2606:4700::6812:4be6",
+        "2606:4700::6812:4ae6"
+      ],
+      "mx": [
+        "amir.mx.cloudflare.net.",
+        "isaac.mx.cloudflare.net.",
+        "linda.mx.cloudflare.net."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:00.559279+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:02.030934+08:00"
+  },
+  "exmple.com": {
+    "result": {
+      "domain": "exmple.com",
+      "resolved": true,
+      "ips": [
+        "67.210.233.131"
+      ],
+      "mx": [
+        "localhost.exmple.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:00.663353+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:02.059854+08:00"
+  },
+  "exqample.com": {
+    "result": {
+      "domain": "exqample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.706975+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.24504+08:00"
+  },
+  "exwample.com": {
+    "result": {
+      "domain": "exwample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.902882+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.442382+08:00"
+  },
+  "exwmple.com": {
+    "result": {
+      "domain": "exwmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:00.951976+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.5231+08:00"
+  },
+  "exxample.com": {
+    "result": {
+      "domain": "exxample.com",
+      "resolved": true,
+      "ips": [
+        "104.21.10.82",
+        "172.67.144.240",
+        "2606:4700:3037::6815:a52",
+        "2606:4700:3033::ac43:90f0"
+      ],
+      "mx": [
+        "_dc-mx.302032b7a870.exxample.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:01.037739+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:02.222596+08:00"
+  },
+  "exzample.com": {
+    "result": {
+      "domain": "exzample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:01.100572+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.822218+08:00"
+  },
+  "exzmple.com": {
+    "result": {
+      "domain": "exzmple.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:01.245048+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.745351+08:00"
+  },
+  "ezxample.com": {
+    "result": {
+      "domain": "ezxample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:01.442386+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.943643+08:00"
+  },
+  "fexample.com": {
+    "result": {
+      "domain": "fexample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:01.523105+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:01.98987+08:00"
+  },
+  "fxample.com": {
+    "result": {
+      "domain": "fxample.com",
+      "resolved": true,
+      "ips": [
+        "164.138.218.107"
+      ],
+      "mx": [
+        "fxample.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:01.745359+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:03.04307+08:00"
+  },
+  "wexample.com": {
+    "result": {
+      "domain": "wexample.com",
+      "resolved": true,
+      "ips": [
+        "151.80.23.108"
+      ],
+      "mx": [
+        "mx1.mail.ovh.net.",
+        "mx2.mail.ovh.net.",
+        "mx3.mail.ovh.net."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:01.91174+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:02.905951+08:00"
+  },
+  "xample.com": {
+    "result": {
+      "domain": "xample.com",
+      "resolved": true,
+      "ips": [
+        "23.227.38.65"
+      ],
+      "mx": [
+        "aspmx.l.google.com.",
+        "alt2.aspmx.l.google.com.",
+        "alt1.aspmx.l.google.com.",
+        "alt4.aspmx.l.google.com.",
+        "alt3.aspmx.l.google.com."
+      ],
+      "has_mx": true,
+      "nx_domain": false,
+      "checked_at": "2026-11-19T18:14:01.989873+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:02.922643+08:00"
+  },
+  "xeample.com": {
+    "result": {
+      "domain": "xeample.com",
+      "resolved": false,
+      "has_mx": false,
+      "nx_domain": true,
+      "checked_at": "2026-11-19T18:14:02.030958+08:00"
+    },
+    "expires_at": "2026-11-20T18:14:03.79437+08:00"
+  }
+}

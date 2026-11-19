@@ -1,0 +1,447 @@
+{
+  "brand": "example.com",
+  "generated": 145,
+  "whitelisted": 0,
+  "to_query": 145,
+  "skipped": 0,
+  "dns_stats": {
+    "candidates": 145,
+    "queries": 205,
+    "resolved": 60,
+    "nx_domain": 79,
+    "errors": 6,
+    "cached_hits": 0,
+    "elapsed_ns": 13102535000
+  },
+  "elapsed_ns": 13106950208,
+  "ledger_path": "/Users/xu./tools/diting/data/typosquat/example.com/ledger.json",
+  "top": [
+    {
+      "domain": "4example.com",
+      "fuzzers": [
+        "insertion"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:52.601443+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "13.248.169.48",
+        "76.223.54.146"
+      ],
+      "mx": [
+        "."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "eexample.com",
+      "fuzzers": [
+        "insertion"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:52.601329+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "96.38.240.54"
+      ],
+      "mx": [
+        "mail.onlineearth.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "esample.com",
+      "fuzzers": [
+        "replacement"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:52.816041+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "172.67.153.222",
+        "104.21.56.168",
+        "2606:4700:3034::ac43:99de",
+        "2606:4700:3033::6815:38a8"
+      ],
+      "mx": [
+        "_dc-mx.78dbd7644930.esample.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "examole.com",
+      "fuzzers": [
+        "replacement"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:54.218866+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "162.4.84.215"
+      ],
+      "mx": [
+        "mx156.hostedmxserver.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampe.com",
+      "fuzzers": [
+        "omission"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:54.491395+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "162.4.84.215"
+      ],
+      "mx": [
+        "mx156.hostedmxserver.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampel.com",
+      "fuzzers": [
+        "transposition"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:54.690811+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "192.64.151.235"
+      ],
+      "mx": [
+        "mail.computer.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampie.com",
+      "fuzzers": [
+        "replacement"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:54.792711+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "103.224.182.245"
+      ],
+      "mx": [
+        "park-mx.above.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampl3.com",
+      "fuzzers": [
+        "replacement"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:55.146342+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "200.69.18.139"
+      ],
+      "mx": [
+        "mail.exampl3.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampld.com",
+      "fuzzers": [
+        "replacement"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:55.413365+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "207.207.210.23",
+        "207.207.210.36",
+        "207.207.210.50"
+      ],
+      "mx": [
+        "fwd1.porkbun.com.",
+        "fwd2.porkbun.com."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    },
+    {
+      "domain": "exampled.com",
+      "fuzzers": [
+        "insertion"
+      ],
+      "first_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_seen": "2026-11-19T18:14:05.706354+08:00",
+      "last_checked": "2026-11-19T18:13:57.403243+08:00",
+      "resolved": true,
+      "nx_domain": false,
+      "ips": [
+        "64.190.63.222"
+      ],
+      "mx": [
+        "localhost."
+      ],
+      "has_mx": true,
+      "ownership": "unknown",
+      "score": 68,
+      "level": "high"
+    }
+  ],
+  "new_domains": [
+    "3example.com",
+    "3xample.com",
+    "4example.com",
+    "4xample.com",
+    "dexample.com",
+    "dxample.com",
+    "e3xample.com",
+    "e4xample.com",
+    "eample.com",
+    "eaxmple.com",
+    "ecample.com",
+    "ecxample.com",
+    "edample.com",
+    "edxample.com",
+    "eexample.com",
+    "efxample.com",
+    "erxample.com",
+    "esample.com",
+    "esxample.com",
+    "ewxample.com",
+    "ex4mple.com",
+    "exaample.com",
+    "exajmple.com",
+    "exajple.com",
+    "exakmple.com",
+    "exakple.com",
+    "exam0le.com",
+    "exam0ple.com",
+    "examjple.com",
+    "examkple.com",
+    "examle.com",
+    "examlpe.com",
+    "exammple.com",
+    "examnple.com",
+    "examole.com",
+    "examople.com",
+    "examp0le.com",
+    "examp1e.com",
+    "exampe.com",
+    "exampel.com",
+    "exampie.com",
+    "exampke.com",
+    "exampkle.com",
+    "exampl.com",
+    "exampl3.com",
+    "exampl3e.com",
+    "exampl4.com",
+    "exampl4e.com",
+    "exampld.com",
+    "examplde.com",
+    "example-app.com",
+    "example-login.com",
+    "example-mail.com",
+    "example-official.com",
+    "example-online.com",
+    "example-pay.com",
+    "example-security.com",
+    "example-shop.com",
+    "example-sso.com",
+    "example-vip.com",
+    "example.app",
+    "example.biz",
+    "example.cc",
+    "example.club",
+    "example.cn",
+    "example.co",
+    "example.com.cn",
+    "example.info",
+    "example.io",
+    "example.me",
+    "example.net",
+    "example.online",
+    "example.org",
+    "example.shop",
+    "example.site",
+    "example.top",
+    "example.tv",
+    "example.vip",
+    "example.xyz",
+    "example3.com",
+    "example4.com",
+    "exampleapp.com",
+    "exampled.com",
+    "examplee.com",
+    "examplef.com",
+    "examplelogin.com",
+    "examplemail.com",
+    "exampleofficial.com",
+    "exampleonline.com",
+    "examplepay.com",
+    "exampler.com",
+    "examples.com",
+    "examplesecurity.com",
+    "exampleshop.com",
+    "examplesso.com",
+    "examplevip.com",
+    "examplew.com",
+    "examplf.com",
+    "examplfe.com",
+    "examplke.com",
+    "examplle.com",
+    "examploe.com",
+    "examplpe.com",
+    "examplr.com",
+    "examplre.com",
+    "examplw.com",
+    "examplwe.com",
+    "exampoe.com",
+    "exampole.com",
+    "examppe.com",
+    "exampple.com",
+    "examqle.com",
+    "exanmple.com",
+    "exanple.com",
+    "exaple.com",
+    "exapmle.com",
+    "exaqmple.com",
+    "exasmple.com",
+    "exawmple.com",
+    "exaxmple.com",
+    "exazmple.com",
+    "excample.com",
+    "exdample.com",
+    "exmaple.com",
+    "exmple.com",
+    "exqample.com",
+    "exqmple.com",
+    "exsample.com",
+    "exsmple.com",
+    "exwample.com",
+    "exwmple.com",
+    "exxample.com",
+    "exxmple.com",
+    "exzample.com",
+    "exzmple.com",
+    "ezample.com",
+    "ezxample.com",
+    "fexample.com",
+    "fxample.com",
+    "rexample.com",
+    "rxample.com",
+    "wexample.com",
+    "wxample.com",
+    "xample.com",
+    "xeample.com"
+  ],
+  "resolved": [
+    "4example.com",
+    "4xample.com",
+    "dexample.com",
+    "eample.com",
+    "ecample.com",
+    "edample.com",
+    "eexample.com",
+    "esample.com",
+    "examle.com",
+    "examlpe.com",
+    "exammple.com",
+    "examole.com",
+    "exampe.com",
+    "exampel.com",
+    "exampie.com",
+    "exampke.com",
+    "exampl.com",
+    "exampl3.com",
+    "exampld.com",
+    "example-app.com",
+    "example-mail.com",
+    "example-shop.com",
+    "example.cc",
+    "example.cn",
+    "example.co",
+    "example.net",
+    "example.org",
+    "example.tv",
+    "example3.com",
+    "example4.com",
+    "exampleapp.com",
+    "exampled.com",
+    "examplee.com",
+    "examplemail.com",
+    "exampleofficial.com",
+    "exampleonline.com",
+    "examplepay.com",
+    "exampler.com",
+    "examples.com",
+    "examplle.com",
+    "examplr.com",
+    "examplw.com",
+    "exampole.com",
+    "exampple.com",
+    "exanple.com",
+    "exaple.com",
+    "exapmle.com",
+    "excample.com",
+    "exmaple.com",
+    "exmple.com",
+    "exsample.com",
+    "exsmple.com",
+    "exxample.com",
+    "ezample.com",
+    "fxample.com",
+    "rexample.com",
+    "rxample.com",
+    "wexample.com",
+    "wxample.com",
+    "xample.com"
+  ],
+  "started_at": "2026-11-19T18:13:52.601117+08:00"
+}
