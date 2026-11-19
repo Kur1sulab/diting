@@ -48,6 +48,8 @@ const helpText = `diting — 资产测绘引擎（Go 单文件内核，仅限授
   diting patchdiff -r /path/to/repo [--commit SHA|--range A..B] [--limit N] [--emit-rule f.yaml]
                                          # 补丁差分 → 变种狩猎（本地 git 仓库，零外联）
   diting report -t example.com          # 资产档案 + 证据包
+  diting typosquat -d example.com       # 域名汇洞：品牌仿冒域候选 + DNS 判活 + 增量台账
+                                         # （第三方抢注前预警；--recheck 定期重查）
   diting version                        # 版本与构建平台自省（不发请求/不写产物）
   diting -v | --version                 # 同上，全局形态（等价 version 子命令）
 
@@ -83,8 +85,9 @@ var knownCmds = map[string]bool{
 	"all": true, "subdomain": true, "verify": true, "asset": true, "reverse": true,
 	"icp": true, "api": true, "fingerprint": true, "paths": true, "jsintel": true,
 	"portscan": true, "poc": true, "patchdiff": true, "report": true,
-	"baseline": true,                                                   // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python diting.py 对齐项）
-	"intel":    true, "providers": true, "whois": true, "ipinfo": true, // 多源情报面（cli/intel_cmds.go）
+	"baseline":  true,                                                   // 域名暴露面基线（report §5.9；桌面第二子进程，非 Python diting.py 对齐项）
+	"typosquat": true,                                                   // 域名汇洞（cli/typosquat_cmd.go；品牌仿冒域监控，Go 侧独有）
+	"intel":     true, "providers": true, "whois": true, "ipinfo": true, // 多源情报面（cli/intel_cmds.go）
 	"version": true, // 版本自省（Go 侧独有，Python diting.py 无对应子命令）
 }
 
@@ -451,6 +454,11 @@ func dispatch(cmd string, rest []string) int {
 		// 多源情报面：intel（全源聚合）/ providers（源与凭据状态）/
 		// whois（RDAP 注册信息）/ ipinfo（归属 ASN）。实现在 cli/intel_cmds.go。
 		return dispatchIntel(cmd, rest)
+
+	case "typosquat":
+		// 域名汇洞：品牌仿冒域监控（cli/typosquat_cmd.go）。
+		// 引擎与测试都在 typosquat 包，CLI 只做参数与输出。
+		return dispatchTyposquat(rest)
 
 	case "help", "-h", "--help":
 		fmt.Print(helpText)
