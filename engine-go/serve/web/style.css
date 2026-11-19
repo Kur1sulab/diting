@@ -1,11 +1,11 @@
 /* ─────────────────────────────────────────────────────────────
-   Diting 控制台 · 纸白为主，深色可切
+   Diting 控制台 · 深色为主（slate 默认），三主题可切
    规范：desktop-ui-design（面板半透明+真实 blur / 圆角 16 / 禁光斑渐变）
    色板：design-review references/light-theme-palette.md（对比度全部活 DOM 实测）
-   三套主题：light 纸白（默认）· slate 石墨蓝 · gold 暖金
+   三套主题：slate 石墨蓝（默认）· gold 暖金 · light 纸白（结构基准）
    ───────────────────────────────────────────────────────────── */
 
-/* 纸白：默认主题，白面板 + 深字 */
+/* 纸白：结构基准色板（默认主题由 head 脚本定为 slate） */
 :root{
   --bg:#f4f6f8;
   --rail:rgba(255,255,255,.88);
@@ -18,7 +18,7 @@
 
   --fg:#101828;          /* 16.38:1 */
   --fg-2:#5b6676;        /*  5.37:1 */
-  --faint:#626c7a;       /*  4.91:1（10px 标签也要过 4.5） */
+  --faint:#626c7a;       /*  4.91:1（10px 标签也要过 4.5；field 底实测 4.84） */
 
   --accent:#0b5cbf;      /*  5.88:1 */
   --accent-fill:#0066cc; /* 白字 5.57:1 */
@@ -32,11 +32,11 @@
   --violet:#5b3fd6; --violet-soft:rgba(91,63,214,.09); --violet-line:rgba(91,63,214,.22);
   /* 几何 */
   --r:16px; --r-sm:10px; --r-xs:8px;
-  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro",Inter,"PingFang SC","Helvetica Neue",Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
 }
 
-/* 石墨蓝：纯深色底 + 苹果风毛玻璃 */
+/* 石墨蓝：纯深色底 + 苹果风毛玻璃（默认主题） */
 [data-theme="slate"]{
   /* 结构 */
   --bg:#0e1013;
@@ -51,7 +51,7 @@
   /* 文字 */
   --fg:#f2f4f7;          /* 17.29:1 */
   --fg-2:#aab2bf;        /*  8.92:1 */
-  --faint:#78808d;       /*  4.78:1 */
+  --faint:#848c9a;       /*  最难底 field 合成色实测 4.64:1（原 #78808d 在 panel/field 上 4.41/4.29 不达标） */
 
   /* 强调 */
   --accent:#5aa9ff;      /*  7.76:1 */
@@ -60,7 +60,7 @@
   --accent-soft:rgba(90,169,255,.13);
   --accent-line:rgba(90,169,255,.34);
 
-  /* 语义 */
+  /* 语义（--ok 荧光绿只给圆点着色，文字走中性色） */
   --ok:#4ade80;   --ok-soft:rgba(74,222,128,.12);   --ok-line:rgba(74,222,128,.32);
   --warn:#f5c451; --warn-soft:rgba(245,196,81,.12); --warn-line:rgba(245,196,81,.32);
   --danger:#ff6b6b; --danger-soft:rgba(255,107,107,.12); --danger-line:rgba(255,107,107,.34);
@@ -80,7 +80,7 @@
 
   --fg:#f6f1e8;
   --fg-2:#c3b8a6;
-  --faint:#8f8779;
+  --faint:#948c7e;       /* 最难底 field 合成色实测 4.63:1（原 #8f8779 在 field 上 4.33 不达标） */
 
   --accent:#e9b949;        /* 10.06:1 */
   --accent-fill:#e9b949;
@@ -104,6 +104,7 @@ body{
 }
 button,input{font-family:inherit;color:inherit}
 ::selection{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* ── 骨架 ──────────────────────────────────────────────── */
 .app{
@@ -113,7 +114,7 @@ button,input{font-family:inherit;color:inherit}
 
 /* ── 左侧导航 ──────────────────────────────────────────── */
 .rail{
-  display:flex;flex-direction:column;gap:14px;padding:16px 14px;
+  display:flex;flex-direction:column;gap:12px;padding:14px;
   background:var(--rail);border:1px solid var(--line);border-radius:var(--r);
   backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);
   box-shadow:var(--shadow);
@@ -137,7 +138,7 @@ button,input{font-family:inherit;color:inherit}
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav-item{
   appearance:none;border:0;background:none;text-align:left;cursor:pointer;
-  padding:7px 10px;border-radius:9px;font-size:12.5px;color:var(--fg-2);
+  padding:5px 10px;border-radius:9px;font-size:12.5px;color:var(--fg-2);
   transition:background .14s,color .14s;
 }
 .nav-item:hover{background:var(--field);color:var(--fg)}
@@ -149,30 +150,37 @@ button,input{font-family:inherit;color:inherit}
   display:flex;justify-content:space-between;padding:0 4px;
 }
 .rail-h span{font-family:var(--mono)}
-.joblist{display:flex;flex-direction:column;gap:3px;overflow:auto;min-height:0}
+.joblist{display:flex;flex-direction:column;gap:3px;overflow:auto;min-height:0;overscroll-behavior:contain}
 .jobitem{
-  padding:7px 9px;border-radius:9px;cursor:pointer;border:1px solid transparent;
+  padding:6px 9px;border-radius:9px;cursor:pointer;border:1px solid transparent;
   transition:background .14s,border-color .14s;
 }
 .jobitem:hover{background:var(--field)}
-.jobitem.active{background:var(--field);border-color:var(--line-2)}
+.jobitem.active{background:var(--accent-soft);border-color:var(--accent-line)}
 .jobitem-t{
   font-size:12px;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   display:flex;align-items:center;gap:6px;
 }
 .jobitem-m{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:2px}
-
-/* 主题切换 */
-.theme-switch{display:flex;gap:6px;padding:2px 2px 8px}
-.sw{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
-  padding:5px 0;border-radius:var(--r-xs);cursor:pointer;
-  border:1px solid var(--line);background:var(--field);
-  font-size:10.5px;color:var(--fg-2);transition:border-color .14s,color .14s,background .14s;
+/* 空任务占位：有意图的虚线槽位，不是一行浮字（JS 内联 padding 用 !important 收回） */
+.joblist .table-empty{
+  padding:8px 10px !important;text-align:left;font-size:11px;color:var(--faint);
+  border:1px dashed var(--line-2);border-radius:9px;
 }
-.sw:hover{color:var(--fg)}
-.sw i{width:8px;height:8px;border-radius:50%;display:block}
-.sw.on{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+
+/* 主题切换：左下角三个紧凑色块圆点，不是三个等宽 bulk 按钮。
+   当前态三重显式：accent 描边 + 外环 + 淡底（只差边框色看不出选中）。 */
+.theme-switch{display:flex;gap:9px;padding:2px 4px 8px}
+.sw{
+  position:relative;width:22px;height:22px;flex:0 0 22px;padding:0;
+  display:grid;place-items:center;border-radius:50%;cursor:pointer;
+  border:1px solid var(--line-2);background:var(--field);
+  transition:border-color .14s,box-shadow .14s,background .14s;
+}
+.sw i{width:10px;height:10px;border-radius:50%;display:block}
+.sw-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sw:hover{border-color:var(--faint)}
+.sw.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-line)}
 
 .rail-foot{
   display:flex;align-items:center;gap:7px;padding-top:11px;border-top:1px solid var(--line);
@@ -183,14 +191,17 @@ button,input{font-family:inherit;color:inherit}
 .dot.running{background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
 .dot.failed{background:var(--danger)}
 .dot.stopped{background:var(--warn)}
+.dot.queued{background:var(--warn)}
+.dot.ready{background:var(--ok)}
+.dot.off{background:var(--faint)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* ── 主区 ──────────────────────────────────────────────── */
-.main{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;overflow:auto}
+.main{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain}
 
-.topbar{display:flex;align-items:center;gap:12px;padding:0 2px}
+.topbar{display:flex;align-items:center;gap:12px;padding:0 2px;flex-wrap:wrap}
 .scanbar{
-  display:flex;align-items:center;gap:8px;flex:1;
+  display:flex;align-items:center;gap:8px;flex:1 1 340px;min-width:0;
   background:var(--panel);border:1px solid var(--line);border-radius:14px;
   padding:7px 8px 7px 12px;
   backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
@@ -224,7 +235,7 @@ button,input{font-family:inherit;color:inherit}
 }
 .btn-ghost:hover{background:var(--panel-2);color:var(--fg);border-color:var(--line-2)}
 .btn-ghost[disabled]{opacity:.4;cursor:not-allowed}
-.topmeta{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+.topmeta{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap;margin-left:auto}
 
 /* ── 统计卡 ────────────────────────────────────────────── */
 .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
@@ -244,6 +255,13 @@ button,input{font-family:inherit;color:inherit}
   font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
+/* 全空态：五卡收成单行紧凑条，不框一大片白；出现真实计数立即恢复大数字卡。
+   idle 类由 index.html 尾部观察脚本按 .stat-v 文本切换，只读呈现、不碰数据。 */
+.stats.idle{grid-template-columns:repeat(5,minmax(0,1fr))}
+.stats.idle .stat{display:flex;align-items:baseline;gap:8px;padding:9px 13px}
+.stats.idle .stat-k{flex:0 0 auto}
+.stats.idle .stat-v{font-size:13px;font-weight:500;margin:0;color:var(--faint);letter-spacing:0}
+.stats.idle .stat-s{margin-left:auto;flex:0 1 auto;min-width:0}
 
 /* ── 面板 ──────────────────────────────────────────────── */
 .panel{
@@ -254,17 +272,29 @@ button,input{font-family:inherit;color:inherit}
 .panel-h{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line)}
 .panel-h h2{margin:0;font-size:12.5px;font-weight:600;color:var(--fg);letter-spacing:.01em}
 .chip{
+  display:inline-flex;align-items:center;
   font-family:var(--mono);font-size:10px;color:var(--fg-2);
   border:1px solid var(--line-2);border-radius:6px;padding:1px 7px;margin-left:auto;
 }
-.chip.running{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
-.chip.done{color:var(--ok);border-color:var(--ok-line);background:var(--ok-soft)}
-.chip.failed{color:var(--danger);border-color:var(--danger-line);background:var(--danger-soft)}
-.chip.stopped{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
+/* 状态 chip：文字走中性色，语义只给圆点着色（禁满屏荧光绿字） */
+.chip.running{color:var(--fg-2);border-color:var(--accent-line);background:var(--accent-soft)}
+.chip.done{color:var(--fg-2);border-color:var(--ok-line);background:var(--ok-soft)}
+.chip.failed{color:var(--fg-2);border-color:var(--danger-line);background:var(--danger-soft)}
+.chip.stopped{color:var(--fg-2);border-color:var(--warn-line);background:var(--warn-soft)}
+.chip.queued{color:var(--fg-2);border-color:var(--warn-line);background:var(--warn-soft)}
+.chip.running::before,.chip.done::before,.chip.failed::before,.chip.stopped::before,.chip.queued::before{
+  content:'';width:6px;height:6px;border-radius:50%;margin-right:5px;flex:none;
+}
+.chip.running::before{background:var(--accent)}
+.chip.done::before{background:var(--ok)}
+.chip.failed::before{background:var(--danger)}
+.chip.stopped::before{background:var(--warn)}
+.chip.queued::before{background:var(--warn)}
 
-.grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(420px,1fr);gap:12px;min-height:0}
-.console-panel,.ai-panel{min-height:340px}
-.ai-panel .panel-h .btn-ghost{margin-left:0}
+/* align-items:start：内容长短不一时按内容收紧，不把矮面板拉成等高框空白 */
+.grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(420px,1fr);gap:12px;min-height:0;align-items:start}
+.console-panel{min-height:340px}
+.ai-panel{min-height:0}
 .ai-chip{color:var(--violet);border-color:var(--violet-line);background:var(--violet-soft);margin-left:auto}
 
 /* ── 步骤条 ────────────────────────────────────────────── */
@@ -285,13 +315,14 @@ button,input{font-family:inherit;color:inherit}
 
 /* ── 控制台 ────────────────────────────────────────────── */
 .console{
-  flex:1;margin:0;padding:9px 15px 14px;overflow:auto;min-height:150px;
+  flex:1;margin:0;padding:9px 15px 14px;overflow:auto;min-height:150px;max-height:320px;
+  overscroll-behavior:contain;
   font-family:var(--mono);font-size:11.5px;line-height:1.66;color:var(--fg-2);
   white-space:pre-wrap;word-break:break-word;
 }
 .console .l{display:block}
 .console .t{color:var(--faint);user-select:none}
-.console .ok{color:var(--ok)}
+.console .ok{color:var(--fg-2)}
 .console .warn{color:var(--warn)}
 .console .err{color:var(--danger)}
 .console .ai{color:var(--violet)}
@@ -305,7 +336,7 @@ button,input{font-family:inherit;color:inherit}
 .console-foot .btn-ghost{padding:3px 9px;font-size:11px}
 
 /* ── AI 面板 ──────────────────────────────────────────── */
-.ai-body{flex:1;overflow:auto;padding:12px 15px 18px;min-height:0;scroll-padding-bottom:18px}
+.ai-body{flex:1;overflow:auto;padding:12px 15px 18px;min-height:0;max-height:320px;overscroll-behavior:contain;scroll-padding-bottom:18px}
 .ai-empty{padding:24px 4px;text-align:center}
 .ai-empty-t{font-size:12.5px;color:var(--fg-2);margin-bottom:5px}
 .ai-empty-s{font-size:11px;color:var(--faint);line-height:1.6}
@@ -332,8 +363,7 @@ button,input{font-family:inherit;color:inherit}
   flex:1;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:9px;
   padding:6px 10px;outline:none;font-size:12px;color:var(--fg);transition:border-color .14s;
 }
-.askbar .btn-primary{padding:6px 14px;flex:0 0 auto;font-size:12px
-}
+.askbar .btn-primary{padding:6px 14px;flex:0 0 auto;font-size:12px}
 .askbar input:focus{border-color:var(--accent-line)}
 .askbar input::placeholder{color:var(--faint)}
 .qa{border-left:2px solid var(--line-2);padding:2px 0 2px 9px;margin:11px 0}
@@ -355,7 +385,7 @@ button,input{font-family:inherit;color:inherit}
 }
 .filter:focus{border-color:var(--accent-line)}
 .filter::placeholder{color:var(--faint)}
-.table-wrap{overflow:auto;max-height:330px}
+.table-wrap{overflow:auto;max-height:330px;overscroll-behavior:contain}
 table{width:100%;border-collapse:collapse;font-size:11.5px}
 thead th{
   position:sticky;top:0;z-index:1;text-align:left;font-weight:500;color:var(--faint);
@@ -382,17 +412,12 @@ td.k{color:var(--fg);font-weight:500}
 /* ── 滚动条：用原生 overlay 滚动条 ──────────────────────
    坑：panel 带 backdrop-filter 时，自绘 ::-webkit-scrollbar 的
    thumb/corner 会被 Chromium 画成纯白方块（截图实锤）。
-   改用 scrollbar-color 走原生绘制，颜色跟着主题变量走。 */
+   改用 scrollbar-color 走原生绘制，颜色跟着主题变量走。
+   （原先这里还残留了一组 ::-webkit-scrollbar 规则，与上面的警告自相矛盾，已删除。） */
 .main,.console,.ai-body,.table-wrap,.joblist{
   scrollbar-width:thin;
   scrollbar-color:var(--line-2) transparent;
 }
-::-webkit-scrollbar{width:9px;height:9px}
-::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:9px;border:2px solid transparent;background-clip:content-box}
-::-webkit-scrollbar-thumb:hover{background:var(--faint);background-clip:content-box}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-corner{background:transparent}
-::-webkit-scrollbar-button{display:none;width:0;height:0}
 
 /* ── 窄屏收敛 ──────────────────────────────────────────── */
 @media (max-width:1180px){
@@ -401,6 +426,38 @@ td.k{color:var(--fg);font-weight:500}
 }
 @media (max-width:860px){
   .app{grid-template-columns:1fr;height:auto;min-height:100vh}
-  .joblist{max-height:130px}
+  /* 侧栏压成三行顶栏：品牌+主题 / 导航+AI 状态 / 任务，不再竖排吃掉半屏 */
+  .rail{
+    display:grid;grid-template-columns:1fr auto;align-items:center;
+    grid-template-areas:"brand switch" "nav foot" "jobs jobs";
+    gap:8px 12px;padding:12px 14px;
+  }
+  .brand{grid-area:brand;padding:0}
+  .brand-sub{display:none}
+  .theme-switch{grid-area:switch;padding:0}
+  .nav{grid-area:nav;flex-direction:row;flex-wrap:wrap;gap:4px}
+  .rail-foot{grid-area:foot;padding-top:0;border-top:0}
+  .rail-sec{grid-area:jobs;flex:none}
+  .joblist{flex-direction:row;max-height:none;overflow-x:auto;overflow-y:hidden}
+  .jobitem{flex:0 0 auto;min-width:150px;max-width:230px}
+  .joblist .table-empty{flex:1 1 auto}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+/* 空态紧凑条的列数按可用宽度收，保证「标签 — 状态」单行放得下 */
+@media (max-width:700px){
+  .stats.idle{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:430px){
+  .stats.idle{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+}
+
+/* 空态里的可复制命令：等宽 + 极淡底，读起来像一条真能跑的指令而不是装饰 */
+.steps-cmd{
+  display:inline-block;margin-left:8px;padding:2px 8px;border-radius:6px;
+  font-family:var(--mono);font-size:12px;color:var(--fg-2);
+  background:var(--field);border:1px solid var(--line);
+}
+.table-empty{padding:34px 12px;line-height:1.9;color:var(--faint);font-size:12.5px;text-align:center}

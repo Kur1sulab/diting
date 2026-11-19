@@ -232,7 +232,7 @@
   function renderSteps(steps) {
     const box = $('steps');
     if (!steps.length) {
-      box.innerHTML = '<div class="steps-empty">还没有任务——填个目标，开始测绘。</div>';
+      box.innerHTML = '<div class="steps-empty">还没有任务。填个目标开始，或在终端直接跑：<code class="steps-cmd">diting all -t example.com</code></div>';
       return;
     }
     box.innerHTML = steps.map((s) => `
@@ -247,7 +247,9 @@
   function renderStats(j) {
     const c = j.counters || {};
     const set = (id, val, sub) => {
-      $('c-' + id).textContent = val === undefined || val === null ? '—' : val;
+      // 无值给 0 而不是破折号：一整排「—」会被读成「缺数据」，
+      // 0 读成「测过了，确实没有」，同样真实但更明确（口径见 design-review 反模式）。
+      $('c-' + id).textContent = val === undefined || val === null ? '0' : val;
       if (sub !== undefined) $('s-' + id).textContent = sub;
     };
     const stepOf = (key) => (j.steps || []).find((s) => s.key === key) || {};
