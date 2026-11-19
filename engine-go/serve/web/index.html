@@ -6,7 +6,7 @@
 <title>谛听 · 资产测绘控制台</title>
 <script>
   // 首帧前定主题，避免闪一下默认色板
-  try{ document.documentElement.dataset.theme = localStorage.getItem('diting-theme') || 'light'; }catch(e){}
+  try{ document.documentElement.dataset.theme = localStorage.getItem('diting-theme') || 'slate'; }catch(e){ document.documentElement.dataset.theme = 'slate'; }
 </script>
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -37,15 +37,15 @@
       <div class="joblist" id="joblist"></div>
     </div>
 
-    <div class="theme-switch" id="themeswitch">
-      <button class="sw" type="button" data-theme-set="slate" title="石墨蓝 · 系统深色">
-        <i style="background:#5aa9ff"></i>蓝
+    <div class="theme-switch" id="themeswitch" role="group" aria-label="主题切换">
+      <button class="sw" type="button" data-theme-set="slate" title="石墨蓝 · 系统深色" aria-label="石墨蓝主题">
+        <i style="background:#5aa9ff"></i><span class="sw-t">蓝</span>
       </button>
-      <button class="sw" type="button" data-theme-set="gold" title="暖金 · 炭黑底">
-        <i style="background:#e9b949"></i>金
+      <button class="sw" type="button" data-theme-set="gold" title="暖金 · 炭黑" aria-label="暖金主题">
+        <i style="background:#e9b949"></i><span class="sw-t">金</span>
       </button>
-      <button class="sw" type="button" data-theme-set="light" title="纸白 · 浅色">
-        <i style="background:#0066cc"></i>白
+      <button class="sw" type="button" data-theme-set="light" title="纸白 · 浅色" aria-label="纸白主题">
+        <i style="background:#0b6bd6"></i><span class="sw-t">白</span>
       </button>
     </div>
 
@@ -68,11 +68,11 @@
     </header>
 
     <section class="stats" id="stats">
-      <div class="stat"><div class="stat-k">子域</div><div class="stat-v" id="c-subs">—</div><div class="stat-s" id="s-subs">未开始</div></div>
-      <div class="stat"><div class="stat-k">开放端口</div><div class="stat-v" id="c-ports">—</div><div class="stat-s" id="s-ports">未开始</div></div>
-      <div class="stat"><div class="stat-k">敏感路径</div><div class="stat-v" id="c-paths">—</div><div class="stat-s" id="s-paths">未开始</div></div>
-      <div class="stat"><div class="stat-k">API 命中</div><div class="stat-v" id="c-apis">—</div><div class="stat-s" id="s-apis">未开始</div></div>
-      <div class="stat"><div class="stat-k">指纹</div><div class="stat-v" id="c-finger">—</div><div class="stat-s" id="s-finger">未开始</div></div>
+      <div class="stat"><div class="stat-k">子域</div><div class="stat-v" id="c-subs">0</div><div class="stat-s" id="s-subs">待测绘</div></div>
+      <div class="stat"><div class="stat-k">开放端口</div><div class="stat-v" id="c-ports">0</div><div class="stat-s" id="s-ports">待扫描</div></div>
+      <div class="stat"><div class="stat-k">敏感路径</div><div class="stat-v" id="c-paths">0</div><div class="stat-s" id="s-paths">待探测</div></div>
+      <div class="stat"><div class="stat-k">API 命中</div><div class="stat-v" id="c-apis">0</div><div class="stat-s" id="s-apis">待探测</div></div>
+      <div class="stat"><div class="stat-k">指纹</div><div class="stat-v" id="c-finger">0</div><div class="stat-s" id="s-finger">待识别</div></div>
     </section>
 
     <div class="grid">
@@ -81,7 +81,7 @@
           <h2>执行流水线</h2>
           <span class="chip" id="jobstate">空闲</span>
         </div>
-        <div class="steps" id="steps"><div class="steps-empty">还没有任务——填个目标，开始测绘。</div></div>
+        <div class="steps" id="steps"><div class="steps-empty">还没有任务。填个目标开始，或在终端直接跑：<code class="steps-cmd">diting all -t example.com</code></div></div>
         <pre class="console" id="console"></pre>
         <div class="console-foot">
           <span class="cf-k">产物目录</span>
@@ -121,7 +121,7 @@
         <input id="filter" class="filter" placeholder="过滤…" spellcheck="false">
       </div>
       <div class="table-wrap" id="tablewrap">
-        <div class="table-empty">暂无数据</div>
+        <div class="table-empty">还没有结果。跑完一次测绘后，端口 / 路径 / API / 子域会按标签分页列在这里。</div>
       </div>
     </section>
   </main>
