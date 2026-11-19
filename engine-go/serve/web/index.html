@@ -11,10 +11,20 @@
   try{
     var t = localStorage.getItem('diting-theme');
     if (localStorage.getItem('diting-theme.v2') !== '1') { localStorage.setItem('diting-theme.v2', '1'); t = null; }
-    document.documentElement.dataset.theme = (t === 'light' || t === 'slate') ? t : 'light';
-  }catch(e){ document.documentElement.dataset.theme = 'light'; }
+    var th = (t === 'light' || t === 'slate') ? t : 'light';
+    document.documentElement.dataset.theme = th;
+    document.documentElement.dataset.artex = (th === 'slate') ? 'dark' : 'light';
+  }catch(e){ document.documentElement.dataset.theme = 'light'; document.documentElement.dataset.artex = 'light'; }
+  // AR TEX 皮肤只认 data-artex（light/dark）。主题切换由 app.js 写 data-theme，
+  // 这里把 data-artex 同步跟上——纯视觉映射，不碰业务逻辑。
+  new MutationObserver(function(){
+    document.documentElement.dataset.artex =
+      document.documentElement.dataset.theme === 'slate' ? 'dark' : 'light';
+  }).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
 </script>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/yata-artex.css">
+<link rel="stylesheet" href="/artex.css">
 </head>
 <body>
 <div class="app">

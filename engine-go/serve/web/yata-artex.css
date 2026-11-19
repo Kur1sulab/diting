@@ -1,0 +1,534 @@
+/* ============================================================================
+   AR TEX · 八咫 Yata（谛听 atlas 资产测绘控制台）桥接层
+   ----------------------------------------------------------------------------
+   职责：把谛听自己的令牌（--bg/--panel/--accent/--ok/--warn/--violet/--r*）
+         钉到 AR TEX 的零彩度色板（light 纸白 = AR TEX light，slate 石墨 =
+         AR TEX dark），拆掉毛玻璃/光晕/彩色强调，最后接上 artex.css 的机甲
+         装饰钩子（24px 网格 · 45° 铭牌条纹 · 角标括号 · 8px 切角 · 2px 竖线
+         导轨 · // 分组前缀 · 表头铭牌小字 · tabular-nums）。
+   纪律：只做视觉层。颜色只出现在下面的令牌块，组件层一律 var()；
+         不动 DOM 结构、不动 app.js 的业务逻辑。
+   加载：在 style.css 之后、artex.css 之前引入（见 index.html <head>）。
+   特异性：桥接层先加载，故与 artex.css 争用的节点（输入框 / 面板标题 /
+           覆盖矩阵表头）统一加 html[data-artex][data-theme] 前缀压过。
+   ========================================================================== */
+
+/* ------------------------------------------------------------ 令牌：浅色 */
+/* 纸白 = AR TEX light。零彩度，语义只靠明度；危险红是唯一允许的色相。 */
+:root,
+:root[data-theme="light"],
+:root[data-artex="light"] {
+  /* 结构 */
+  --bg: #ffffff;
+  --rail: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f5f5f5;
+  --field: rgba(0, 0, 0, 0.045);
+  --line: #e5e5e5;
+  --line-2: #d4d4d4;
+  --shadow: none;
+
+  /* 文字 */
+  --fg: #171717;
+  --fg-2: #404040;
+  --faint: #737373;
+
+  /* 强调：AR TEX 没有彩色强调，主色就是墨色 */
+  --accent: #171717;
+  --accent-fill: #0a0a0a;
+  --accent-ink: #fafafa;
+  --accent-soft: rgba(0, 0, 0, 0.07);
+  --accent-line: #d4d4d4;
+
+  /* 语义：状态只用明度阶梯，红点留给真危险 */
+  --ok: #171717;
+  --ok-soft: rgba(0, 0, 0, 0.05);
+  --ok-line: #d4d4d4;
+  --warn: #525252;
+  --warn-soft: rgba(0, 0, 0, 0.04);
+  --warn-line: #d4d4d4;
+  --danger: oklch(0.577 0.245 27.325);
+  --danger-soft: oklch(0.577 0.245 27.325 / 0.07);
+  --danger-line: oklch(0.577 0.245 27.325 / 0.3);
+  --violet: #737373;
+  --violet-soft: rgba(0, 0, 0, 0.04);
+  --violet-line: #d4d4d4;
+
+  /* 主题切换色块（原先写在 index.html 内联样式里，收进令牌块） */
+  --sw-dark: #0a0a0a;
+  --sw-dark-line: #383838;
+  --sw-light: #fafafa;
+  --sw-light-line: #d4d4d4;
+
+  /* 几何：大圆角是 iOS 味，机甲取向收到 10/6/4 */
+  --r: 10px;
+  --r-sm: 6px;
+  --r-xs: 4px;
+}
+
+/* ------------------------------------------------------------ 令牌：深色 */
+/* slate 石墨 = AR TEX dark，同一套明度阶梯倒过来。 */
+:root[data-theme="slate"],
+:root[data-artex="dark"] {
+  --bg: #0a0a0a;
+  --rail: #0a0a0a;
+  --panel: #141414;
+  --panel-2: #1a1a1a;
+  --field: rgba(255, 255, 255, 0.05);
+  --line: #262626;
+  --line-2: #383838;
+  --shadow: none;
+
+  --fg: #ededed;
+  --fg-2: #c4c4c4;
+  --faint: #8a8a8a;
+
+  --accent: #ededed;
+  --accent-fill: #ededed;
+  --accent-ink: #0a0a0a;
+  --accent-soft: rgba(255, 255, 255, 0.09);
+  --accent-line: #383838;
+
+  --ok: #ededed;
+  --ok-soft: rgba(255, 255, 255, 0.07);
+  --ok-line: #383838;
+  --warn: #c4c4c4;
+  --warn-soft: rgba(255, 255, 255, 0.05);
+  --warn-line: #383838;
+  --danger: oklch(0.637 0.208 25.331);
+  --danger-soft: oklch(0.637 0.208 25.331 / 0.12);
+  --danger-line: oklch(0.637 0.208 25.331 / 0.32);
+  --violet: #8a8a8a;
+  --violet-soft: rgba(255, 255, 255, 0.05);
+  --violet-line: #383838;
+
+  --sw-dark: #0a0a0a;
+  --sw-dark-line: #5a5a5a;
+  --sw-light: #ededed;
+  --sw-light-line: #767676;
+
+  --r: 10px;
+  --r-sm: 6px;
+  --r-xs: 4px;
+}
+
+/* 字体：正文走系统栈，数字/状态/机器值一律等宽 */
+:root {
+  --sans: -apple-system, "SF Pro Text", "Helvetica Neue", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo,
+          Consolas, monospace;
+}
+
+/* ------------------------------------------- 拆毛玻璃、去光晕、收圆角 */
+/* 面板/侧栏/统计卡/吸顶表头原本都带 blur + 彩色外阴影，全部拆掉换实底。 */
+html[data-artex] .app * ,
+html[data-artex] .app *::before,
+html[data-artex] .app *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-artex][data-theme] .rail,
+html[data-artex][data-theme] .panel,
+html[data-artex][data-theme] .stat,
+html[data-artex][data-theme] .scanbar,
+html[data-artex][data-theme] thead th {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none;
+}
+html[data-artex][data-theme] .rail { background: var(--rail); }
+html[data-artex][data-theme] .panel,
+html[data-artex][data-theme] .stat { background: var(--panel); }
+html[data-artex][data-theme] .scanbar { background: var(--panel); }
+html[data-artex][data-theme] thead th { background: var(--panel-2); }
+html[data-artex][data-theme] body { background: var(--bg); }
+/* 圆角收窄：10 / 6 / 4 三档 */
+html[data-artex][data-theme] .rail,
+html[data-artex][data-theme] .panel,
+html[data-artex][data-theme] .stat { border-radius: var(--r); }
+html[data-artex][data-theme] .logo,
+html[data-artex][data-theme] .badge,
+html[data-artex][data-theme] .chip,
+html[data-artex][data-theme] .tag,
+html[data-artex][data-theme] .step,
+html[data-artex][data-theme] .tab,
+html[data-artex][data-theme] .btn-ghost,
+html[data-artex][data-theme] .btn-stop,
+html[data-artex][data-theme] .jobitem,
+html[data-artex][data-theme] .cov-box,
+html[data-artex][data-theme] .cov-t-btn,
+html[data-artex][data-theme] .steps-cmd,
+html[data-artex][data-theme] .md code,
+html[data-artex][data-theme] .md blockquote { border-radius: var(--r-sm); }
+html[data-artex][data-theme] .sw { border-radius: var(--r-xs); }
+html[data-artex][data-theme] .sw i { border-radius: 2px !important; }
+
+/* ------------------------------------------- 装饰 1 · 24px 仪表网格 */
+/* 铺在主内容区（侧栏/顶栏保持实底），随内容滚动不飘。 */
+html[data-artex][data-theme] .main {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--line) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--line) 60%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: local;
+}
+
+/* ------------------------------- 装饰 2 · 内容区顶部 45° 铭牌条纹 */
+/* .topbar 在这一版是「搜索条 + 状态」的控制行，不是页头；铭牌挂在主列顶端，
+   同时把 artex.css 给 .topbar 的横线与条纹掐掉，免得压到搜索框边框上。 */
+html[data-artex][data-theme] .topbar::before,
+html[data-artex][data-theme] .topbar::after { content: none; }
+html[data-artex][data-theme] .main::before {
+  content: "";
+  flex: none;
+  align-self: flex-start;
+  width: 96px;
+  height: 3px;
+  background-image: repeating-linear-gradient(45deg, var(--fg) 0 5px, transparent 5px 11px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ------------------------------- 装饰 3 · 卡片角标括号（面板 / 统计卡） */
+html[data-artex][data-theme] .panel,
+html[data-artex][data-theme] .stat {
+  position: relative;
+  border: 1px solid transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--line) 55%, transparent);
+  transition: box-shadow 160ms ease;
+}
+html[data-artex][data-theme] .panel:hover,
+html[data-artex][data-theme] .stat:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--line) 40%, var(--fg));
+}
+html[data-artex][data-theme] .panel::before,
+html[data-artex][data-theme] .panel::after,
+html[data-artex][data-theme] .stat::before,
+html[data-artex][data-theme] .stat::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--fg);
+  border-style: solid;
+  opacity: 0.18;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+  z-index: 2;
+}
+html[data-artex][data-theme] .panel::before,
+html[data-artex][data-theme] .stat::before {
+  top: 0; left: 0; border-width: 1px 0 0 1px;
+}
+html[data-artex][data-theme] .panel::after,
+html[data-artex][data-theme] .stat::after {
+  right: 0; bottom: 0; border-width: 0 1px 1px 0;
+}
+html[data-artex][data-theme] .panel:hover::before,
+html[data-artex][data-theme] .panel:hover::after,
+html[data-artex][data-theme] .stat:hover::before,
+html[data-artex][data-theme] .stat:hover::after { opacity: 0.6; }
+/* 覆盖矩阵表格自带边框，角标让位给 matrix 自己的网格 */
+html[data-artex][data-theme] .cov-panel::before,
+html[data-artex][data-theme] .cov-panel::after { opacity: 0.3; }
+
+/* --------------------------------------- 装饰 4 · 实心按钮 8px 切角 */
+html[data-artex][data-theme] .btn-primary,
+html[data-artex][data-theme] .btn-mint {
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent-fill);
+  border-radius: var(--r-sm);
+  box-shadow: none;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: opacity 160ms ease;
+}
+html[data-artex][data-theme] .btn-primary:hover,
+html[data-artex][data-theme] .btn-mint:hover { filter: none; opacity: 0.86; }
+html[data-artex][data-theme] .btn-primary:active,
+html[data-artex][data-theme] .btn-mint:active { transform: none; }
+/* disabled：描边待激活，不是半透明死块 */
+html[data-artex][data-theme] .btn-primary[disabled],
+html[data-artex][data-theme] .btn-mint[disabled] {
+  opacity: 1;
+  filter: none;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--faint);
+}
+/* 次级按钮 / 危险按钮：纯描边 */
+html[data-artex][data-theme] .btn-ghost,
+html[data-artex][data-theme] .btn-stop {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid var(--line-2);
+  color: var(--fg-2);
+}
+html[data-artex][data-theme] .btn-ghost:hover {
+  background: var(--field);
+  border-color: var(--fg);
+  color: var(--fg);
+}
+html[data-artex][data-theme] .btn-stop {
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+html[data-artex][data-theme] .btn-stop:hover { filter: none; background: var(--danger-soft); }
+
+/* ------------------------------------ 装饰 5 · 输入框左侧 2px 竖线导轨 */
+/* 搜索条是整条导轨（输入框本身无边框），过滤框/追问框各自带导轨。 */
+html[data-artex][data-theme] .scanbar {
+  border: 1px solid var(--line-2);
+  box-shadow: inset 2px 0 0 0 color-mix(in oklab, var(--fg) 40%, transparent);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+html[data-artex][data-theme] .scanbar:focus-within {
+  border-color: var(--fg);
+  box-shadow: inset 2px 0 0 0 var(--fg);
+}
+html[data-artex][data-theme] #target {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  font-size: 13px;
+}
+html[data-artex][data-theme] .filter,
+html[data-artex][data-theme] .askbar input {
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 2px 0 0 0 color-mix(in oklab, var(--fg) 40%, transparent);
+  color: var(--fg);
+}
+html[data-artex][data-theme] .filter:focus,
+html[data-artex][data-theme] .askbar input:focus {
+  outline: none;
+  border-color: var(--fg);
+  box-shadow: inset 2px 0 0 0 var(--fg), 0 0 0 1px var(--fg);
+}
+html[data-artex][data-theme] .filter::placeholder,
+html[data-artex][data-theme] .askbar input::placeholder,
+html[data-artex][data-theme] #target::placeholder { color: var(--faint); }
+
+/* -------------------------- 装饰 6 · 侧栏：// 分组前缀 + 选中左导轨 */
+html[data-artex][data-theme] .rail-h {
+  justify-content: flex-start;
+  gap: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+html[data-artex][data-theme] .rail-h::before {
+  content: "//\00a0";
+  opacity: 0.5;
+  font-family: var(--mono);
+}
+html[data-artex][data-theme] .rail-h span {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+html[data-artex][data-theme] .nav-item {
+  border-radius: var(--r-sm);
+  box-shadow: inset 2px 0 0 0 transparent;
+  transition: background 160ms ease, box-shadow 160ms ease, color 160ms ease;
+}
+html[data-artex][data-theme] .nav-item.active {
+  background: var(--field);
+  box-shadow: inset 2px 0 0 0 var(--fg);
+}
+html[data-artex][data-theme] .jobitem {
+  border: 1px solid transparent;
+  box-shadow: inset 2px 0 0 0 transparent;
+  transition: background 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+html[data-artex][data-theme] .jobitem.active {
+  background: var(--field);
+  border-color: transparent;
+  box-shadow: inset 2px 0 0 0 var(--fg);
+}
+html[data-artex][data-theme] .jobitem-t { font-size: 12px; }
+html[data-artex][data-theme] .jobitem-m {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+html[data-artex][data-theme] .brand-en,
+html[data-artex][data-theme] .badge,
+html[data-artex][data-theme] .brand-sub { font-family: var(--mono); letter-spacing: 0.06em; }
+html[data-artex][data-theme] .logo {
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid var(--line-2);
+}
+html[data-artex][data-theme] .rail-foot {
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+/* 主题切换：两个方色块，颜色从令牌来（不再吃 HTML 内联样式） */
+html[data-artex][data-theme] .sw[data-theme-set="slate"] i {
+  background: var(--sw-dark) !important;
+  border: 1px solid var(--sw-dark-line) !important;
+}
+html[data-artex][data-theme] .sw[data-theme-set="light"] i {
+  background: var(--sw-light) !important;
+  border: 1px solid var(--sw-light-line) !important;
+}
+html[data-artex][data-theme] .sw.on {
+  border-color: var(--fg);
+  background: var(--field);
+  box-shadow: none;
+}
+
+/* ------------------------------ 装饰 7 · 表头铭牌：等宽大写小字 */
+html[data-artex][data-theme] thead th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+}
+html[data-artex][data-theme] tbody td {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--line);
+}
+html[data-artex][data-theme] tbody tr:hover td {
+  background: var(--field);
+  color: var(--fg);
+}
+/* 覆盖矩阵：格子是表，不是数据表，表头/单元格还原紧凑排版 */
+html[data-artex][data-theme] .cov thead th {
+  background: none;
+  border-bottom: 0;
+  padding: 2px 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+}
+html[data-artex][data-theme] .cov tbody td,
+html[data-artex][data-theme] .cov tbody th { border-bottom: 0; }
+html[data-artex][data-theme] .cov tbody tr:hover td { background: none; color: inherit; }
+html[data-artex][data-theme] .cov-target { background: none; }
+html[data-artex][data-theme] .cov-box {
+  border: 1px solid var(--line);
+  background: none;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+html[data-artex][data-theme] .cov-cell.missing .cov-box {
+  background: var(--field);
+  border-color: var(--danger-line);
+  font-family: var(--sans);
+}
+html[data-artex][data-theme] .cov-t-name {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------- 装饰 8 · 面板标题：等宽铭牌小字 */
+html[data-artex][data-theme] .panel-h {
+  border-bottom: 1px solid var(--line);
+}
+html[data-artex][data-theme] .panel-h h2 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+html[data-artex][data-theme] .chip {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--fg-2);
+}
+html[data-artex][data-theme] .chip.ai-chip { color: var(--faint); border-color: var(--line-2); }
+html[data-artex][data-theme] .tabs { gap: 2px; }
+html[data-artex][data-theme] .tab {
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+html[data-artex][data-theme] .tab.active {
+  background: transparent;
+  border-color: transparent;
+  color: var(--fg);
+  box-shadow: inset 0 -2px 0 0 var(--fg);
+}
+html[data-artex][data-theme] .tag {
+  border: 1px solid var(--line-2);
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+html[data-artex][data-theme] .tag.mint { color: var(--fg); border-color: var(--line-2); }
+html[data-artex][data-theme] .tag.warn { color: var(--warn); border-color: var(--line-2); }
+html[data-artex][data-theme] .tag.danger { color: var(--danger); border-color: var(--danger-line); }
+html[data-artex][data-theme] .step {
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+html[data-artex][data-theme] .step.running { border-color: var(--fg); color: var(--fg); }
+html[data-artex][data-theme] .step.failed { border-color: var(--danger-line); color: var(--danger); }
+
+/* ------------------------------- 装饰 9 · 统计卡：编号 + 大数字等宽 */
+html[data-artex][data-theme] .stat-k {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+html[data-artex][data-theme] .stat-v {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+html[data-artex][data-theme] .stat.hot .stat-v { color: var(--fg); }
+html[data-artex][data-theme] .stat-s,
+html[data-artex][data-theme] .topmeta,
+html[data-artex][data-theme] .cf-v,
+html[data-artex][data-theme] .step-ms {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+html[data-artex][data-theme] .stats.idle .stat-v {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--faint);
+}
+
+/* ------------------------------- 装饰 10 · 正文/日志：等宽与语义克色 */
+html[data-artex][data-theme] body { font-variant-numeric: tabular-nums; }
+html[data-artex][data-theme] .console { font-variant-numeric: tabular-nums; }
+html[data-artex][data-theme] .console .ai { color: var(--fg-2); }
+html[data-artex][data-theme] .console .warn { color: var(--warn); }
+html[data-artex][data-theme] .console .err { color: var(--danger); }
+html[data-artex][data-theme] .qa { border-left: 2px solid var(--line-2); }
+html[data-artex][data-theme] .md blockquote { border-left: 2px solid var(--line-2); background: var(--field); }
+html[data-artex][data-theme] .md code { background: var(--field); border: 1px solid var(--line); }
+html[data-artex][data-theme] .steps-cmd { background: var(--field); border: 1px solid var(--line); }
+html[data-artex][data-theme] .table-empty { color: var(--faint); }
+html[data-artex][data-theme] .joblist .table-empty { border: 1px dashed var(--line-2); }
+html[data-artex][data-theme] ::selection { background: var(--accent-soft); }
+html[data-artex][data-theme] :focus-visible { outline: 2px solid var(--fg); outline-offset: 1px; }

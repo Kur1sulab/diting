@@ -1,0 +1,370 @@
+/* ============================================================================
+   AR TEX · 谛听 Diting 桌面端桥接层
+   ----------------------------------------------------------------------------
+   职责：把 tokens.css 的「石板声呐 Slate Sonar」语义令牌整体钉到 AR TEX
+         零彩度色板（深色 = AR TEX dark），再补上 artex.css 认不出的本仓类名
+         的机甲装饰（面板角标 / 品牌铭牌 / 切角主按钮 / 面板标题 // 前缀）。
+   纪律：本文件只改写令牌与装饰，不动布局结构、不动 JS、不动 DOM；
+         app.css 保持零裸色值，颜色映射全部收敛在本文件。
+   加载：css/app.css 之后、css/artex.css 之前（artex.css 负责通用装饰钩子）。
+   触发：<html data-artex="dark">（index.html 已静态标注，本产品无浅色主题）。
+
+   映射表（左＝原令牌，右＝AR TEX dark 取值）
+     底   --s0 #0a0a0a(a-bg) --s1 #0f0f0f(a-surface) --s2 #141414(a-panel)
+          --s3 #1a1a1a(a-panel-2) --s4 #212121(选中井，AR TEX hover 之上再升一档)
+     线   --ln-1 #262626(a-line) --ln-2 #383838(a-line-2) --ln-3 #4d4d4d(悬停边)
+     字   --tx-1 #ededed(a-fg) --tx-2 #a3a3a3 --tx-3 #8a8a8a
+          对 --s2 实测 15.74:1 / 7.30:1 / 5.34:1，三档全过 WCAG AA；
+          #6b6b6b(a-faint) 只留占位符与禁用态（3.46:1，不做正文）。
+     强调 --acc #ededed --acc-hi #ffffff --acc-lo #3f3f3f
+          --acc-ink #0a0a0a --acc-bg #1f1f1f
+     状态 --ok #ededed --warn #c4c4c4 --idle #6b6b6b
+          --err #ef4444（= AR TEX --a-danger，oklch(0.637 .208 25.331) 的 sRGB，
+          对 --s2 4.61:1 过 AA）与 --err-lo #612525 / --err-bg #261818
+          ——AR TEX 的状态只靠明度与形状区分，危险红是唯一色相例外。
+   ========================================================================== */
+
+/* ------------------------------------------------------------ 令牌覆盖 */
+:root,
+:root[data-artex="dark"] {
+  /* 石板五级底 → AR TEX 四档灰阶 + 一档选中井（零彩度，纵深全靠阶差） */
+  --s0: #0a0a0a;
+  --s1: #0f0f0f;
+  --s2: #141414;
+  --s3: #1a1a1a;
+  --s4: #212121;
+
+  /* 精密边框三阶（全部 1px 发丝线） */
+  --ln-1: #262626;
+  --ln-2: #383838;
+  --ln-3: #4d4d4d;
+
+  /* 文字三阶（零彩度灰阶） */
+  --tx-1: #ededed;
+  --tx-2: #a3a3a3;
+  --tx-3: #8a8a8a;
+
+  /* 品牌青鹤 → AR TEX 墨白：焦点环 / 激活轨 / 主按钮底一律墨色 */
+  --acc: #ededed;
+  --acc-hi: #ffffff;
+  --acc-lo: #3f3f3f;
+  --acc-ink: #0a0a0a;
+  --acc-bg: #1f1f1f;
+
+  /* 状态色族：绿/橙退成明度档，红保留唯一色相 */
+  --ok: #ededed;
+  --ok-lo: #4d4d4d;
+  --ok-bg: #1d1d1d;
+  --warn: #c4c4c4;
+  --warn-lo: #4d4d4d;
+  --warn-bg: #1d1d1d;
+  --err: #ef4444;
+  --err-lo: #612525;
+  --err-bg: #261818;
+  --idle: #6b6b6b;
+  --idle-bg: #161616;
+
+  /* 字体：换到 AR TEX 系统栈（零外链，与 artex.css 的 --a-font 同族） */
+  --font-ui: -apple-system, "SF Pro Text", "Helvetica Neue", "PingFang SC",
+             "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo,
+               Consolas, "Liberation Mono", monospace;
+
+  /* 圆角收窄到机甲取向：8 不嵌 8，近直角仪表 */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+
+  /* 点阵坐标底纹 → 24px 仪表网格（同尺寸换笔触，消费方 .content 无需改） */
+  --dot-grid:
+    linear-gradient(to right, #1f1f1f 1px, transparent 1px),
+    linear-gradient(to bottom, #1f1f1f 1px, transparent 1px);
+  --dot-grid-size: 24px 24px;
+
+  /* 斑马纹：比面板底沉半档的零彩度灰 */
+  --zebra: #101010;
+
+  /* 阴影：贴面层一律压平（AR TEX 无光晕），只留浮层位差 */
+  --sh-1: none;
+  --sh-2: 0 10px 26px rgba(0, 0, 0, 0.62);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --dur-breathe: 1.6s;
+  --dur-toast: 0.18s;
+}
+
+/* --------------------------------------------------- 底座：压平与网格 */
+html[data-artex] body {
+  background-color: var(--s0);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 内容区：24px 网格用 --dot-grid 双令牌换笔触，.content 本身不动 */
+html[data-artex] .content {
+  background-attachment: local;
+}
+
+/* 壳层实底：侧栏 / 顶栏保持纯底，网格只铺内容区地板 */
+html[data-artex] .sidebar,
+html[data-artex] .topbar {
+  background-color: var(--s0);
+}
+html[data-artex] .sidebar { border-right: 1px solid var(--ln-1); }
+
+/* 顶栏页题：h1 在 flex 行内不能带 artex 的下外边距 */
+html[data-artex] .topbar .view-title {
+  margin: 0;
+  font-size: var(--fs-15);
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------- 装饰 · 品牌 45° 铭牌 */
+html[data-artex] .brand {
+  position: relative;
+  padding-bottom: 18px;
+}
+html[data-artex] .brand::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  width: 64px;
+  height: 3px;
+  background-image: repeating-linear-gradient(45deg, var(--tx-1) 0 5px, transparent 5px 11px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+html[data-artex] .brand-name { letter-spacing: 0.02em; }
+html[data-artex] .brand-sub { color: var(--tx-3); }
+html[data-artex] .brand-mark { color: var(--tx-1); }
+
+/* ------------------------------------- 装饰 · 卡片：隐形描边 + 12px 角标括号 */
+html[data-artex] .panel,
+html[data-artex] .stat-card,
+html[data-artex] .confirm-box {
+  position: relative;
+  background: var(--s2);
+  border: 1px solid var(--ln-1);
+  border-radius: var(--r-3);
+  box-shadow: none;
+}
+html[data-artex] .panel::before,
+html[data-artex] .panel::after,
+html[data-artex] .stat-card::before,
+html[data-artex] .stat-card::after,
+html[data-artex] .confirm-box::before,
+html[data-artex] .confirm-box::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--tx-1);
+  border-style: solid;
+  opacity: 0.18;
+  transition: opacity var(--dur-toast) ease;
+  pointer-events: none;
+  z-index: 1;
+}
+html[data-artex] .panel::before,
+html[data-artex] .stat-card::before,
+html[data-artex] .confirm-box::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+html[data-artex] .panel::after,
+html[data-artex] .stat-card::after,
+html[data-artex] .confirm-box::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 1px 1px 0;
+}
+html[data-artex] .panel:hover::before,
+html[data-artex] .panel:hover::after,
+html[data-artex] .stat-card:hover::before,
+html[data-artex] .stat-card:hover::after {
+  opacity: 0.6;
+}
+
+/* ------------------------------- 装饰 · 分组标题：// 前缀（替掉青色短刻度） */
+html[data-artex] .panel-title::before {
+  content: "//";
+  width: auto;
+  height: auto;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  letter-spacing: 0.06em;
+  color: var(--tx-3);
+  opacity: 1;
+}
+html[data-artex] .panel-title {
+  gap: 6px;
+  font-size: var(--fs-12);
+  letter-spacing: 0.08em;
+  color: var(--tx-2);
+}
+html[data-artex] .wl-title::before {
+  content: "// ";
+  font-family: var(--font-mono);
+  opacity: 0.55;
+}
+
+/* ------------------------------------------- 装饰 · 侧栏选中：左导轨 */
+html[data-artex] .nav-item {
+  border-radius: var(--r-1);
+  box-shadow: inset 2px 0 0 0 transparent;
+  transition: background var(--dur-toast) ease, box-shadow var(--dur-toast) ease;
+}
+/* 旧体系的 3px 外挂青色激活轨在零彩度下会与 insets 导轨叠成双杠，摘掉 */
+html[data-artex] .nav-item.active::before {
+  content: none;
+  display: none;
+}
+html[data-artex] .nav-item.active {
+  background: var(--acc-bg);
+  color: var(--tx-1);
+  box-shadow: inset 2px 0 0 0 var(--tx-1);
+}
+html[data-artex] .nav-item.active svg { color: var(--tx-1); }
+html[data-artex] .nav-item.active kbd { color: var(--tx-2); border-color: var(--acc-lo); }
+html[data-artex] .nav-item kbd { opacity: 0.85; }
+
+/* --------------------------------------------- 装饰 · 按钮：ghost + 切角 */
+html[data-artex] .btn {
+  background: transparent;
+  border: 1px solid var(--ln-2);
+  border-radius: var(--r-2);
+  color: var(--tx-1);
+  font-family: var(--font-ui);
+}
+html[data-artex] .btn:hover {
+  background: var(--s3);
+  border-color: var(--tx-3);
+}
+/* 实心主按钮：8px 切角，墨底墨字，AR TEX 唯一的高对比实心件 */
+html[data-artex] .btn-primary,
+html[data-artex] a.btn-primary {
+  background: var(--acc);
+  border: 1px solid var(--acc);
+  border-radius: var(--r-2);
+  color: var(--acc-ink);
+  font-weight: 600;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+html[data-artex] .btn-primary:hover,
+html[data-artex] a.btn-primary:hover {
+  background: var(--acc-hi);
+  border-color: var(--acc-hi);
+}
+html[data-artex] .btn-danger {
+  color: var(--err);
+  border-color: var(--err-lo);
+  background: transparent;
+}
+html[data-artex] .btn-danger:hover {
+  color: var(--err);
+  background: var(--err-bg);
+  border-color: var(--err);
+}
+
+/* --------------------------------------- 装饰 · 输入井：左侧 2px 导轨 */
+html[data-artex] .input {
+  background: var(--s0);
+  border: 1px solid var(--ln-2);
+  border-radius: var(--r-2);
+  color: var(--tx-1);
+  box-shadow: inset 2px 0 0 0 #5a5a5a;
+}
+html[data-artex] .input:focus {
+  outline: none;
+  border-color: var(--tx-1);
+  box-shadow: inset 2px 0 0 0 var(--tx-1), 0 0 0 1px var(--tx-1);
+}
+html[data-artex] select.input { cursor: pointer; }
+html[data-artex] select.input option { background: var(--s1); color: var(--tx-1); }
+
+/* ------------------------------------------- 装饰 · 表头：等宽大写 11px */
+html[data-artex] table.data thead th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+  border-bottom: 1px solid var(--ln-2);
+}
+html[data-artex] table.data td { border-bottom: 1px solid var(--ln-1); }
+html[data-artex] table.data tbody tr:hover td { background: var(--s3); }
+html[data-artex] table.data tbody tr:hover td:first-child {
+  box-shadow: inset 2px 0 0 var(--ln-3);
+}
+
+/* ---------------------------------------- 状态徽标 / 数字：等宽 + 表格数字 */
+html[data-artex] .chip {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  letter-spacing: 0.04em;
+  border-radius: var(--r-full);
+}
+html[data-artex] .chip .dot { border-radius: var(--r-full); }
+html[data-artex] .mono,
+html[data-artex] td.mono,
+html[data-artex] td.num,
+html[data-artex] .stat-num,
+html[data-artex] .pager-info,
+html[data-artex] kbd {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------- 装饰 · 日志凹井：沉到画布 + 左导轨 */
+html[data-artex] .logview {
+  background: var(--s0);
+  border: 1px solid var(--ln-1);
+  border-left: 2px solid var(--ln-3);
+  border-radius: var(--r-2);
+  color: var(--tx-2);
+}
+
+/* ---------------------------------------------- 授权白名单框：左侧警示导轨 */
+html[data-artex] .whitelist-box {
+  background: var(--s1);
+  border: 1px solid var(--ln-1);
+  border-left: 2px solid var(--warn);
+  border-radius: var(--r-2);
+}
+
+/* ---------------------------------------------------- 浮层：toast / 确认 */
+html[data-artex] .toast {
+  background: var(--s3);
+  border: 1px solid var(--ln-2);
+  border-radius: var(--r-2);
+  color: var(--tx-1);
+}
+/* 状态退明度后，成功件不再靠色相，字回落主文 */
+html[data-artex] .toast.ok { background: var(--ok-bg); border-color: var(--ok-lo); color: var(--tx-1); }
+html[data-artex] .toast.err { background: var(--err-bg); border-color: var(--err-lo); color: var(--err); }
+html[data-artex] .confirm-scrim { background: var(--scrim); }
+
+/* ------------------------------------------------------------ 收尾细节 */
+html[data-artex] .empty-hint { color: var(--tx-3); }
+html[data-artex] .field-hint { color: var(--tx-3); }
+html[data-artex] .kv-grid .k { color: var(--tx-3); }
+html[data-artex] .panel-foot,
+html[data-artex] .submit-note,
+html[data-artex] .side-note { color: var(--tx-3); }
+html[data-artex] .stat-label { color: var(--tx-3); letter-spacing: 0.08em; }
+html[data-artex] ::selection { background: #3a3a3a; color: #ffffff; }
+
+/* ---------------------------------------------------------------------------
+   AR TEX 收尾修正（2026-11-19）：原体系在 .content 上还有一层 --dot-grid 线阵，
+   与 AR TEX 的 24px 网格叠在一起会让底纹明显变亮（实测 .content 上是纯色
+   rgb(31,31,31) 线条，比 body 那层 60% 混合的线条重一档）。这里只保留 AR TEX
+   那一层，网格强度回到 lance 的观感。
+   --------------------------------------------------------------------------- */
+html body .content,
+html body .main,
+html body .view {
+  background-image: none !important;
+}
