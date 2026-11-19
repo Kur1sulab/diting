@@ -81,6 +81,8 @@ func runTyposquat(rest []string) int {
 	enrichMin := fs.Int("enrich-min-score", 40, "参与 RDAP 富化的最低分")
 	noPinyin := fs.Bool("no-pinyin-fuzz", false, "不对拼音词干再跑核心 fuzzer（省配额）")
 	asJSON := fs.Bool("json", false, "以 JSON 输出整轮报告")
+	exportIOC := fs.String("export-ioc", "", "导出心之壁 /api/intel/import 可直接导入的 IOC CSV（路径；- 为 stdout）")
+	exportMin := fs.Int("export-min-score", 40, "导出 IOC 的最低风险分")
 
 	usage := "typosquat -d <domain|品牌> [--tlds com,cn] [--qps 20] [--workers 16] " +
 		"[--state <dir>] [--whitelist <file>] [--recheck 168h] [--enrich] [--json]"
@@ -175,6 +177,29 @@ func runTyposquat(rest []string) int {
 		return 0
 	}
 
+	// IOC 导出：把台账里已注册、非白名单、分数达标的仿冒域转成心之壁可导入的 CSV。
+	// 置信度刻意压低——仿冒域只是「疑似钓鱼资产」，进防御侧应作观察级情报，
+	// 要抬到 critical 必须人工确认，否则一次误判就把正常合作域名封掉。
+	if *exportIOC != "" {
+		led, lerr := typosquat.LoadLedger(rep.LedgerPath, brand)
+		if lerr != nil {
+			fmt.Printf("[!] 台账重载失败: %v\n", lerr)
+			return 1
+		}
+		csvText, n := buildIOCExport(led, brand, *exportMin)
+		if *exportIOC == "-" {
+			fmt.Print(csvText)
+			return 0
+		}
+		if werr := os.WriteFile(*exportIOC, []byte(csvText), 0o600); werr != nil {
+			fmt.Printf("[!] 写 IOC 文件失败: %v\n", werr)
+			return 1
+		}
+		fmt.Printf("[+] 已导出 %d 条 IOC → %s\n", n, *exportIOC)
+		fmt.Printf("    导入心之壁：POST /api/intel/import {\"text\": <文件内容>, \"source\": \"diting.typosquat\"}\n")
+		return 0
+	}
+
 	fmt.Printf("[*] 汇洞监控：%s\n", rep.Brand)
 	fmt.Printf("[*] 台账：%s\n", rep.LedgerPath)
 	fmt.Printf("[*] 候选 %d / 白名单排除 %d / 本轮判活 %d / 台账未变跳过 %d\n",
@@ -213,4 +238,33 @@ func runTyposquat(rest []string) int {
 	fmt.Printf("\n[*] 未注册排列 ≠ 安全，台账会持续监控；合法相似域用 --whitelist 排除。\n")
 	fmt.Printf("[*] 增量：下一轮同命令只查新增/变化项；--recheck 168h 可定期重查未注册项。\n")
 	return 0
+}
+
+// buildIOCExport 把台账转成心之壁 import_text 可消费的 CSV：type,value,note,confidence。
+//
+// 置信度刻意保守：仿冒域只是「疑似」资产，进防御侧应当作观察级情报——
+// score ≥ 60 给 medium，其余给 low，**永远不给 high/critical**。
+// 理由：防御侧把 low/medium 当作观察项，要抬到封禁必须人工确认；而一次误判
+// （合作方防御性注册、无关同名词）若直接进 critical，封掉的是正常业务域名，
+// 代价远高于漏掉一条观察。这是总纲 2.1「防误封优先」在跨产品链路里的落地。
+func buildIOCExport(led *typosquat.Ledger, brand string, minScore int) (string, int) {
+	var b strings.Builder
+	n := 0
+	for _, e := range led.SortedEntries() {
+		if !e.Resolved || e.Whitelisted || e.Score < minScore {
+			continue
+		}
+		conf := "low"
+		if e.Score >= 60 {
+			conf = "medium"
+		}
+		first := "unknown"
+		if !e.FirstSeen.IsZero() {
+			first = e.FirstSeen.Format("2006-01-02")
+		}
+		note := fmt.Sprintf("typosquat %s score=%d level=%s mx=%v since=%s", brand, e.Score, e.Level, e.HasMX, first)
+		fmt.Fprintf(&b, "domain,%s,%s,%s\n", e.Domain, note, conf)
+		n++
+	}
+	return b.String(), n
 }
