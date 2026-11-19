@@ -70,7 +70,8 @@ def _from_crtsh(domain: str, tries: int = 3) -> list:
             # 原样进 subdomains.txt 会污染产物与下游解析——剔 <0x20 与 0x7f。
             # 剔除时机在 strip/lower/lstrip 之后，与 Go collectNames 同位（parity）。
             name = "".join(ch for ch in name if ord(ch) >= 0x20 and ord(ch) != 0x7F)
-            if name.endswith(domain.lower()):
+            # "." 边界归属：防 notexample.com 误归 example.com（与 Go collectNames 同步）
+            if name == domain.lower() or name.endswith("." + domain.lower()):
                 subs.add(name)
     return sorted(subs)
 
@@ -88,7 +89,8 @@ def _from_certspotter(domain: str) -> list:
     for row in data if isinstance(data, list) else []:
         for name in row.get("dns_names", []):
             name = name.strip().lower().lstrip("*.")
-            if name.endswith(domain.lower()):
+            # "." 边界归属：防 notexample.com 误归 example.com（与 Go collectNames 同步）
+            if name == domain.lower() or name.endswith("." + domain.lower()):
                 subs.add(name)
     return sorted(subs)
 

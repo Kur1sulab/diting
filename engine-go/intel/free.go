@@ -16,6 +16,17 @@ import (
 // 全部无需凭据，默认参与采集；外层通过 Options.Sources 可单独关掉。
 // 返回的都是「域名/主机名」级线索，不带端口协议时 Port=0（不臆造）。
 
+// inScope 资产归属边界：name 必须是 target 的 apex 本身或真子域（以 "." 分隔）。
+// 裸 HasSuffix(name, target) 会把 notexample.com 误收为 example.com 的子域——
+// 多 SAN 证书（共享主机/CDN）的 name_value/dns_names 与被动 DNS 数据常带这类
+// 形似 apex 的无关域，混入 assets.json/assets.txt 后下游 verify/portscan/report
+// 会打到范围外资产。与 jsintel 的域归属判定（h == t || HasSuffix(h, "."+t)）同规则。
+// 调用方保证 name 已 lower；target 在此归一。
+func inScope(name, target string) bool {
+	t := strings.ToLower(target)
+	return name == t || strings.HasSuffix(name, "."+t)
+}
+
 // queryCrtSh 证书透明日志。crt.sh 响应慢（实测 15~25s），单请求超时放宽。
 // GET https://crt.sh/?q=%25.<domain>&output=json
 func queryCrtSh(ctx context.Context, target string, o Options) ([]Record, error) {
@@ -43,7 +54,7 @@ func queryCrtSh(ctx context.Context, target string, o Options) ([]Record, error)
 		for _, name := range strings.Split(r.NameValue, "\n") {
 			name = strings.ToLower(strings.TrimSpace(name))
 			name = strings.TrimPrefix(name, "*.")
-			if name == "" || !strings.HasSuffix(name, strings.ToLower(target)) {
+			if name == "" || !inScope(name, target) {
 				continue
 			}
 			if _, ok := set[name]; !ok {
@@ -76,7 +87,7 @@ func queryCertSpotter(ctx context.Context, target string, o Options) ([]Record, 
 	for _, r := range rows {
 		for _, n := range r.DNSNames {
 			n = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(n), "*."))
-			if n != "" && strings.HasSuffix(n, strings.ToLower(target)) {
+			if n != "" && inScope(n, target) {
 				if _, ok := set[n]; !ok {
 					set[n] = r.NotBefore
 				}
@@ -106,7 +117,7 @@ func queryHackerTarget(ctx context.Context, target string, o Options) ([]Record,
 			continue
 		}
 		h, ip := strings.ToLower(parts[0]), parts[1]
-		if h == "" || !strings.HasSuffix(h, strings.ToLower(target)) {
+		if h == "" || !inScope(h, target) {
 			continue
 		}
 		out = append(out, Record{Source: "hackertarget", Host: h, Domain: target, IP: ip})
@@ -158,7 +169,7 @@ func queryRapidDNS(ctx context.Context, target string, o Options) ([]Record, err
 	seen := map[string]bool{}
 	for _, row := range parseRapidDNS(body) {
 		host := strings.ToLower(strings.TrimSpace(row[0]))
-		if host == "" || !strings.HasSuffix(host, strings.ToLower(target)) || seen[host] {
+		if host == "" || !inScope(host, target) || seen[host] {
 			continue
 		}
 		seen[host] = true
@@ -200,7 +211,7 @@ func queryURLScan(ctx context.Context, target string, o Options) ([]Record, erro
 	var out []Record
 	for _, r := range data.Results {
 		d := strings.ToLower(strings.TrimSpace(r.Page.Domain))
-		if d == "" || !strings.HasSuffix(d, strings.ToLower(target)) {
+		if d == "" || !inScope(d, target) {
 			continue
 		}
 		out = append(out, Record{
@@ -233,7 +244,7 @@ func querySubdomainCenter(ctx context.Context, target string, o Options) ([]Reco
 	var out []Record
 	for _, n := range names {
 		n = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(n), "*."))
-		if n == "" || seen[n] || !strings.HasSuffix(n, strings.ToLower(target)) {
+		if n == "" || seen[n] || !inScope(n, target) {
 			continue
 		}
 		seen[n] = true

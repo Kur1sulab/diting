@@ -130,7 +130,7 @@ func fromCertspotterCtx(ctx context.Context, domain string) ([]string, error) {
 	return collectNames(len(data), func(i int) []string { return data[i].DnsNames }, domain), nil
 }
 
-// collectNames 共用清洗：strip → lower → 去左侧 .* → 剔控制字符 → endswith(domain)
+// collectNames 共用清洗：strip → lower → 去左侧 .* → 剔控制字符 → 按 "." 边界归属 domain
 // 过滤 → 排序去重。fix1（对抗 INFO）：crt.sh 返回数据实测内嵌控制字符（\x01\x02），
 // 原样进 subdomains.txt 会污染产物与下游解析——剔 <0x20 与 0x7f。剔除时机在
 // strip/lower/lstrip 之后，与 Python 侧同步加的清洗位置一致（保证 parity）。
@@ -148,7 +148,10 @@ func collectNames(n int, get func(int) []string, domain string) []string {
 				}
 				return r
 			}, name)
-			if name == "" || !strings.HasSuffix(name, suffix) || seen[name] {
+			// "." 边界归属：apex 或真子域。裸 HasSuffix 会把 notexample.com
+			// 误收为 example.com 的子域（多 SAN 证书常见），与 Python 侧同步。
+			inScope := name == suffix || strings.HasSuffix(name, "."+suffix)
+			if name == "" || !inScope || seen[name] {
 				continue
 			}
 			seen[name] = true
