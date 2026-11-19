@@ -110,10 +110,30 @@ fi
 echo "==> 复核：逐个资产确认 state=uploaded 且字节数符合"
 EXPECT=$(cd "${DIST}" && ls diting-darwin-arm64 diting-darwin-amd64 diting-linux-amd64 diting-linux-arm64 SHA256SUMS.txt)
 FAIL=0
+# 复核这一步是脚本的全部意义（防止「本地能跑、下载的人是坏的」），但它自己也走网络：
+# 实测在代理下偶发 `net/http: TLS handshake timeout` 直接非零退出，等于把已成功的发版
+# 判成失败。只对网络类错误重试，真·资产缺失/字节不符立刻失败——别把重试做成掩盖。
+gh_assets() {
+  local i out
+  for i in 1 2 3 4 5; do
+    if out=$(gh release view "${VERSION}" --json assets \
+               -q '.assets[] | "\(.name)\t\(.state) \(.size)"' 2>&1); then
+      printf '%s\n' "$out"
+      return 0
+    fi
+    case "$out" in
+      *timeout*|*"connection reset"*|*"TLS handshake"*|*"i/o timeout"*|*"502"*|*"503"*)
+        echo "    （复核请求第 $i 次失败：网络错误，重试）" >&2
+        sleep 3 ;;
+      *) printf '%s\n' "$out" >&2; return 1 ;;
+    esac
+  done
+  return 1
+}
+ASSETS="$(gh_assets)" || { echo "[!] 无法读取 Release 资产列表——发版可能成功，请手工复核" >&2; exit 1; }
 for name in $EXPECT; do
   want=$(wc -c < "${DIST}/$name" | tr -d ' ')
-  got=$(gh release view "${VERSION}" --json assets \
-        -q ".assets[] | select(.name==\"$name\") | \"\(.state) \(.size)\"")
+  got=$(printf '%s\n' "$ASSETS" | awk -F'\t' -v n="$name" '$1==n{print $2}')
   echo "    $name  want=$want  got=${got:-MISSING}"
   if [[ "$got" != "uploaded $want" ]]; then
     FAIL=1
