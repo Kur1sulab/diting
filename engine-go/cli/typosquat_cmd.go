@@ -149,11 +149,18 @@ func runTyposquat(rest []string) int {
 			fmt.Printf("[!] 台账重载失败，跳过 RDAP 富化: %v\n", lerr)
 		} else {
 			client := typosquat.NewRDAPClient(typosquat.RDAPOptions{CacheDir: stateDir})
-			n, eerr := typosquat.EnrichRDAP(ctx, led, client, *enrichMin, *enrichLimit, rep.LedgerPath)
-			if eerr != nil {
-				fmt.Printf("[!] RDAP 富化中断（已富化 %d 条）: %v\n", n, eerr)
-			} else {
-				fmt.Printf("[*] RDAP 富化 %d 条\n", n)
+			n, nf, eerr := typosquat.EnrichRDAP(ctx, led, client, *enrichMin, *enrichLimit, rep.LedgerPath)
+			noProxy := os.Getenv("HTTPS_PROXY") == "" && os.Getenv("https_proxy") == ""
+			switch {
+			case eerr != nil:
+				fmt.Printf("[!] RDAP 富化中断（成功 %d / 失败 %d）: %v\n", n, nf, eerr)
+			case nf > 0 && noProxy:
+				// 实测：国内直连 rdap.verisign.com（.com/.net 的 RDAP）12s 超时，
+				// 走代理 5s 返回。失败既不能落库也不能只打一个 0 条让用户猜。
+				fmt.Printf("[!] RDAP 成功 %d 条 / 失败 %d 条——.com/.net 的 RDAP 端点在国内常超时，\n", n, nf)
+				fmt.Printf("    设 HTTP(S)_PROXY 后重跑可补查（如 export HTTPS_PROXY=http://127.0.0.1:7897）\n")
+			default:
+				fmt.Printf("[*] RDAP 富化 %d 条（失败 %d）\n", n, nf)
 			}
 		}
 	}

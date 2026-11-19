@@ -210,9 +210,9 @@ func TestEnrichRDAPRescores(t *testing.T) {
 		Domain: "example.com", Fuzzers: []string{FuzzReplacement},
 		Resolved: true, HasMX: true, Ownership: OwnershipUnknown, Score: 68, Level: "high",
 	}
-	n, err := EnrichRDAP(context.Background(), led, c, 60, 5, "")
-	if err != nil || n != 1 {
-		t.Fatalf("富化应 1 条: n=%d err=%v", n, err)
+	n, failed, err := EnrichRDAP(context.Background(), led, c, 60, 5, "")
+	if err != nil || n != 1 || failed != 0 {
+		t.Fatalf("富化应 1 条 / 失败 0 条: n=%d failed=%d err=%v", n, failed, err)
 	}
 	e := led.Entries["example.com"]
 	if e.RDAP == nil || e.RDAP.RegisteredAt.IsZero() {
@@ -223,9 +223,37 @@ func TestEnrichRDAPRescores(t *testing.T) {
 		t.Fatalf("富化后应重算为 58/medium, got %d/%s", e.Score, e.Level)
 	}
 	// 再跑一次：已有注册日期 → 跳过
-	n2, _ := EnrichRDAP(context.Background(), led, c, 60, 5, "")
-	if n2 != 0 {
-		t.Fatal("已富化条目不应重复查询")
+	n2, f2, _ := EnrichRDAP(context.Background(), led, c, 60, 5, "")
+	if n2 != 0 || f2 != 0 {
+		t.Fatalf("已富化条目不应重复查询: n=%d failed=%d", n2, f2)
+	}
+}
+
+// TestEnrichRDAPFailureNotInflation 查询失败（超时/404/TLS）不得落库、不得重算分数。
+// 曾经的缺陷：失败时写入零值 RDAPInfo，Scoring 把 0001-01-01 当成「极老域名」，
+// 结果网络越差分数越高——失败变成加分项。
+func TestEnrichRDAPFailureNotInflation(t *testing.T) {
+	srv, _, _ := startRDAPStub(t)
+	c := testRDAPClient(t, srv, t.TempDir())
+	led := NewLedger("example.com")
+	// missing.com 在桩里返回 404（Lookup 会写 Error）
+	led.Entries["missing.com"] = &Entry{
+		Domain: "missing.com", Fuzzers: []string{FuzzReplacement},
+		Resolved: true, HasMX: false, Ownership: OwnershipUnknown, Score: 38, Level: "low",
+	}
+	n, failed, err := EnrichRDAP(context.Background(), led, c, 30, 5, "")
+	if err != nil {
+		t.Fatalf("不应返回错误: %v", err)
+	}
+	if n != 0 || failed != 1 {
+		t.Fatalf("应 0 条富化 / 1 条失败, got n=%d failed=%d", n, failed)
+	}
+	e := led.Entries["missing.com"]
+	if e.RDAP != nil {
+		t.Fatalf("查询失败不应写入 RDAP 结构: %+v", e.RDAP)
+	}
+	if e.Score != 38 || e.Level != "low" {
+		t.Fatalf("查询失败不应重算分数: %d/%s", e.Score, e.Level)
 	}
 }
 

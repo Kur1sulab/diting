@@ -28,17 +28,17 @@ type RunOptions struct {
 // RunReport 一轮监控的真实数字（可直接 JSON 导出）。
 type RunReport struct {
 	Brand       string        `json:"brand"`
-	Generated   int           `json:"generated"`    // 生成候选总数
-	Whitelisted int           `json:"whitelisted"`  // 白名单排除数
-	ToQuery     int           `json:"to_query"`     // 本轮实际判活数（增量）
-	Skipped     int           `json:"skipped"`      // 台账未变化跳过数
-	Stats       DNSStats      `json:"dns_stats"`    // DNS 配额消耗
-	Elapsed     time.Duration `json:"elapsed_ns"`   // 全轮耗时
-	LedgerPath  string        `json:"ledger_path"`  //
-	Top         []*Entry      `json:"top"`          // 分数最高的前 N 条
-	NewDomains  []string      `json:"new_domains"`  // 本轮新增域
-	Resolved    []string      `json:"resolved"`     // 本轮解析成功域
-	StartedAt   time.Time     `json:"started_at"`   //
+	Generated   int           `json:"generated"`   // 生成候选总数
+	Whitelisted int           `json:"whitelisted"` // 白名单排除数
+	ToQuery     int           `json:"to_query"`    // 本轮实际判活数（增量）
+	Skipped     int           `json:"skipped"`     // 台账未变化跳过数
+	Stats       DNSStats      `json:"dns_stats"`   // DNS 配额消耗
+	Elapsed     time.Duration `json:"elapsed_ns"`  // 全轮耗时
+	LedgerPath  string        `json:"ledger_path"` //
+	Top         []*Entry      `json:"top"`         // 分数最高的前 N 条
+	NewDomains  []string      `json:"new_domains"` // 本轮新增域
+	Resolved    []string      `json:"resolved"`    // 本轮解析成功域
+	StartedAt   time.Time     `json:"started_at"`  //
 }
 
 // RunDNS 跑一轮 DNS-only 监控并落台账。
@@ -137,8 +137,8 @@ func RunDNS(ctx context.Context, o RunOptions) (*RunReport, error) {
 // EnrichRDAP 可选富化：只对「已注册 + 分数 ≥ minScore」的条目查 RDAP，
 // 最多 limit 条（0=不限），全程限速。查完重算分数并保存台账。
 // 归属判定保守：RDAP 注册商/注册人信息只作展示，不自动改 Ownership
-//（品牌方归属应由白名单/人工确认，避免误判）。
-func EnrichRDAP(ctx context.Context, led *Ledger, client *RDAPClient, minScore, limit int, ledgerPath string) (enriched int, err error) {
+// （品牌方归属应由白名单/人工确认，避免误判）。
+func EnrichRDAP(ctx context.Context, led *Ledger, client *RDAPClient, minScore, limit int, ledgerPath string) (enriched int, failed int, err error) {
 	for _, e := range led.SortedEntries() {
 		if !e.Resolved || e.Whitelisted || e.Score < minScore {
 			continue
@@ -146,10 +146,18 @@ func EnrichRDAP(ctx context.Context, led *Ledger, client *RDAPClient, minScore, 
 		if e.RDAP != nil && !e.RDAP.RegisteredAt.IsZero() {
 			continue // 已有注册日期，跳过
 		}
-		if limit > 0 && enriched >= limit {
+		if limit > 0 && enriched+failed >= limit {
 			break
 		}
 		info := client.Lookup(ctx, e.Domain)
+		// 查询没拿到结论就既不落库也不重算分数：零值 RegisteredAt 会被
+		// Scoring 当成「极老域名」直接抬风险分——实测 exampel.com 因 TLS
+		// 握手超时，注册日写成 0001-01-01，分数反而比真查到注册日期的
+		// 同批域更高（68 vs 58）。网络失败绝不能变成加分项。
+		if info.Error != "" || info.RegisteredAt.IsZero() {
+			failed++
+			continue
+		}
 		e.RDAP = &info
 		in := ScoreInput{
 			RegisteredAt: info.RegisteredAt, HasMX: e.HasMX,
@@ -162,8 +170,8 @@ func EnrichRDAP(ctx context.Context, led *Ledger, client *RDAPClient, minScore, 
 	}
 	if ledgerPath != "" {
 		if err := led.Save(ledgerPath); err != nil {
-			return enriched, err
+			return enriched, failed, err
 		}
 	}
-	return enriched, nil
+	return enriched, failed, nil
 }
