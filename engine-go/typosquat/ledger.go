@@ -138,6 +138,15 @@ func Diff(led *Ledger, cands []Candidate, recheckTTL time.Duration, now time.Tim
 			toQuery = append(toQuery, c) // 来源变化
 			continue
 		}
+		// 判活失败（超时/连不上）不是结论：Resolved=false 且 NXDomain=false
+		// 意味着上一轮根本没拿到答案。这类条目必须下一轮无条件重查——
+		// 否则一次 DNS 抖动就能把该域永久钉成「未知」，而台账此后
+		// 一直显示「未变化」，漏报就此固化（实测：弱网下 145 个候选里
+		// 110 个超时，若不重查等于白跑一轮）。
+		if !e.Resolved && !e.NXDomain && !e.LastChecked.IsZero() {
+			toQuery = append(toQuery, c)
+			continue
+		}
 		if recheckTTL > 0 && !e.Resolved && now.Sub(e.LastChecked) > recheckTTL {
 			toQuery = append(toQuery, c) // 未注册≠安全：到期重查是否被抢注
 			continue

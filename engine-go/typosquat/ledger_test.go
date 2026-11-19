@@ -49,7 +49,9 @@ func TestDiffOnlyNewAndChanged(t *testing.T) {
 func TestDiffRecheckTTL(t *testing.T) {
 	led := NewLedger("example.com")
 	old := time.Now().AddDate(0, 0, -10)
-	led.Entries["nx.com"] = &Entry{Domain: "nx.com", Fuzzers: []string{FuzzOmission}, LastChecked: old, Resolved: false}
+	// NXDomain=true 表示「已确认该域不存在」，这才是可缓存结论的未注册项；
+	// 判活失败（Resolved/NXDomain 双 false）走另一条重查路径，见 TestDiffRetriesFailed。
+	led.Entries["nx.com"] = &Entry{Domain: "nx.com", Fuzzers: []string{FuzzOmission}, LastChecked: old, Resolved: false, NXDomain: true}
 	cands := []Candidate{{Domain: "nx.com", Fuzzers: []string{FuzzOmission}}}
 	// TTL=0：严格只查新增/变化 → 跳过
 	if tq, _ := Diff(led, cands, 0, time.Now()); len(tq) != 0 {
@@ -63,6 +65,45 @@ func TestDiffRecheckTTL(t *testing.T) {
 	led.Entries["nx.com"].Resolved = true
 	if tq, _ := Diff(led, cands, 7*24*time.Hour, time.Now()); len(tq) != 0 {
 		t.Fatal("已注册项不应因 TTL 重查")
+	}
+}
+
+// TestDiffRetriesFailed 判活失败（既未解析也未确认 NXDOMAIN）不能当结论：
+// recheckTTL=0 时也必须重查，否则一次 DNS 抖动就把该域永久钉成「未知」，
+// 台账此后一直显示「未变化」，漏报固化。
+func TestDiffRetriesFailed(t *testing.T) {
+	now := time.Now()
+	led := NewLedger("example.com")
+	// 上一轮超时：两个终态都没拿到
+	led.Entries["fail.com"] = &Entry{
+		Domain: "fail.com", Fuzzers: []string{FuzzReplacement},
+		FirstSeen: now, LastSeen: now, LastChecked: now.Add(-time.Hour),
+	}
+	// 明确不存在：可缓存
+	led.Entries["nx.com"] = &Entry{
+		Domain: "nx.com", Fuzzers: []string{FuzzReplacement},
+		FirstSeen: now, LastSeen: now, LastChecked: now.Add(-time.Hour), NXDomain: true,
+	}
+	// 已解析：可缓存
+	led.Entries["live.com"] = &Entry{
+		Domain: "live.com", Fuzzers: []string{FuzzReplacement},
+		FirstSeen: now, LastSeen: now, LastChecked: now.Add(-time.Hour), Resolved: true,
+	}
+	cands := []Candidate{
+		{Domain: "fail.com", Fuzzers: []string{FuzzReplacement}},
+		{Domain: "nx.com", Fuzzers: []string{FuzzReplacement}},
+		{Domain: "live.com", Fuzzers: []string{FuzzReplacement}},
+	}
+	tq, skipped := Diff(led, cands, 0, now)
+	if len(tq) != 1 || tq[0].Domain != "fail.com" {
+		t.Fatalf("recheckTTL=0 时应只有判活失败的 fail.com 重查, got %+v", tq)
+	}
+	if skipped != 2 {
+		t.Fatalf("应跳过 nx.com 与 live.com 共 2 项, got %d", skipped)
+	}
+	// 无 LastChecked 的新条目仍按「新增」走，不能因这条规则重复计数
+	if tq, _ := Diff(led, []Candidate{{Domain: "brand-new.com", Fuzzers: []string{FuzzOmission}}}, 0, now); len(tq) != 1 {
+		t.Fatal("新候选应进入重查")
 	}
 }
 
