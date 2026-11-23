@@ -137,7 +137,7 @@ chmod 600 ~/.diting/keys.env
 ```bash
 # 仓库内二进制 + PATH shim（改完源码 go build 即生效，不用重装）
 cd engine-go && go build -trimpath -buildvcs=false \
-  -ldflags "-s -w -X github.com/Kur1sulab/diting/engine-go/cli.Version=v3.1.1" -o ../diting ./cmd/diting
+  -ldflags "-s -w -X github.com/Kur1sulab/diting/engine-go/cli.Version=v4.0.4" -o ../diting ./cmd/diting
 # ~/.local/bin/diting 已是指向仓库二进制的 shim：
 #   #!/bin/sh
 #   exec "$HOME/tools/diting/diting" "$@"
@@ -156,9 +156,9 @@ mkdir -p ~/.diting && printf 'QUAKE_TOKEN=%s\n' '<token>' > ~/.diting/keys.env &
 ### 发版（四平台 + GitHub Release）
 
 ```bash
-./scripts/release.sh v3.1.2                        # 编译 4 平台 → SHA256SUMS → tag → push → Release
-./scripts/release.sh v3.1.2 --dry-run              # 只编译校验，不碰 git / GitHub
-./scripts/release.sh v3.1.2 --notes-file notes.md  # 自定义 Release 正文
+./scripts/release.sh v4.0.4                        # 编译 4 平台 → SHA256SUMS → tag → push → Release
+./scripts/release.sh v4.0.4 --dry-run              # 只编译校验，不碰 git / GitHub
+./scripts/release.sh v4.0.4 --notes-file notes.md  # 自定义 Release 正文
 ```
 
 脚本的硬门禁：**逐个资产回查 `state=uploaded` 且字节数与本地一致**，任一不符即非零退出——
