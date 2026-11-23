@@ -148,3 +148,39 @@
    再加一条**误报陷阱**（同类干净响应必须返回 nil）。
 3. `go test ./waf` —— `TestRuleTableSanity` 会拦住缺证据、枚举外厂商、
    cookie 前缀非小写这类手滑。
+
+## 8. 消费指引：指纹 → 拦截层 → 打法（给 Kara 选路用）
+
+指纹只回答「前面有东西」，不回答「怎么过」。真正决定打法的不是厂商名，而是**它在哪一层拦**。
+同一家厂商不同部署模式，分层可以完全不同——所以这里按「可观测特征」反推层，不按品牌背表。
+
+### 8.1 三层，先判层再谈绕过
+
+| 层 | 典型可观测特征 | 拦在哪 | 换 payload 有用吗 |
+|---|---|---|---|
+| **传输 / 网络层**（L3-L4、CDN 边缘） | 同一 IP 全端口 timeout；只回 `403` 且无厂商头；`Server` 被抹平；`cf-ray` 有但 `cf-mitigated` 无；纯 `BIGipServerpool_web`（F5 纯 LB） | 源 IP / ASN / geo / 速率 / TLS 指纹 | **没用**。要换出口 IP、降速率、改 TLS 栈（JA3/JA4），不是改 payload |
+| **应用层过滤器**（规则型 WAF） | 带厂商特征串：`x-mod-security`、`safedog`、`雷池/长亭`、`x-wa-info`、`x-iinfo`、`Incapsula incident ID`、`Your support ID is` | 正则 / 规则集（CRS）/ 解码链 | **有部分用**。归一化差异（编码、分块、参数污染、Content-Type 混淆）能绕；语义级不放行 |
+| **挑战 / 语义层**（bot 管理、RASP、人机校验） | `challenge=js_challenge`（`__jsl_clearance`、`cf-chl`、`acw_sc__v2`、瑞数 `$_ts`）、`challenge=captcha`（极验 / 顶象 / `initgeetest`）、`412 + <script>`、`202 + challenge` | 浏览器指纹 / JS 环境 / 行为 / 服务端 AST | **基本没用**。需要真浏览器上下文（无头带 JS、过验证码服务）或换攻击面 |
+
+判定口径：`challenge != none` 一律先按第 3 类处理——**这是脚本化成本最高的一档**，
+不要先花时间调 payload。
+
+### 8.2 落到 Kara 的动作
+
+```
+http.waf == null                      → 没 WAF，正常打
+vendor 有、challenge == none、high    → 第 2 类：先测归一化差异（编码/分块/参数污染），再谈 payload
+confidence == low（如纯 F5 LB）       → 只当「有负载均衡」，不要按 WAF 处理，避免自我惊吓
+challenge == js_challenge             → 第 3 类：要么上真浏览器，要么换入口；直接跑脚本会 100% 被拦
+challenge == captcha                  → 同上，且优先找「无验证码的同类接口」
+同一 host 多路径判出不同 vendor       → 说明路径级策略不同，按路径分别选路，别用全局结论
+```
+
+### 8.3 两条必须说清的话
+
+1. **`http.waf == null` 不等于没有防护**：它只表示这次响应没带可识别特征。
+   CDN 边缘拦截（第 1 类）经常不留任何厂商痕迹，只会让你的连接直接超时。
+   连续超时 + 无响应头，按第 1 类（网络层）处理。
+2. **置信度 low 不许当结论写进报告**：`low` 是「有一个弱特征」，可能是同名 cookie、也可能是
+   厂商在本行业务里的 CDN 而非防御。写报告要么升到 `high`（多特征互证 + evidence 三条以上），
+   要么只写「疑似，未确认」。
