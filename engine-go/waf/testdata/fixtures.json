@@ -1,0 +1,473 @@
+{
+  "note": "录制式 fixture：响应快照按真实产品的公开特征手工构造，不联网。vendor 为空表示「不应产生任何 waf 属性」。",
+  "cases": [
+    {
+      "name": "cloudflare-bot-challenge",
+      "desc": "Cloudflare Bot Management 拦在源站前，下发 cf-mitigated + __cf_bm",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "cloudflare",
+          "cf-ray": "8f2a1b3c4d5e-LAX",
+          "cf-mitigated": "challenge",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "cookies": [
+          "__cf_bm=.7Q2xYzAbC123; Path=/; HttpOnly; Secure; SameSite=None"
+        ],
+        "body": "<!DOCTYPE html><html><head><title>Just a moment...</title></head><body><div id=challenge-stage></div><script src=/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1></script></body></html>"
+      },
+      "want": {
+        "vendor": "cloudflare",
+        "confidence": "high",
+        "challenge": "js_challenge",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "cloudflare-cdn-only",
+      "desc": "只用 Cloudflare CDN 直通（无挑战）：仍应识别出 CF 在链路上，challenge=none",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "cloudflare",
+          "cf-ray": "8f2a1b3c4d5f-LAX",
+          "cf-cache-status": "HIT",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>Welcome</title></head><body>ok</body></html>"
+      },
+      "want": {
+        "vendor": "cloudflare",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "akamai-bot-manager",
+      "desc": "Akamai Bot Manager：_abck / bm_sz / ak_bmsc 三件套 + AkamaiGHost",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "AkamaiGHost",
+          "x-akamai-request-id": "1a2b3c4d",
+          "content-type": "text/html"
+        },
+        "cookies": [
+          "_abck=ABC~0~YAAQ; Path=/; Domain=.example.com",
+          "bm_sz=1A2B3C~YAAQ; Path=/; Domain=.example.com",
+          "ak_bmsc=1A2B3C4D5E; Path=/; Domain=.example.com"
+        ],
+        "body": "<html><head><title>Login</title></head><body><form></form></body></html>"
+      },
+      "want": {
+        "vendor": "akamai",
+        "confidence": "high",
+        "challenge": "js_challenge",
+        "min_evidence": 3
+      }
+    },
+    {
+      "name": "f5-asm-block",
+      "desc": "F5 BIG-IP ASM 拦截页：x-wa-info support ID + 官方拦截文案",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "nginx",
+          "x-wa-info": "{\"Code\":\"0x00000000\",\"Level\":\"Error\"}",
+          "content-type": "text/html"
+        },
+        "body": "<html><body><h1>The requested URL was rejected. Please consult with your administrator.</h1><p>Your support ID is: 1234567890123456789</p></body></html>"
+      },
+      "want": {
+        "vendor": "f5",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "f5-bigip-lb-only",
+      "desc": "只有 BIGipServer 持久化 Cookie（纯负载均衡，无 ASM）：诚实降级为 low",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "cookies": [
+          "BIGipServerpool_web=16777344.20480.0000; path=/"
+        ],
+        "body": "<html><head><title>App</title></head><body>ok</body></html>"
+      },
+      "want": {
+        "vendor": "f5",
+        "confidence": "low",
+        "challenge": "none",
+        "min_evidence": 1
+      }
+    },
+    {
+      "name": "imperva-incapsula",
+      "desc": "Imperva/Incapsula：x-iinfo + visid_incap_/incap_ses_ + incident ID",
+      "response": {
+        "status": 403,
+        "headers": {
+          "x-iinfo": "9-12345-12345678 P1234 N1 S0",
+          "x-cdn": "Incapsula",
+          "content-type": "text/html"
+        },
+        "cookies": [
+          "visid_incap_1234567=AbCdEf; Path=/; Domain=.example.com",
+          "incap_ses_123_4567=GhIjKl; Path=/; Domain=.example.com"
+        ],
+        "body": "<html><head><title>Request unsuccessful. Incapsula incident ID: 123-456-789</title></head><body></body></html>"
+      },
+      "want": {
+        "vendor": "imperva",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 3
+      }
+    },
+    {
+      "name": "aliyun-anti-bot",
+      "desc": "阿里云盾反爬：412 + acw_sc__v2 Cookie + 「请开启JavaScript并刷新该页」",
+      "response": {
+        "status": 412,
+        "headers": {
+          "server": "Tengine",
+          "content-type": "text/html"
+        },
+        "cookies": [
+          "acw_tc=0bc1d2e3f4; Path=/",
+          "acw_sc__v2=65f0a1b2c3d4; Path=/"
+        ],
+        "body": "<html><body><script>var arg1='6A2B3C4D5E';document.cookie='acw_sc__v2='+arg1;</script><noscript>请开启JavaScript并刷新该页</noscript></body></html>"
+      },
+      "want": {
+        "vendor": "aliyun",
+        "confidence": "high",
+        "challenge": "js_challenge",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "tencent-cloud-waf",
+      "desc": "腾讯云 WAF 拦截页：品牌文案 + waf.tencentcloud.com",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "nginx",
+          "x-nws-log-uuid": "8f7e6d5c-4b3a-2910",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>腾讯云 Web 应用防火墙</title></head><body><h1>您的访问请求被拦截</h1><p>事件 ID: 1234567890 · <a href=https://waf.tencentcloud.com/>腾讯云WAF</a></p></body></html>"
+      },
+      "want": {
+        "vendor": "tencent",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "safeline-challenge",
+      "desc": "长亭雷池 SafeLine：品牌文案双命中（SafeLine + 雷池）",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>SafeLine WAF</title></head><body><h1>长亭雷池 WAF</h1><p>您的请求被拦截</p><script src=/challenge/verify.js></script></body></html>"
+      },
+      "want": {
+        "vendor": "chaitin-safeline",
+        "confidence": "high",
+        "challenge": "js_challenge",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "safedog-block",
+      "desc": "安全狗：Server 头 + 品牌域名 + 中文品牌三重互证",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "safedog/4.0",
+          "content-type": "text/html"
+        },
+        "body": "<html><body><h1>您的请求被安全狗拦截</h1><p>详情见 www.safedog.cn</p></body></html>"
+      },
+      "want": {
+        "vendor": "safedog",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "360-jsl-clearance",
+      "desc": "360 网站卫士/加速乐 JS 挑战首跳：正文写 __jsl_clearance 后重载（单强特征=medium）",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><body><script>var _0x1a2b='__jsl_clearance=1234567890.123|0|abc';document.cookie=_0x1a2b+';path=/';location.href=location.pathname+location.search;</script></body></html>"
+      },
+      "want": {
+        "vendor": "360",
+        "confidence": "medium",
+        "challenge": "js_challenge",
+        "min_evidence": 1
+      }
+    },
+    {
+      "name": "aws-cloudfront-block",
+      "desc": "AWS WAF 躲在 CloudFront 后：只有边缘特征，无 WAF 专属头 → 只能 medium",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "CloudFront",
+          "x-amz-cf-id": "AbCdEf123==",
+          "via": "1.1 abcdef.cloudfront.net (CloudFront)",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>403 Forbidden</title></head><body><h1>403 Forbidden</h1>The request could not be satisfied.</body></html>"
+      },
+      "want": {
+        "vendor": "aws",
+        "confidence": "medium",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "modsecurity-crs",
+      "desc": "ModSecurity + CRS：x-mod-security 头 + 官方错误页文案",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "Apache",
+          "x-mod-security": "1",
+          "content-type": "text/html"
+        },
+        "body": "<html><body><h1>Not Acceptable!</h1><p>This error was generated by Mod_Security.</p></body></html>"
+      },
+      "want": {
+        "vendor": "modsecurity",
+        "confidence": "high",
+        "challenge": "none",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "river-security-bot",
+      "desc": "瑞数信息 bot 挑战（重点）：FSSBBIl1UgzbN7N Cookie 前缀 + $_ts 运行时 + 202",
+      "response": {
+        "status": 202,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "cookies": [
+          "FSSBBIl1UgzbN7N80T=4g2h1j0k9l8m7n6; path=/",
+          "FSSBBIl1UgzbN7N80S=1a2b3c4d5e6f; path=/"
+        ],
+        "body": "<html><head><script>window.$_ts={b:['a1b2','c3d4'],f:function(){return 1}};</script></head><body></body></html>"
+      },
+      "want": {
+        "vendor": "river-security",
+        "confidence": "high",
+        "challenge": "js_challenge",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "dingxiang-captcha",
+      "desc": "顶象验证码组件出现在登录页（单一强特征=medium，challenge=captcha）",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>登录</title></head><body><form></form><script src=https://cdn.dingxiang-inc.com/ctu-group/captcha-ui.js></script></body></html>"
+      },
+      "want": {
+        "vendor": "dinjie",
+        "confidence": "medium",
+        "challenge": "captcha",
+        "min_evidence": 1
+      }
+    },
+    {
+      "name": "geetest-captcha",
+      "desc": "极验验证码：static.geetest.com + initGeetest 双强特征",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>登录</title></head><body><div id=gt></div><script src=https://static.geetest.com/static/js/gt.0.4.9.js></script><script>initGeetest({gt:'abc123',challenge:'xyz'});</script></body></html>"
+      },
+      "want": {
+        "vendor": "geetest",
+        "confidence": "high",
+        "challenge": "captcha",
+        "min_evidence": 2
+      }
+    },
+    {
+      "name": "trap-nginx-default-403",
+      "desc": "误报陷阱：nginx 默认 403 页，不能判成任何 WAF（尤其不能判成 F5）",
+      "response": {
+        "status": 403,
+        "headers": {
+          "server": "nginx/1.24.0",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center><hr><center>nginx/1.24.0</center></body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-plain-nginx-200",
+      "desc": "误报陷阱：普通 nginx 站点（Server: nginx + PHP），必须返回 nil",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "x-powered-by": "PHP/8.1.2",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>Welcome to nginx!</title></head><body>It works!</body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-security-blog-mentions",
+      "desc": "误报陷阱：一篇讨论 WAF 的安全博客（大页面正文含 ModSecurity/SafeLine/雷池/Cloudflare），不能因正文提及就判 WAF",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html; charset=utf-8"
+        },
+        "body": "<html><head><title>主流 WAF 对比：Cloudflare、ModSecurity、SafeLine（雷池）、Imperva</title></head><body><article>本文对比 Cloudflare、ModSecurity CRS、长亭雷池 SafeLine、Imperva Incapsula 与 Akamai 的拦截策略。$_ts 与 FSSBBIl1UgzbN7N 是瑞数的特征。acw_sc__v2 属于阿里云盾。__jsl_clearance 属于 360 网站卫士。</article>",
+        "body_repeat": 40
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-apache-406-plain",
+      "desc": "误报陷阱：Apache 原生 406 页（无 ModSecurity 文案），不能判成 ModSecurity",
+      "response": {
+        "status": 406,
+        "headers": {
+          "server": "Apache/2.4.41 (Ubuntu)",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>406 Not Acceptable</title></head><body><h1>Not Acceptable!</h1><p>An appropriate representation of the requested resource could not be found on this server.</p></body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-404-access-denied",
+      "desc": "误报陷阱：自定义 404 页写了 Access Denied（状态码不在拦截集合），不能判成 unknown WAF",
+      "response": {
+        "status": 404,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>404</title></head><body><h1>Access Denied</h1><p>您访问的页面不存在</p></body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-captcha-word-only",
+      "desc": "误报陷阱：页面只出现 captcha 这个英文单词，没有任何厂商组件，不能判成极验/顶象",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><title>Feedback</title></head><body><form><label>Please enter the captcha code shown below</label><input name=code></form></body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-rest-api-202",
+      "desc": "误报陷阱：REST API 的 202 Accepted（瑞数典型状态码，但无任何瑞数特征），不能判成 river-security",
+      "response": {
+        "status": 202,
+        "headers": {
+          "server": "nginx",
+          "content-type": "application/json"
+        },
+        "body": "{\"task_id\":\"abc123\",\"status\":\"accepted\"}"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    },
+    {
+      "name": "trap-generic-challenge-js",
+      "desc": "误报陷阱：站点自带一个叫 challenge.js 的脚本，不能因此判成长亭雷池",
+      "response": {
+        "status": 200,
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html"
+        },
+        "body": "<html><head><script src=/static/challenge.js></script></head><body>ok</body></html>"
+      },
+      "want": {
+        "vendor": "",
+        "confidence": "",
+        "challenge": "",
+        "min_evidence": 0
+      }
+    }
+  ]
+}

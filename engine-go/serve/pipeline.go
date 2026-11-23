@@ -174,6 +174,12 @@ func (srv *Server) run(ctx context.Context, j *Job) {
 			res.Subs = rows
 			j.setStep("verify", StatusDone, fmt.Sprintf("%d 存活 / %d 总数", alive, len(rows)), alive, ms)
 			j.logf("ok", "存活验证完成：%d/%d 存活", alive, len(rows))
+			// WAF/bot 指纹（§3 P1）：把「被拦」和「不存在」区分开，控制台直接可见。
+			// 明细在 waf.json，这里只报一句话，避免日志刷屏。
+			if ws := subdomain.WAFSummary(rows); ws.Stats.WAFDetected > 0 {
+				j.logf("warn", "WAF/挑战命中 %d/%d：%s（被拦 ≠ 不存在，明细见 waf.json）",
+					ws.Stats.WAFDetected, ws.Stats.HTTPResponded, wafDigest(ws.Stats.ByVendor))
+			}
 			if len(rows) > 0 {
 				host = strings.TrimPrefix(rows[0].Host, "*.")
 			}
@@ -364,4 +370,18 @@ func shortHash(s string) string {
 		h /= uint32(len(alpha))
 	}
 	return string(b)
+}
+
+// wafDigest 把厂商分布压成一行 "cloudflare×3, unknown×1"（键序固定，日志可 diff）。
+func wafDigest(m map[string]int) string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		parts = append(parts, k+"×"+fmt.Sprintf("%d", m[k]))
+	}
+	return strings.Join(parts, ", ")
 }

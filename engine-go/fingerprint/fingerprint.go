@@ -13,6 +13,7 @@ import (
 
 	"github.com/Kur1sulab/diting/engine-go/jsonx"
 	"github.com/Kur1sulab/diting/engine-go/netutil"
+	"github.com/Kur1sulab/diting/engine-go/waf"
 )
 
 // Rule 单条指纹规则（Name/Where/Pattern/Type 与 Python dict 键一致）。
@@ -131,6 +132,13 @@ func RunFingerprintContext(ctx context.Context, rawURL, out string) {
 			HopCheck: netutil.HopPolicy(url), Ctx: ctx})
 	}
 	var body, headers string
+	var wafAttr *waf.Attribute
+	// 只要拿到了响应就判 WAF——包括 403/412/5xx。
+	// 以前这里把非 200 一律当「请求失败」，等于把「被 WAF 拦住」写成
+	// 「目标没响应」，这是漏扫里最贵的一类误判（调研总纲 §3 P1）。
+	if r.OK && r.Status != 0 {
+		wafAttr = waf.DetectFromResult(r.Status, r.Headers, r.Cookies, r.Body, r.FinalURL)
+	}
 	if r.OK && r.Status == 200 {
 		body = strings.ToLower(r.Body)
 		var lines []string
@@ -139,17 +147,40 @@ func RunFingerprintContext(ctx context.Context, rawURL, out string) {
 		}
 		headers = strings.ToLower(strings.Join(lines, "\n"))
 	} else if url != "" {
-		reason := r.Err
-		if reason == "" {
-			reason = strconv.Itoa(r.Status)
+		if wafAttr != nil {
+			// 被拦不是失败：把判定结果说清楚，别让使用者以为站点挂了。
+			fmt.Printf("[!] 指纹识别被拦截：HTTP %d，前面有 %s（被拦 ≠ 不存在）\n", r.Status, wafAttr.String())
+		} else {
+			reason := r.Err
+			if reason == "" {
+				reason = strconv.Itoa(r.Status)
+			}
+			fmt.Printf("[!] 指纹识别请求失败: %s\n", reason)
 		}
-		fmt.Printf("[!] 指纹识别请求失败: %s\n", reason)
 	}
 	hits := MatchHeaders(headers, body)
 	path, err := netutil.SafeWrite(out, "fingerprint.json", jsonx.Pretty(hits))
 	if err != nil {
 		fmt.Printf("[!] fingerprint.json 写盘失败: %v\n", err)
 		path = "-"
+	}
+	// WAF/bot 属性与 verify 步骤共用同一份 waf.json 契约，下游无需区分来源。
+	if r.OK && r.Status != 0 {
+		sum := waf.BuildSummary([]waf.Asset{{
+			Host:     url,
+			Scheme:   schemeOf(url),
+			Status:   r.Status,
+			FinalURL: r.FinalURL,
+			WAF:      wafAttr,
+		}}, waf.Stamp())
+		if _, werr := netutil.SafeWrite(out, "waf.json", jsonx.Pretty(sum)); werr != nil {
+			fmt.Printf("[!] waf.json 写盘失败: %v\n", werr)
+		}
+		if wafAttr != nil {
+			fmt.Printf("[!] WAF/挑战指纹：%s  证据: %s\n", wafAttr.String(), strings.Join(wafAttr.Evidence, "；"))
+		} else {
+			fmt.Println("[+] WAF/挑战指纹：未见特征")
+		}
 	}
 	names := make([]string, 0, len(hits))
 	for _, h := range hits {
@@ -160,4 +191,12 @@ func RunFingerprintContext(ctx context.Context, rawURL, out string) {
 		nameStr = "无"
 	}
 	fmt.Printf("[+] 指纹识别完成（%d 个命中: %s）-> %s\n", len(hits), nameStr, path)
+}
+
+// schemeOf 取 URL 的协议名，仅用于 waf.json 的资产字段（洗不出就留空）。
+func schemeOf(raw string) string {
+	if i := strings.Index(raw, "://"); i > 0 {
+		return raw[:i]
+	}
+	return ""
 }

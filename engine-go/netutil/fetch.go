@@ -60,7 +60,12 @@ type Result struct {
 	Ctype    string            `json:"ctype"`
 	Body     string            `json:"body"`
 	Headers  map[string]string `json:"headers"`
-	Err      string            `json:"error,omitempty"`
+	// Cookies 保留每一条 Set-Cookie 的原始行（未解析、未合并）。
+	// json:"-" 是刻意的：Headers 沿用 Python dict 的「同键多值后写覆盖」语义，
+	// 序列化形态必须与 Python 逐字节一致（parity），Cookie 明细只是 Go 侧
+	// 内部供 WAF 指纹用的旁路数据，不进任何对外 JSON。
+	Cookies []string `json:"-"`
+	Err     string   `json:"error,omitempty"`
 }
 
 // trunc 按字符截断（Python str[:n] 按字符计数）。
@@ -263,6 +268,12 @@ func Fetch(rawURL string, opt FetchOpt) Result {
 		for _, v := range vs {
 			res.Headers[lk] = v // 同键多值：后写覆盖，等价 Python dict 推导
 		}
+	}
+	// 旁路保留全部 Set-Cookie 原始行：上面那次覆盖会把 Cloudflare/瑞数这类
+	// 「一次下发多条 Cookie」的 WAF 指纹吃掉只剩最后一条，指纹判定必须看全量。
+	// 不进 JSON（json:"-"），故 parity 不受影响。
+	if sc := resp.Header.Values("Set-Cookie"); len(sc) > 0 {
+		res.Cookies = append([]string(nil), sc...)
 	}
 	return res
 }

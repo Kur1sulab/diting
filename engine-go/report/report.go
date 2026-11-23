@@ -104,6 +104,9 @@ func Collect(out, target string) map[string]any {
 		"dnsrec":     orMap(readJSON(filepath.Join(out, "dnsrec.json"))),
 		"whois":      orMap(readJSON(filepath.Join(out, "whois.json"))),
 		"geoasn":     orMap(readJSON(filepath.Join(out, "geoasn.json"))),
+		// WAF/bot 指纹汇总（§3 P1）：serve/CLI 的 verify 步骤产出，缺文件时为空 map，
+		// 报告侧按「没跑过 verify」处理，不编造结论。
+		"waf": orMap(readJSON(filepath.Join(out, "waf.json"))),
 	}
 	pattern := filepath.Join(out, "icp_*.json")
 	matches, _ := filepath.Glob(pattern)
@@ -123,6 +126,16 @@ func Collect(out, target string) map[string]any {
 		bundle["llm_summary"] = string(s)
 	}
 	return bundle
+}
+
+// sortedKeys 固定 map 键序，保证报告可 diff。
+func sortedKeys(m map[string]any) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func orMap(m map[string]any) map[string]any {
@@ -239,6 +252,67 @@ func RenderMD(b map[string]any) string {
 			}
 			if len(aliveRows) > 30 {
 				a(fmt.Sprintf("| … | 其余 %d 条见 `subdomains_live.json` | | |", len(aliveRows)-30))
+			}
+		}
+		// WAF / bot 挑战（调研总纲 §3 P1）。放在子域小节里而不是新开一章：
+		// 它是「存活」的一个属性，拆开会让读者以为这是另一件事。
+		// 只读 waf.json，不重新判定——报告与产物必须同源，不能各算一套。
+		if wm, ok := b["waf"].(map[string]any); ok && len(wm) > 0 {
+			if st, ok := wm["stats"].(map[string]any); ok {
+				if n := numOf(st["waf_detected"]); n > 0 {
+					a("### 2.1 WAF / bot 挑战\n")
+					a(fmt.Sprintf("- **%d/%d** 个有 HTTP 响应的资产命中 WAF 或 bot 挑战——**被拦 ≠ 不存在**",
+						n, numOf(st["http_responded"])))
+					if bv, ok := st["by_vendor"].(map[string]any); ok && len(bv) > 0 {
+						a("\n| 厂商 | 资产数 |")
+						a("|---|---|")
+						for _, k := range sortedKeys(bv) {
+							a(fmt.Sprintf("| %s | %d |", k, numOf(bv[k])))
+						}
+					}
+					if bc, ok := st["by_challenge"].(map[string]any); ok && len(bc) > 0 {
+						var parts []string
+						for _, k := range sortedKeys(bc) {
+							if k == "none" {
+								continue
+							}
+							parts = append(parts, fmt.Sprintf("%s %d 个", k, numOf(bc[k])))
+						}
+						if len(parts) > 0 {
+							a(fmt.Sprintf("\n- 挑战类型：%s", strings.Join(parts, "；")))
+						}
+					}
+					if assets := anyList(wm["assets"]); len(assets) > 0 {
+						a("\n| 资产 | 状态 | WAF | 置信度 | 挑战 | 证据 |")
+						a("|---|---|---|---|---|---|")
+						shown := assets
+						if len(shown) > 20 {
+							shown = shown[:20]
+						}
+						for _, it := range shown {
+							am, ok := it.(map[string]any)
+							if !ok {
+								continue
+							}
+							wf, _ := am["waf"].(map[string]any)
+							if wf == nil {
+								continue
+							}
+							ev := strList(wf["evidence"])
+							evs := strings.Join(ev, "；")
+							if er := []rune(evs); len(er) > 80 {
+								evs = string(er[:80]) + "…"
+							}
+							a(fmt.Sprintf("| %s | %d | %s | %s | %s | %s |",
+								strV(am["host"]), numOf(am["status"]), strV(wf["vendor"]),
+								strV(wf["confidence"]), strV(wf["challenge"]), evs))
+						}
+						if len(assets) > 20 {
+							a(fmt.Sprintf("| … | | | | | 其余 %d 条见 `waf.json` |", len(assets)-20))
+						}
+					}
+					a("")
+				}
 			}
 		}
 		a("")
